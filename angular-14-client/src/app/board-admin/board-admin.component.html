@@ -2,4 +2,47 @@
   <header class="jumbotron">
     <p>{{ content }}</p>
   </header>
+  <form
+      *ngIf="!isSuccessful"
+      name="organization_form"
+      (ngSubmit)="f.form.valid && onSetOrganizationCode()"
+      #f="ngForm"
+      novalidate
+    >
+      <div class="form-group">
+        <label for="organization_code">Organization code</label>
+        <input
+          type="text"
+          class="form-control"
+          name="organization_code"
+          [(ngModel)]="organization_form.organization_code"
+          required
+          minlength="6"
+          maxlength="20"
+          #organization_code="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && organization_code.errors }"
+        />
+        <div class="invalid-feedback" *ngIf="organization_code.errors && f.submitted">
+          <div *ngIf="organization_code.errors['required']">Organization code is required</div>
+          <div *ngIf="organization_code.errors['minlength']">
+            Organization code must be at least 6 characters
+          </div>
+          <div *ngIf="organization_code.errors['maxlength']">
+            Organization code must be at most 20 characters
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button class="btn btn-primary btn-block">Update organization code</button>
+      </div>
+
+      <div class="alert alert-warning" *ngIf="f.submitted && isSignUpFailed">
+        Organization code set failed!<br />{{ errorMessage }}
+      </div>
+    </form>
+
+    <div class="alert alert-success" *ngIf="isSuccessful">
+      Organization code set sucsessfully
+    </div>
 </div>

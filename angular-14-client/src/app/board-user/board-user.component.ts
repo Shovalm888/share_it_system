@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { UserService } from '../_services/user.service';
 
 @Component({
@@ -8,10 +8,17 @@ import { UserService } from '../_services/user.service';
 })
 export class BoardUserComponent implements OnInit {
   content?: string;
+  @Input() table_headers: any = []
+  @Input() users_info: any = []
 
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
+    this.table_headers = ["#", "First", "Last", "Handle"];
+    this.users_info = [
+      {"First": "Mark", "Last": "Otto", "Handle": "@mdo"},
+      {"First": "Jacob", "Last": "Thornton", "Handle": "@fat"}
+    ]
     this.userService.getUserBoard().subscribe({
       next: data => {
         this.content = data;

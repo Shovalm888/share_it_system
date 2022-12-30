@@ -73,7 +73,7 @@
           </div>
         </div>
       </div>
-      <!-- <div class="form-group">
+      <div class="form-group">
         <label for="organization_code">Organization code</label>
         <input
           type="text"
@@ -81,7 +81,7 @@
           name="organization_code"
           [(ngModel)]="form.organization_code"
           required
-          minlength="3"
+          minlength="6"
           maxlength="20"
           #organization_code="ngModel"
           [ngClass]="{ 'is-invalid': f.submitted && organization_code.errors }"
@@ -95,7 +95,7 @@
             Organiztion code must be at most 20 characters
           </div>
         </div>
-      </div> -->
+      </div>
       <div class="form-group">
         <button class="btn btn-primary btn-block">Sign Up</button>
       </div>

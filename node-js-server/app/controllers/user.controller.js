@@ -1,3 +1,7 @@
+const db = require("../models");
+const mongoose = require("mongoose");
+const OrganizationCode = db.organization_code;
+
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
 };
@@ -13,3 +17,18 @@ exports.adminBoard = (req, res) => {
 exports.moderatorBoard = (req, res) => {
   res.status(200).send("Moderator Content.");
 };
+
+exports.setOrganizationCode = (req, res) => {
+  const id = mongoose.Types.ObjectId('112211221122');
+  const new_code = req.body.organization_code;
+
+  OrganizationCode.findOneAndUpdate({_id: id}, {organization_code: new_code})
+  .then( results => {
+    res.status(200).send({message: results});
+    return;
+  })
+  .catch( err => {
+    res.status(500).send({message: err});
+    return;
+  })
+}

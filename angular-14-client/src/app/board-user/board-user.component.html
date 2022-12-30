@@ -1,5 +1,36 @@
 <div class="container">
   <header class="jumbotron">
-    <p>{{ content }}</p>
+    <div *ngIf="users_info.length > 0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" *ngFor="let attr_name of table_headers">
+              {{ attr_name }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user_info of users_info; let i=index">
+            <th scope="row">{{ i + 1 }}</th>
+            <td *ngFor="let attr_name of table_headers.slice(1) ">{{ user_info[attr_name] }}</td>
+          </tr>
+          <!-- <tr>
+            <th scope="row">2</th>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>@fat</td>
+          </tr>
+          <tr>
+            <th scope="row">3</th>
+            <td>Larry</td>
+            <td>the Bird</td>
+            <td>@twitter</td>
+          </tr> -->
+        </tbody>
+      </table>
+    </div>
+    <div class="jumbotron" class="text-justify" *ngIf="users_info.length == 0">
+      <i class="fa fa-align-center" aria-hidden="true">No data to display</i>
+    </div>
   </header>
 </div>

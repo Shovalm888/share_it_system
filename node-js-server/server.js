@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 const cookieSession = require("cookie-session");
 
 const dbConfig = require("./app/config/db.config");
@@ -8,8 +9,8 @@ const app = express();
 
 var corsOptions = {
   origin: ["http://localhost:4200"],
-  credentials: true
-}
+  credentials: true,
+};
 
 app.use(cors(corsOptions));
 
@@ -23,23 +24,25 @@ app.use(
   cookieSession({
     name: "bezkoder-session",
     secret: "COOKIE_SECRET", // should use as secret environment variable
-    httpOnly: true
+    httpOnly: true,
   })
 );
 
 const db = require("./app/models");
 const Role = db.role;
+const OrganizationCode = db.organization_code;
 
 db.mongoose
   .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
   })
   .then(() => {
     console.log("Successfully connect to MongoDB.");
     initial();
   })
-  .catch(err => {
+  .catch((err) => {
     console.error("Connection error", err);
     process.exit();
   });
@@ -63,8 +66,8 @@ function initial() {
   Role.estimatedDocumentCount((err, count) => {
     if (!err && count === 0) {
       new Role({
-        name: "user"
-      }).save(err => {
+        name: "user",
+      }).save((err) => {
         if (err) {
           console.log("error", err);
         }
@@ -73,8 +76,8 @@ function initial() {
       });
 
       new Role({
-        name: "moderator"
-      }).save(err => {
+        name: "moderator",
+      }).save((err) => {
         if (err) {
           console.log("error", err);
         }
@@ -83,13 +86,31 @@ function initial() {
       });
 
       new Role({
-        name: "admin"
-      }).save(err => {
+        name: "admin",
+      }).save((err) => {
         if (err) {
           console.log("error", err);
         }
 
         console.log("added 'admin' to roles collection");
+      });
+    }
+  });
+
+  OrganizationCode.estimatedDocumentCount((err, count) => {
+    if (!err && count === 0) {
+      const ORG_CODE = process.env.ORG_CODE || '111111';
+      new OrganizationCode({
+        _id: mongoose.Types.ObjectId("112211221122"),
+        organization_code: ORG_CODE,
+      }).save((err) => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log(
+          `added organization code ${ORG_CODE} to organization_code collection`
+        );
       });
     }
   });
