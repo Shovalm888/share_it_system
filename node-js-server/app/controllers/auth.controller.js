@@ -9,9 +9,14 @@ var bcrypt = require("bcryptjs");
 
 exports.signup = (req, res) => {
   const user = new User({
+    fname: req.body.fname,
+    lname: req.body.lname,
     username: req.body.username,
     email: req.body.email,
+    phone: req.body.phone,
     password: bcrypt.hashSync(req.body.password, 8),
+    job: req.body.job || '',
+    description: req.body.description || '',
   });
 
   OrganizationCode.find({ organization_code: req.body.organization_code })

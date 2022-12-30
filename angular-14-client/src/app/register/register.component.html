@@ -13,7 +13,53 @@
       novalidate
     >
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="fname">*First name</label>
+        <input
+          type="text"
+          class="form-control"
+          name="fname"
+          [(ngModel)]="form.fname"
+          required
+          minlength="2"
+          maxlength="20"
+          #fname="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && fname.errors }"
+        />
+        <div class="invalid-feedback" *ngIf="fname.errors && f.submitted">
+          <div *ngIf="fname.errors['required']">First name is required</div>
+          <div *ngIf="fname.errors['minlength']">
+            First name must be at least 2 characters
+          </div>
+          <div *ngIf="fname.errors['maxlength']">
+            First name must be at most 20 characters
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="lname">*Last name</label>
+        <input
+          type="text"
+          class="form-control"
+          name="lname"
+          [(ngModel)]="form.lname"
+          required
+          minlength="2"
+          maxlength="20"
+          #lname="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && lname.errors }"
+        />
+        <div class="invalid-feedback" *ngIf="lname.errors && f.submitted">
+          <div *ngIf="lname.errors['required']">Last name is required</div>
+          <div *ngIf="lname.errors['minlength']">
+            Last name must be at least 2 characters
+          </div>
+          <div *ngIf="lname.errors['maxlength']">
+            Last name must be at most 20 characters
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="username">*Username</label>
         <input
           type="text"
           class="form-control"
@@ -36,7 +82,7 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">*Email</label>
         <input
           type="email"
           class="form-control"
@@ -55,7 +101,27 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="phone">*Phone number</label>
+        <input
+          type="text"
+          class="form-control"
+          name="phone"
+          [(ngModel)]="form.phone"
+          required
+          minlength="10"
+          maxlength="10"
+          #phone="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && phone.errors }"
+        />
+        <div class="invalid-feedback" *ngIf="phone.errors && f.submitted">
+          <div *ngIf="phone.errors['required']">Phone number is required</div>
+          <div *ngIf="(phone.errors['minlength'] || phone.errors['maxlength'])">
+            Phone number must be 10 characters
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="password">*Password</label>
         <input
           type="password"
           class="form-control"
@@ -74,7 +140,7 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="organization_code">Organization code</label>
+        <label for="organization_code">*Organization code</label>
         <input
           type="text"
           class="form-control"
@@ -86,13 +152,52 @@
           #organization_code="ngModel"
           [ngClass]="{ 'is-invalid': f.submitted && organization_code.errors }"
         />
-        <div class="invalid-feedback" *ngIf="organization_code.errors && f.submitted">
-          <div *ngIf="organization_code.errors['required']">Organization code is required</div>
+        <div
+          class="invalid-feedback"
+          *ngIf="organization_code.errors && f.submitted"
+        >
+          <div *ngIf="organization_code.errors['required']">
+            Organization code is required
+          </div>
           <div *ngIf="organization_code.errors['minlength']">
             Organiztion code must be at least 3 characters
           </div>
           <div *ngIf="organization_code.errors['maxlength']">
             Organiztion code must be at most 20 characters
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="job">Job</label>
+        <input
+          type="text"
+          class="form-control"
+          name="job"
+          [(ngModel)]="form.job"
+          maxlength="50"
+          #job="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && job.errors }"
+        />
+        <div class="invalid-feedback" *ngIf="job.errors && f.submitted">
+          <div *ngIf="job.errors['maxlength']">
+            Job must be at most 50 characters
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input
+          type="text"
+          class="form-control"
+          name="description"
+          [(ngModel)]="form.description"
+          maxlength="50"
+          #description="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && description.errors }"
+        />
+        <div class="invalid-feedback" *ngIf="description.errors && f.submitted">
+          <div *ngIf="description.errors['maxlength']">
+            Description must be at most 50 characters
           </div>
         </div>
       </div>
