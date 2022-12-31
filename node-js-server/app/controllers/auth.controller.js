@@ -115,10 +115,17 @@ exports.signin = (req, res) => {
       req.session.token = token;
 
       res.status(200).send({
-        id: user._id,
-        username: user.username,
+        username:user.username,
         email: user.email,
-        roles: authorities,
+        fname: user.fname,
+        lname: user.lname,
+        phone: user.phone,
+        job: user.job,
+        description: user.description,
+        rank: user.rank,
+        roles:authorities,
+        id: user._id,
+       
       });
     });
 };
