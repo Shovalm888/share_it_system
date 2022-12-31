@@ -12,8 +12,18 @@
         <a href="/mod" class="nav-link" routerLink="mod">Moderator Board</a>
       </li>
       <li class="nav-item">
-        <a href="/user" class="nav-link" *ngIf="isLoggedIn" routerLink="user">User</a>
+        <a href="/user" class="nav-link" *ngIf="isLoggedIn" routerLink="user">Users</a>
       </li>
+      <li class="nav-item">
+        <a href="/tool" class="nav-link" *ngIf="isLoggedIn" routerLink="tools">Tools</a>
+      </li>
+      <li class="nav-item">
+        <a href="/import" class="nav-link" *ngIf="isLoggedIn" routerLink="import">Imports</a>
+      </li>
+      <li class="container">
+        <a class="navbar-brand" href="#">
+          <img src="assets/logo.jpg" alt="..." height="20">
+        </a>
     </ul>
 
     <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn">
