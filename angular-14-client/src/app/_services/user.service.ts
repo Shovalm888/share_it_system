@@ -26,4 +26,8 @@ export class UserService {
     return this.http.get(API_URL + 'admin', { responseType: 'text' });
   }
 
+  getAllUsers(): Observable<any> {
+    return this.http.get(API_URL + 'users', { responseType: 'text' });
+  }
+
 }

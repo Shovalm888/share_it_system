@@ -1,6 +1,7 @@
 const db = require("../models");
 const mongoose = require("mongoose");
 const OrganizationCode = db.organization_code;
+const User = db.user
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
@@ -25,10 +26,17 @@ exports.setOrganizationCode = (req, res) => {
   OrganizationCode.findOneAndUpdate({_id: id}, {organization_code: new_code})
   .then( results => {
     res.status(200).send({message: results});
-    return;
   })
   .catch( err => {
     res.status(500).send({message: err});
-    return;
-  })
-}
+  });
+};
+
+exports.users = (req, res) => {
+  User.find({},{} , {}).populate("roles", "name").then( users => {
+    res.status(200).send({users: users});
+  }).catch( err => {
+    res.status(500).send({message: err});
+  });
+  
+};

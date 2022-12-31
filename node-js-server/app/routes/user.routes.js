@@ -30,4 +30,10 @@ module.exports = function(app) {
   [authJwt.verifyToken, authJwt.isAdmin],
   controller.setOrganizationCode
   );
+
+  app.get(
+    "/api/test/users",
+    [authJwt.verifyToken],
+    controller.users
+  );
 };

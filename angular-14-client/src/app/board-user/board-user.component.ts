@@ -1,64 +1,112 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UserService } from '../_services/user.service';
+import {
+  AUTO_STYLE,
+  animate,
+  state,
+  style,
+  transition,
+  trigger
+} from '@angular/animations';
 
+const DEFAULT_DURATION = 300;
 
 @Component({
   selector: 'app-board-user',
   templateUrl: './board-user.component.html',
-  styleUrls: ['./board-user.component.css']
+  styleUrls: ['./board-user.component.css'],
+  animations: [
+    trigger('collapse', [
+      state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
+      transition('false => true', animate(DEFAULT_DURATION + 'ms ease-in')),
+      transition('true => false', animate(DEFAULT_DURATION + 'ms ease-out'))
+    ])
+  ]
 })
 export class BoardUserComponent implements OnInit {
-  content?: string;
+  err_msg?: string;
   table_attrs: any = {
-    headers: null,
-    card_attrs: null,
-    entry_info: null
+    headers: ["#", "First Name", "Last Name", "User Name"],
+    card_attrs: ["Phone Number", "Email", "Rank", "Roles", "Job", "Description"],
+    entry_info: []
   };
-  model_attr2headers = {
-    "fname": "First Name",
-    "lname": "Last Name",
-    "username": "User Name",
-    "phone": "Phone Number",
-    "email": "Email",
-    "rank": "Rank",
-    "job": "Job",
-    "description": "Decription"
+  model_attr2headers: any = {
+    "First Name": "fname",
+    "Last Name": "lname",
+    "User Name": "username",
+    "Phone Number": "phone",
+    "Email": "email",
+    "Rank": "rank",
+    "Roles": "_roles",
+    "Job": "job",
+    "Decription": "description",
   }
 
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
     
-    this.table_attrs.headers = ["#", "First", "Last", "Username"];
-    this.table_attrs.card_attrs = ["Phone", "Email", "Rank", "Job", "Description"];
-    this.table_attrs.entry_info = [
-      {
-        "fname": "Shoval", 
-        "lname": "Moshe", 
-        "username": "smoshe", 
-        "phone": "0544767814",
-        "email": "smoshe@nvidia.com",
-        "rank": "1",
-        "job": "",
-        "description": "Stub"
-      }
-    ];
-    this.userService.getUserBoard().subscribe({
+    this.userService.getAllUsers().subscribe({
       next: data => {
-        this.content = data;
+        this.table_attrs.entry_info = JSON.parse(data).users;
+        for(let i = 0; i < this.table_attrs.entry_info.length; i ++ ){
+          this.table_attrs.entry_info[i]._roles = "";
+          for(let j = 0; j < this.table_attrs.entry_info[i].roles.length; j++){
+            if( j == 0){
+              this.table_attrs.entry_info[i]._roles += `${this.table_attrs.entry_info[i].roles[j].name.toUpperCase()}`;
+            } else {
+              this.table_attrs.entry_info[i]._roles += `, ${this.table_attrs.entry_info[i].roles[j].name.toUpperCase()}`;
+            }
+            
+          }
+        }
       },
       error: err => {
         if (err.error) {
           try {
             const res = JSON.parse(err.error);
-            this.content = res.message;
+            this.err_msg = res.message;
           } catch {
-            this.content = `Error with status: ${err.status} - ${err.statusText}`;
+            this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
           }
         } else {
-          this.content = `Error with status: ${err.status}`;
+          this.err_msg = `Error with status: ${err.status}`;
         }
       }
     });
+
+    // this.table_attrs.entry_info = [
+    //   {
+    //     fname: "Shoval", 
+    //     lname: "Moshe", 
+    //     username: "smoshe", 
+    //     phone: "0544767814",
+    //     email: "smoshe@nvidia.com",
+    //     rank: "1",
+    //     job: "",
+    //     description: "Stub desc 1",
+    //     show: true
+    //   },
+    //   {
+    //     fname: "Ariel", 
+    //     lname: "Moshe", 
+    //     username: "amoshe", 
+    //     phone: "0544767814",
+    //     email: "ariel@nvidia.com",
+    //     rank: "4",
+    //     job: "",
+    //     description: "Stub desc 2",
+    //     show: true
+    //   }
+    // ];
+  }
+
+  collapse(i: any) {
+    this.table_attrs.entry_info[i].show = false;
+  }
+
+  expand(i: any) {
+    this.table_attrs.entry_info[i].show = true;
   }
 }
