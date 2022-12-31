@@ -61,6 +61,8 @@ export class BoardUserComponent implements OnInit {
             
           }
         }
+
+        this.capitalize_all_entries();
       },
       error: err => {
         if (err.error) {
@@ -75,31 +77,6 @@ export class BoardUserComponent implements OnInit {
         }
       }
     });
-
-    // this.table_attrs.entry_info = [
-    //   {
-    //     fname: "Shoval", 
-    //     lname: "Moshe", 
-    //     username: "smoshe", 
-    //     phone: "0544767814",
-    //     email: "smoshe@nvidia.com",
-    //     rank: "1",
-    //     job: "",
-    //     description: "Stub desc 1",
-    //     show: true
-    //   },
-    //   {
-    //     fname: "Ariel", 
-    //     lname: "Moshe", 
-    //     username: "amoshe", 
-    //     phone: "0544767814",
-    //     email: "ariel@nvidia.com",
-    //     rank: "4",
-    //     job: "",
-    //     description: "Stub desc 2",
-    //     show: true
-    //   }
-    // ];
   }
 
   collapse(i: any) {
@@ -108,5 +85,15 @@ export class BoardUserComponent implements OnInit {
 
   expand(i: any) {
     this.table_attrs.entry_info[i].show = true;
+  }
+
+  capitalize_all_entries() {
+    for(let i = 0; i < this.table_attrs.entry_info.length; i++){
+      for (const [key, value] of Object.entries(this.table_attrs.entry_info[i])) {
+        if (typeof value === 'string'){
+          this.table_attrs.entry_info[i][key] = value[0].toUpperCase() + value.slice(1);
+        }
+      }
+    }
   }
 }
