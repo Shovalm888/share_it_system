@@ -108,7 +108,7 @@ displayStyle = "none";
             this.load_tools();
           },
           error: err => {
-            this.errorMessage = err.error.message;
+            this.errorMessage = ('message' in err) ?  err.message: err.error.message;
             this.isAddingToolFailed = true;
             this.successMessage = '';
             this.isSuccessful = false;

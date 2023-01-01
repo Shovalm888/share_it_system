@@ -7,9 +7,9 @@ const Tool = mongoose.model(
     manufacturing_date: {type: String, required: true},
     status: {type: String, required: true},
     max_time_borrow: {type: String, required: true},
-    categories: {type: String, required: true},
-    producer: {type: String, required: true},
-    description: {type: String, required: false},
+    categories: {type: String, default: ''},
+    producer: {type: String, default: ''},
+    description: {type: String, default: ''},
     owner:
       {
         type: mongoose.Schema.Types.ObjectId,
