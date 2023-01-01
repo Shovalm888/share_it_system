@@ -1,5 +1,6 @@
 const db = require("../models");
 const Tool = db.tool
+const ToolRequest = db.tool_request;
 
 exports.tools = (req, res) => {
     Tool.find().populate("owner", "username").then( tools => {
@@ -45,6 +46,26 @@ exports.add = (req, res) => {
     
       tool.save().then( new_tool => {
         res.status(200).send({ message: "Tool was added successfully!" });
+        return;
+      }).catch( err => {
+        res.status(500).send({ message: err });
+        return;
+      });
+  };
+
+  exports.request = (req, res) => {
+
+    const tool_request = new ToolRequest({
+        // status: req.body.status,  defaule pending
+        borrow_duration: req.body.borrow_duration,
+        expiration_date: new Date(req.body.expiration_date),  // formatted like: "YYYY-MM-DD"
+        start_date: new Date(),
+        tool: req.body.tool,
+        requestor: req.body.requestor,
+      });
+    
+      tool_request.save().then( new_tool_request => {
+        res.status(200).send({ message: "Tool request was added successfully!" });
         return;
       }).catch( err => {
         res.status(500).send({ message: err });

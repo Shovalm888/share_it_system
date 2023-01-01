@@ -10,11 +10,13 @@ module.exports = function(app) {
     next();
   });
 
-  app.get("/api/tool/tools", controller.tools);
+  app.get("/api/tool/tools", [authJwt.verifyToken], controller.tools);
 
-  app.get("/api/tool/board-tool/:id", controller.tool_by_id);
+  app.get("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.tool_by_id);
 
   app.post("/api/tool/add", [authJwt.verifyToken], controller.add);
+
+  app.post("/api/tool/request/", [authJwt.verifyToken], controller.request);
 
   app.delete("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.delete_by_id);
 

@@ -9,6 +9,8 @@ db.user = require("./user.model");
 db.role = require("./role.model");
 db.organization_code = require("./organization_code.model");
 db.tool = require("./tool.model");
+db.tool_request = require("./tool_request.model");
+db.notification = require("./notification.model");
 
 db.ROLES = ["user", "admin", "moderator"];
 
