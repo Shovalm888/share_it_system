@@ -5,7 +5,7 @@
   <div class="alert alert-danger" role="alert" *ngIf="isAddingToolFailed && errorMessage">
     {{ errorMessage }}
   </div>
-  <i id="add_tool_icon" class="fa-solid fa-plus btn" (click)="openPopup()"
+  <i class="fa-solid fa-plus btn" (click)="openPopup()"
     ><br /><small class="">Add tool</small></i
   >
   <header class="">
@@ -28,12 +28,12 @@
               <div class="row">
                 <aside>
                   <i
-                    class="fa-solid fa-eye-slash btn"
+                    class="fa-solid fa-eye-slash btn mx-2 flex-fill bd-highlight"
                     *ngIf="ent_info.show"
                     (click)="collapse(i)"
                   ></i>
                   <i
-                    class="fa-solid fa-eye btn"
+                    class="fa-solid fa-eye btn mx-2 flex-fill bd-highlight"
                     *ngIf="!ent_info.show"
                     (click)="expand(i)"
                   ></i>
@@ -41,11 +41,13 @@
 
                 <button
                   *ngIf="ent_info.status === 'Available'"
-                  class="btn btn-primary"
+                  class="btn btn-primary mx-2 flex-fill bd-highlight"
                   (click)="borrow(i)"
                 >
                   Borrow
                 </button>
+
+                <a [routerLink]="['board-tool', ent_info._id]"  routerLinkActive="active" class="link-info mx-2 flex-fill bd-highlight" >Tool page</a>
               </div>
             </th>
           </tr>

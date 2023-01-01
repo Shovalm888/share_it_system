@@ -9,6 +9,7 @@ import {
 } from '@angular/animations';
 import { StorageService } from '../_services/storage.service';
 import { ToolService } from '../_services/tool.service';
+import { Router } from '@angular/router';
 
 const DEFAULT_DURATION = 300;
 
@@ -58,7 +59,7 @@ displayStyle = "none";
   errorMessage = '';
   successMessage = '';
 
-  constructor(private storageService: StorageService, private toolService: ToolService) { }
+  constructor(private storageService: StorageService, private toolService: ToolService, private router: Router) { }
 
   ngOnInit(): void {
     
@@ -115,6 +116,16 @@ displayStyle = "none";
     });
   }
 
+  go_to_tool(i: any) {
+    let tool_id = this.table_attrs.entry_info[i]._id;
+
+    this.router.navigate(["/board-tool/:id"], {queryParams: {id: tool_id}});
+    
+    
+    // const path = "/tools/tool_id/" + this.table_attrs.entry_info[i]._id
+    // return path;
+  }
+
   collapse(i: any) {
     this.table_attrs.entry_info[i].show = false;
   }
@@ -137,7 +148,7 @@ displayStyle = "none";
   capitalize_all_entries() {
     for(let i = 0; i < this.table_attrs.entry_info.length; i++){
       for (const [key, value] of Object.entries(this.table_attrs.entry_info[i])) {
-        if (typeof value === 'string'){
+        if (typeof value === 'string' && key != "description"){
           this.table_attrs.entry_info[i][key] = value[0].toUpperCase() + value.slice(1);
         }
       }

@@ -1,0 +1,79 @@
+<!-- display tool was not found in case of !tool_info -->
+<div class="container">
+  <div class="alert alert-success" *ngIf="isDeletedSucceed">
+    {{ delete_msg }}
+  </div>
+
+  <div class="alert alert-danger" *ngIf="isDeletedFailed">
+    {{ delete_msg }}
+  </div>
+
+  <div class="container">
+    <!-- Tool info + delete button -->
+    <div *ngIf="!isDeletedSucceed">
+      <div *ngFor="let item of tool_info | keyvalue">
+        Key: <b>{{ item.key }}</b> and Value: <b>{{ item.value }}</b>
+      </div>
+
+      <button
+        (click)="delete_tool()"
+        *ngIf="tool_info.is_my_tool"
+        class="btn btn-outline-danger"
+      >
+        Delete tool
+      </button>
+    </div>
+    <!-- Ask for borrow section -->
+    <div *ngIf="!tool_info.is_my_tool">
+        <form
+      *ngIf="has_open_request()"
+      name="form"
+      (ngSubmit)="f.form.valid && onSubmit()"
+      #f="ngForm"
+      novalidate
+    >
+      <div class="form-group">
+        <label for="expiration_date">Expiration Date</label>
+        <input
+          type="text"
+          class="form-control"
+          data-provide="datepicker"
+          name="expiration_date"
+          [(ngModel)]="form.expiration_date"
+          required
+          #expiration_date="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && expiration_date.errors }"
+        />
+        <div *ngIf="expiration_date.errors && f.submitted" class="invalid-feedback">
+            Expiration Date is required!
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="borrow_duration">Borrow Duration</label>
+        <input
+          type="borrow_duration"
+          class="form-control"
+          name="borrow_duration"
+          [(ngModel)]="form.borrow_duration"
+          required
+          #borrow_duration="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && borrow_duration.errors }"
+        />
+        <div *ngIf="borrow_duration.errors && f.submitted" class="invalid-feedback">
+          <div *ngIf="borrow_duration.errors['required']">Borrow Duration is required</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary btn-block">
+          Login
+        </button>
+      </div>
+      <div class="form-group">
+        <div *ngIf="f.submitted && isBorrowRequestFailed" class="alert alert-danger" role="alert">
+          Login failed: {{ borrowRequestErrorMessage }}
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>

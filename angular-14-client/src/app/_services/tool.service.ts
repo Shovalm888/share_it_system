@@ -35,4 +35,12 @@ export class ToolService {
   getAllTools(): Observable<any> {
     return this.http.get(TOOL_API + 'tools', { responseType: 'text' });
   }
+
+  getToolById(id: string): Observable<any> {
+    return this.http.get(TOOL_API + 'board-tool/' + id, { responseType: 'text' });
+  }
+
+  deleteToolById(id: string): Observable<any> {
+    return this.http.delete(TOOL_API + 'board-tool/' + id, { responseType: 'text' });
+  }
 }

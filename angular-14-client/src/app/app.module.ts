@@ -16,6 +16,7 @@ import { BoardUserComponent } from './board-user/board-user.component';
 
 import { httpInterceptorProviders } from './_helpers/http.interceptor';
 import { ToolsComponent } from './tools/tools.component';
+import { BoardToolComponent } from './board-tool/board-tool.component';
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { ToolsComponent } from './tools/tools.component';
     BoardModeratorComponent,
     BoardUserComponent,
     ToolsComponent,
+    BoardToolComponent,
 
   ],
   imports: [

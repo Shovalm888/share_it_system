@@ -12,6 +12,10 @@ module.exports = function(app) {
 
   app.get("/api/tool/tools", controller.tools);
 
+  app.get("/api/tool/board-tool/:id", controller.tool_by_id);
+
   app.post("/api/tool/add", [authJwt.verifyToken], controller.add);
+
+  app.delete("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.delete_by_id);
 
 };

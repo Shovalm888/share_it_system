@@ -90,7 +90,7 @@ export class BoardUserComponent implements OnInit {
   capitalize_all_entries() {
     for(let i = 0; i < this.table_attrs.entry_info.length; i++){
       for (const [key, value] of Object.entries(this.table_attrs.entry_info[i])) {
-        if (typeof value === 'string'){
+        if (typeof value === 'string' && value.length > 0){
           this.table_attrs.entry_info[i][key] = value[0].toUpperCase() + value.slice(1);
         }
       }

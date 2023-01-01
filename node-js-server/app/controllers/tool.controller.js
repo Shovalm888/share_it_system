@@ -9,6 +9,28 @@ exports.tools = (req, res) => {
     });
 };
 
+exports.tool_by_id = (req, res) => {
+    Tool.find({_id: req.params.id}).populate("owner", {username: 1, fname: 1, lname: 1}).then( tool => {
+        res.status(200).send({tool: tool});
+      }).catch( err => {
+        res.status(500).send({message: err});
+      });
+}
+
+exports.delete_by_id = (req, res) => {
+    
+    Tool.findOneAndRemove({_id: req.params.id, owner: {_id: req.userId}}).then( results => {
+      if(results){
+        res.status(200).send({message: `${results.name} has been deleted sucessfully!`});
+      } else {
+        res.status(401).send({message: "Tool was not found"});
+      }
+        
+      }).catch( err => {
+        res.status(500).send({message: err});
+      });
+}
+
 exports.add = (req, res) => {
     const tool = new Tool({
         name: req.body.name,

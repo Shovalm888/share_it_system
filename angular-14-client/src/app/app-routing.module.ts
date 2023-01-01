@@ -1,7 +1,8 @@
+import { BoardToolComponent } from './board-tool/board-tool.component';
 import { NgModule, Component } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import {ToolsComponent} from './tools/tools.component';
+import { ToolsComponent } from './tools/tools.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
@@ -19,11 +20,22 @@ const routes: Routes = [
   { path: 'mod', component: BoardModeratorComponent },
   { path: 'admin', component: BoardAdminComponent },
   { path: 'tools', component: ToolsComponent},
-  { path: '', redirectTo: 'home', pathMatch: 'full' }
+  { path: 'tools/board-tool/:id', component: BoardToolComponent},
+  // {
+  //   path: 'tools',
+  //   component: ToolsComponent,
+  //   children: [
+  //     {
+  //       path: 'board-tool/:id',
+  //       component: BoardToolComponent,
+  //     },
+  //   ],
+  // },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
