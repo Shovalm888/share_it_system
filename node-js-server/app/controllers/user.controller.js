@@ -33,7 +33,7 @@ exports.setOrganizationCode = (req, res) => {
 };
 
 exports.users = (req, res) => {
-  User.find({},{} , {}).populate("roles", "name").then( users => {
+  User.find().populate("roles", "name").then( users => {
     res.status(200).send({users: users});
   }).catch( err => {
     res.status(500).send({message: err});

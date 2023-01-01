@@ -7,6 +7,8 @@ import {
   transition,
   trigger
 } from '@angular/animations';
+import { StorageService } from '../_services/storage.service';
+import { ToolService } from '../_services/tool.service';
 
 const DEFAULT_DURATION = 300;
 
@@ -25,6 +27,7 @@ const DEFAULT_DURATION = 300;
 })
 export class ToolsComponent implements OnInit {
 err_msg?: string;
+displayStyle = "none";
   table_attrs: any = {
     headers: ["#", "Tool Name", "Manufacturing Date", "Status"],
     card_attrs: ["Max Borrow Time", "Categories", "Producer", "Owner", "Description"],
@@ -40,23 +43,76 @@ err_msg?: string;
     "Owner": "owner",
     "Decription": "description",
   }
+  form: any = {
+    name: null,
+    manufacturing_date: null,
+    status: null,
+    max_time_borrow: null,
+    categories: null,
+    producer: null,
+    description: null,
+  };
 
-  constructor() { }
+  isSuccessful = false;
+  isAddingToolFailed = false;
+  errorMessage = '';
+  successMessage = '';
+
+  constructor(private storageService: StorageService, private toolService: ToolService) { }
 
   ngOnInit(): void {
-    this.table_attrs.entry_info = [
-      {
-        name: "electric drill",
-        manufacturing_date: "12/06/1995",
-        status: "available",
-        max_time_borrow: "5",
-        categories: "electronics, Work",
-        producer: "makita",
-        owner: "smoshe",
-        description: "good shape",
+    
+    this.load_tools();
+
+    
+  }
+
+  load_tools(){
+    this.toolService.getAllTools().subscribe({
+      next: data => {
+        this.table_attrs.entry_info = JSON.parse(data).tools;
+        for(let i = 0; i < this.table_attrs.entry_info.length; i++){
+          this.table_attrs.entry_info[i].owner = this.table_attrs.entry_info[i].owner.username;
+        }
+        
+
+        this.capitalize_all_entries();
+      },
+      error: err => {
+        if (err.error) {
+          try {
+            const res = JSON.parse(err.error);
+            this.err_msg = res.message;
+          } catch {
+            this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
+          }
+        } else {
+          this.err_msg = `Error with status: ${err.status}`;
+        }
       }
-    ]
-    this.capitalize_all_entries();
+    });
+  }
+
+  onSubmit(): void {
+    const { name, manufacturing_date, status, max_time_borrow, categories, producer, description } = this.form;
+    const user_id = this.storageService.getUser().id;
+
+    this.toolService.addTool(name, manufacturing_date, status, max_time_borrow, categories, producer, user_id, description).subscribe({
+      next: data => {
+            this.successMessage = data.message;
+            this.isSuccessful = true;
+            this.isAddingToolFailed = false;
+            this.errorMessage = '';
+            this.closePopup();
+            this.load_tools();
+          },
+          error: err => {
+            this.errorMessage = err.error.message;
+            this.isAddingToolFailed = true;
+            this.successMessage = '';
+            this.isSuccessful = false;
+          }
+    });
   }
 
   collapse(i: any) {
@@ -69,6 +125,13 @@ err_msg?: string;
 
   borrow(i: any) {
     
+  }
+  
+  openPopup() {
+    this.displayStyle = "block";
+  }
+  closePopup() {
+    this.displayStyle = "none";
   }
 
   capitalize_all_entries() {
