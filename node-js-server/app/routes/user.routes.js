@@ -36,4 +36,10 @@ module.exports = function(app) {
     [authJwt.verifyToken],
     controller.users
   );
+
+  app.get(
+    "/api/test/users/:id",
+    [authJwt.verifyToken],
+    controller.user
+  );
 };

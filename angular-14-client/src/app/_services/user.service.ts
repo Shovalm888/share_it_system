@@ -30,4 +30,8 @@ export class UserService {
     return this.http.get(API_URL + 'users', { responseType: 'text' });
   }
 
+  getUsersById(id: string): Observable<any> {
+    return this.http.get(API_URL + 'users/' + id);
+  }
+
 }

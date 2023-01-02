@@ -50,9 +50,15 @@ export class BoardToolComponent implements OnInit {
     all: [],
     appreved: null,
     my: null,
-    headers: ['#', 'Requestor', 'Request remeining days'],
+    headers: ['#', 'Requestor', 'Request remeining days', 'Phone', 'Email'],
     card_attrs: ['Duration', 'Creation date', 'Content', 'Status'],
-    appreved_list_attrs: ['Requestor', 'Duration', 'Creation date'],
+    approved_list_attrs: [
+      'Requestor',
+      'Duration',
+      'Creation date',
+      'Phone',
+      'Email',
+    ],
     entry_info: [],
   };
 
@@ -63,7 +69,29 @@ export class BoardToolComponent implements OnInit {
     'Request remeining days': 'remaining_days',
     'Creation date': 'date_s',
     Content: 'content',
+    Email: 'requestor_email',
+    Phone: 'requestor_phone',
+    Name: 'name',
+    'Owner name': 'owner_name',
+    'Owner phone': 'owner_phone',
+    'Max borrow time': 'max_time_borrow',
+    Categories: 'categories',
+    'Manufactoring date': 'manufacturing_date',
+    Producer: 'producer',
+    Description: 'description',
   };
+
+  tool_info_to_display = [
+    'Name',
+    'Owner name',
+    'Owner phone',
+    'Status',
+    'Max borrow time',
+    'Categories',
+    'Manufactoring date',
+    'Producer',
+    'Description',
+  ];
 
   form: any = {
     expiration_date: null,
@@ -85,6 +113,8 @@ export class BoardToolComponent implements OnInit {
       this.toolService.getToolById(this.tool_id).subscribe({
         next: async (data) => {
           this.tool_info = data.tool;
+          this.tool_info.owner_name = this.tool_info.owner.name;
+          this.tool_info.owner_phone = this.tool_info.owner.phone;
           if (this.tool_info) {
             this.tool_info.is_my_tool =
               this.storageService.getUser().username ===
@@ -149,6 +179,10 @@ export class BoardToolComponent implements OnInit {
         this.requests.all[i].requestor.fname +
         ' ' +
         this.requests.all[i].requestor.lname;
+      this.requests.all[i].requestor_phone =
+        this.requests.all[i].requestor.phone;
+      this.requests.all[i].requestor_email =
+        this.requests.all[i].requestor.email;
       if (this.requests.all[i].status === 'pending') {
         this.requests.all[i].remaining_days = this.get_remaining_days(
           this.requests.all[i]
@@ -212,7 +246,7 @@ export class BoardToolComponent implements OnInit {
     );
   }
 
-  onSubmit() {
+  openNewRequest() {
     if (!this.validate_input()) {
       // Do something
       return;
@@ -250,6 +284,30 @@ export class BoardToolComponent implements OnInit {
 
   validate_input(): boolean {
     return true;
+  }
+
+  finishLoan() {
+    if (confirm(`Are you sure to delete ${this.tool_info.name}?`)) {
+      const now = new Date();
+      this.toolService
+        .updateRequestStatus(this.requests.approved._id, 'closed', now)
+        .subscribe({
+          next: async (data) => {
+            // For UI:
+            this.action_msg = data.message;
+            this.tool_info.status = 'available';
+            this.requests.approved.status = 'closed';
+            this.requests.closed.push(this.requests.approved);
+
+            this.requests.approved = null;
+            await this.display_alert(true);
+          },
+          error: async (err) => {
+            this.parse_error_msg(err);
+            await this.display_alert(false);
+          },
+        });
+    }
   }
 
   parse_error_msg(err: any) {
