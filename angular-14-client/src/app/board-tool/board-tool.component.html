@@ -75,7 +75,7 @@
             </dd>
           </dl>
 
-          <button (click)="finishLoan()" *ngIf="tool_info.is_my_tool" class="btn btn-outline-primary">
+          <button (click)="finish_loan()" *ngIf="tool_info.is_my_tool" class="btn btn-outline-primary">
             Finish the loan
           </button>
         </div>
@@ -87,7 +87,7 @@
         <h5 class="card-title">Request to borrow</h5>
         <form
           name="form"
-          (ngSubmit)="f.form.valid && openNewRequest()"
+          (ngSubmit)="f.form.valid && open_new_request()"
           #f="ngForm"
           novalidate
         >

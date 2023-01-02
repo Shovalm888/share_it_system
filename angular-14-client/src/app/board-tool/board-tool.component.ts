@@ -246,7 +246,7 @@ export class BoardToolComponent implements OnInit {
     );
   }
 
-  openNewRequest() {
+  open_new_request() {
     if (!this.validate_input()) {
       // Do something
       return;
@@ -286,7 +286,7 @@ export class BoardToolComponent implements OnInit {
     return true;
   }
 
-  finishLoan() {
+  finish_loan() {
     if (confirm(`Are you sure to delete ${this.tool_info.name}?`)) {
       const now = new Date();
       this.toolService
