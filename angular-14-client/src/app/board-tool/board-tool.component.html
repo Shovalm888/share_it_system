@@ -14,7 +14,7 @@
 
   <div class="row">
     <!-- Tool info + delete button + current borrow if exist -->
-    <div class="col">
+    <div class="col-sm-5 border-left border-right">
       <div class="mb-3 h-100">
         <div class="card-body">
           <h5 class="card-title">Tool details</h5>
@@ -36,7 +36,7 @@
         </div>
       </div>
     </div>
-    <div class="col" *ngIf="requests.approved">
+    <div class="col border-right" *ngIf="requests.approved">
       <div class="mb-3 h-100">
         <div class="card-body table">
           <h5 class="card-title">Current borrow info</h5>
@@ -75,19 +75,19 @@
             </dd>
           </dl>
 
-          <button *ngIf="tool_info.is_my_tool" class="btn btn-outline-primary">
+          <button (click)="finishLoan()" *ngIf="tool_info.is_my_tool" class="btn btn-outline-primary">
             Finish the loan
           </button>
         </div>
       </div>
     </div>
     <!-- Ask for borrow section -->
-    <div class="col" *ngIf="!tool_info.is_my_tool && !requests.my">
+    <div class="col border-right" *ngIf="!tool_info.is_my_tool && !requests.my">
       <div class="card-body h-100">
         <h5 class="card-title">Request to borrow</h5>
         <form
           name="form"
-          (ngSubmit)="f.form.valid && onSubmit()"
+          (ngSubmit)="f.form.valid && openNewRequest()"
           #f="ngForm"
           novalidate
         >
@@ -164,7 +164,7 @@
       </div>
     </div>
 
-    <div class="row" *ngIf="requests.my && requests.my.status === 'pending'">
+    <div class="col border-right" *ngIf="requests.my && requests.my.status === 'pending'">
       <div class="card-body">
         <h5 class="card-title">Your request is {{ requests.my.status }}</h5>
         <h6 class="card-subtitle mb-2 text-muted">
@@ -182,7 +182,7 @@
     </div>
   </div>
 
-  <div class="row mt-3">
+  <div class="row mt-5">
     <header *ngIf="tool_info.is_my_tool" class="w-100">
       <div *ngIf="requests.open.length > 0">
         <table class="table">
@@ -214,6 +214,7 @@
                     ></i>
                   </aside>
                   <button
+                    *ngIf="tool_info.status === 'available'"
                     (click)="approve_borrow(i)"
                     type="button"
                     class="btn btn-outline-primary mx-2 bd-highlight"

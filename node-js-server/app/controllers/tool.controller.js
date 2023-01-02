@@ -186,6 +186,7 @@ exports.update_request_status = (req, res) => {
   };
   filter = { _id: req.params.id, status: { $in: ["approved", "pending"] }};
   update_tool = {status: req.body.status === "approved" ? "not available" : "available"};
+  tool_filter = {status: req.body.status === "approved" ? "available" : "not available"}
 
   ToolRequest.findOneAndUpdate(filter, update, {new: true})
     .then((request) => {
@@ -194,7 +195,9 @@ exports.update_request_status = (req, res) => {
           .status(200)
           .send({ message: "Request has been updated sucessfully!", request: request});
       } else if (request) {
-        Tool.findOneAndUpdate({ _id: request.tool }, update_tool).then(
+        tool_filter._id = request.tool;
+        
+        Tool.findOneAndUpdate(tool_filter, update_tool).then(
           (results) => {
             if (results) {
               res
