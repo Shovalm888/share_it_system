@@ -10,6 +10,7 @@ import {
 import { StorageService } from '../_services/storage.service';
 import { ToolService } from '../_services/tool.service';
 import { Router } from '@angular/router';
+import { VariableBinding } from '@angular/compiler';
 
 const DEFAULT_DURATION = 300;
 
@@ -25,8 +26,9 @@ const DEFAULT_DURATION = 300;
       transition('true => false', animate(DEFAULT_DURATION + 'ms ease-out'))
     ])
   ]
-})
+})// form err msg!!!!!!!!!!!!!!
 export class ToolsComponent implements OnInit {
+form_err_msg: string = "";
 err_msg?: string;
 displayStyle = "none";
   table_attrs: any = {
@@ -94,9 +96,30 @@ displayStyle = "none";
     });
   }
 
+  
+  
+  // validationnnnnnn!!!!!!!!!!!!!!
+  validateYear(manufacturing_date: number): boolean {
+    this.form_err_msg = '';
+    const min_year = 1800;
+    const current_year = new Date().getFullYear();
+
+    if (manufacturing_date < min_year || manufacturing_date > current_year){
+      this.form_err_msg += `Year must be between ${min_year} to ${current_year}`
+    }
+
+    return this.form_err_msg.length == 0;
+  }
+  
+
+
   onSubmit(): void {
     const { name, manufacturing_date, status, max_time_borrow, categories, producer, description } = this.form;
     const user_id = this.storageService.getUser().id;
+    if (!this.validateYear(manufacturing_date)){
+      return;
+    }
+
     const _status = status.toLowerCase();
 
     this.toolService.addTool(name, manufacturing_date, _status, max_time_borrow, categories, producer, user_id, description).subscribe({
@@ -116,6 +139,13 @@ displayStyle = "none";
           }
     });
   }
+ 
+  
+
+
+
+  
+  
 
   go_to_tool(i: any) {
     let tool_id = this.table_attrs.entry_info[i]._id;
@@ -152,3 +182,7 @@ displayStyle = "none";
     }
   }
 }
+function validateYear(manufacturing_date: any, number: any) {
+  throw new Error('Function not implemented.');
+}
+
