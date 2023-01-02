@@ -97,8 +97,9 @@ displayStyle = "none";
   onSubmit(): void {
     const { name, manufacturing_date, status, max_time_borrow, categories, producer, description } = this.form;
     const user_id = this.storageService.getUser().id;
+    const _status = status.toLowerCase();
 
-    this.toolService.addTool(name, manufacturing_date, status, max_time_borrow, categories, producer, user_id, description).subscribe({
+    this.toolService.addTool(name, manufacturing_date, _status, max_time_borrow, categories, producer, user_id, description).subscribe({
       next: data => {
             this.successMessage = data.message;
             this.isSuccessful = true;
@@ -132,10 +133,6 @@ displayStyle = "none";
 
   expand(i: any) {
     this.table_attrs.entry_info[i].show = true;
-  }
-
-  borrow(i: any) {
-    
   }
   
   openPopup() {

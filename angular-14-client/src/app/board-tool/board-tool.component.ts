@@ -1,4 +1,11 @@
-import { animate, AUTO_STYLE, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  AUTO_STYLE,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StorageService } from '../_services/storage.service';
@@ -10,24 +17,23 @@ const DEFAULT_DURATION = 4000;
   templateUrl: './board-tool.component.html',
   styleUrls: ['./board-tool.component.css'],
   animations: [
-    // trigger('fade', [
-    //   transition('false => true', [ // using status here for transition
-    //     style({ opacity: 0 }),
-    //     animate(1000, style({ opacity: 1 }))
-    //   ]),
-    //   transition('true => false', [
-    //     animate(1000, style({ opacity: 0 }))
-    //   ])
-    // ]),
     trigger('fade', [
       state('false', style({ visibility: AUTO_STYLE, opacity: 0 })),
       state('true', style({ visibility: AUTO_STYLE, opacity: 1 })),
       transition('false => true', animate(1000, style({ opacity: 1 }))),
-      transition('true => false', animate(DEFAULT_DURATION, style({ opacity: 0 })))
-    ])
-  ]
+      transition(
+        'true => false',
+        animate(DEFAULT_DURATION, style({ opacity: 0 }))
+      ),
+    ]),
+    trigger('collapse', [
+      state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
+      transition('false => true', animate(300 + 'ms ease-in')),
+      transition('true => false', animate(300 + 'ms ease-out')),
+    ]),
+  ],
 })
-
 export class BoardToolComponent implements OnInit {
   action_msg?: string;
   isBorrowRequestFailed: boolean = false;
@@ -42,8 +48,23 @@ export class BoardToolComponent implements OnInit {
     open: [],
     closed: [],
     all: [],
+    appreved: null,
     my: null,
+    headers: ['#', 'Requestor', 'Request remeining days'],
+    card_attrs: ['Duration', 'Creation date', 'Content', 'Status'],
+    appreved_list_attrs: ['Requestor', 'Duration', 'Creation date'],
+    entry_info: [],
   };
+
+  request_model_attr2headers: any = {
+    Requestor: 'requestor_name',
+    Duration: 'borrow_duration',
+    Status: 'status',
+    'Request remeining days': 'remaining_days',
+    'Creation date': 'date_s',
+    Content: 'content',
+  };
+
   form: any = {
     expiration_date: null,
     borrow_duration: 1,
@@ -62,13 +83,16 @@ export class BoardToolComponent implements OnInit {
       this.tool_id = params['id'];
       this.get_tool_requests();
       this.toolService.getToolById(this.tool_id).subscribe({
-        next: (data) => {
-          this.tool_info = JSON.parse(data).tool;
-          if (this.tool_info.length >= 1) {
-            this.tool_info = this.tool_info[0];
+        next: async (data) => {
+          this.tool_info = data.tool;
+          if (this.tool_info) {
             this.tool_info.is_my_tool =
               this.storageService.getUser().username ===
               this.tool_info.owner.username; // Display delete btn
+          } else {
+            this.parse_error_msg('Tool was not found');
+            await this.display_alert(false);
+            this.router.navigate(['tools']);
           }
         },
         error: async (err) => {
@@ -99,33 +123,53 @@ export class BoardToolComponent implements OnInit {
   }
 
   delete_tool() {
-    this.toolService.deleteToolById(this.tool_id).subscribe({
-      next: async (data) => {
-        this.action_msg = JSON.parse(data).message;
-        // Print success popup
-        // navigate home
-        await this.display_alert(true);
-        this.router.navigate(['tools']);
-      },
-      error: async (err) => {
-        this.parse_error_msg(err);
-        await this.display_alert(false);
-      },
-    });
+    if (confirm(`Are you sure to delete ${this.tool_info.name}?`)) {
+      this.toolService.deleteToolById(this.tool_id).subscribe({
+        next: async (data) => {
+          this.action_msg = JSON.parse(data).message;
+          // Print success popup
+          // navigate home
+          await this.display_alert(true);
+          this.router.navigate(['tools']);
+        },
+        error: async (err) => {
+          this.parse_error_msg(err);
+          await this.display_alert(false);
+        },
+      });
+    }
   }
 
   devide_requests() {
     for (let i = 0; i < this.requests.all.length; i++) {
-      if (['pending', 'approved'].includes(this.requests.all[i].status)) {
+      this.requests.all[i].date_s = new Date(
+        this.requests.all[i].date
+      ).toLocaleDateString();
+      this.requests.all[i].requestor_name =
+        this.requests.all[i].requestor.fname +
+        ' ' +
+        this.requests.all[i].requestor.lname;
+      if (this.requests.all[i].status === 'pending') {
+        this.requests.all[i].remaining_days = this.get_remaining_days(
+          this.requests.all[i]
+        );
         this.requests.open.push(this.requests.all[i]);
-
         if (
-          this.requests.all[i].requestor._id === this.storageService.getUser().id
+          this.requests.all[i].requestor._id ===
+          this.storageService.getUser().id
         ) {
           this.requests.my = this.requests.all[i];
-          this.requests.my.remaining_days = this.get_remaining_days(
-            this.requests.my
-          );
+        }
+      } else if (this.requests.all[i].status === 'approved') {
+        this.requests.all[i].remaining_days = this.get_remaining_days(
+          this.requests.all[i]
+        );
+        this.requests.approved = this.requests.all[i];
+        if (
+          this.requests.all[i].requestor._id ===
+          this.storageService.getUser().id
+        ) {
+          this.requests.my = this.requests.all[i];
         }
       } else {
         this.requests.closed.push(this.requests.all[i]);
@@ -133,14 +177,39 @@ export class BoardToolComponent implements OnInit {
     }
   }
 
+  feedback_peer(encourage: boolean) {
+    this.toolService
+      .feedbackPeer(
+        this.storageService.getUser().id,
+        this.requests.approved._id,
+        encourage
+      )
+      .subscribe({
+        next: async (data) => {
+          this.action_msg = data.message;
+          // Print success popup
+          // navigate home
+          this.requests.approved.owner_feedback = data.request.owner_feedback;
+          this.requests.approved.my_feedback = data.request.my_feedback;
+          await this.display_alert(true);
+        },
+        error: async (err) => {
+          this.parse_error_msg(err);
+          await this.display_alert(false);
+        },
+      });
+  }
+
   get_remaining_days(request: any): any {
     const current_date = new Date().getTime();
-    const expiration_date =
-      request.status != 'approved'
-        ? new Date(request.expiration_date).getTime()
-        : new Date(request.approval_date).getTime();
+    const expiration_date = new Date(request.expiration_date).getTime();
+    request.status != 'approved'
+      ? new Date(request.expiration_date).getTime()
+      : new Date(request.approval_date).getTime();
 
-    return Math.floor((expiration_date - current_date) / (60 * 60 * 24 * 1000));
+    return (
+      Math.floor((expiration_date - current_date) / (60 * 60 * 24 * 1000)) + 1
+    );
   }
 
   onSubmit() {
@@ -152,7 +221,7 @@ export class BoardToolComponent implements OnInit {
       .requestTool(
         this.tool_id,
         this.storageService.getUser().id,
-        this.form.expiration_date,
+        new Date(this.form.expiration_date),
         this.form.borrow_duration,
         this.form.content || ''
       )
@@ -160,10 +229,10 @@ export class BoardToolComponent implements OnInit {
         next: async (data) => {
           // For UI:
           this.action_msg = data.message;
-          // setInterval(() => {
-          //   this.router.navigate(['tools']);
-          // }, 5 * 1000);
-          // Update requests locally:
+
+          data.request.date_s = new Date(
+            data.request.date
+          ).toLocaleDateString();
           this.requests.my = data.request;
           this.requests.open.push(data.request);
           this.requests.all.push(data.request);
@@ -197,24 +266,21 @@ export class BoardToolComponent implements OnInit {
   }
 
   delete_pending_request() {
-    this.toolService.deleteRequest(this.requests.my._id).subscribe(
-      {
-        next: async (data) => {
-          // For UI:
-          const res = JSON.parse(data);
-          this.action_msg = res.message;
-          this.requests.my = null;
-          this.requests.open.pull(res.request);
-          this.requests.all.pull(res.request);
-          await this.display_alert(true);
-
-        },
-        error: async (err) => {
-          this.parse_error_msg(err);
-          await this.display_alert(false);
-        },
-      }
-    )
+    this.toolService.deleteRequest(this.requests.my._id).subscribe({
+      next: async (data) => {
+        // For UI:
+        const res = JSON.parse(data);
+        this.action_msg = res.message;
+        this.requests.my = null;
+        this.requests.open.pop(res.request);
+        this.requests.all.pop(res.request);
+        await this.display_alert(true);
+      },
+      error: async (err) => {
+        this.parse_error_msg(err);
+        await this.display_alert(false);
+      },
+    });
   }
 
   delay(sec: number) {
@@ -233,5 +299,59 @@ export class BoardToolComponent implements OnInit {
       await this.delay(4);
       this.isActionFailed = false;
     }
+  }
+
+  collapse(i: any, req_type: string) {
+    this.requests[req_type][i].show = false;
+  }
+
+  expand(i: any, req_type: string) {
+    this.requests[req_type][i].show = true;
+  }
+
+  approve_borrow(i: any) {
+    const now = new Date().getTime();
+    this.toolService
+      .updateRequestStatus(
+        this.requests.open[i]._id,
+        'approved',
+        new Date(now + 86400000 * this.requests.open[i].borrow_duration)
+      )
+      .subscribe({
+        next: async (data) => {
+          // For UI:
+          this.action_msg = data.message;
+          this.requests.open[i].status = 'approved';
+          this.requests.approved = this.requests.open.pop(
+            this.requests.open[i]
+          );
+          await this.display_alert(true);
+        },
+        error: async (err) => {
+          this.parse_error_msg(err);
+          await this.display_alert(false);
+        },
+      });
+  }
+
+  reject_borrow(i: any) {
+    const now = new Date();
+    this.toolService
+      .updateRequestStatus(this.requests.open[i]._id, 'rejected', now)
+      .subscribe({
+        next: async (data) => {
+          // For UI:
+          this.action_msg = data.message;
+          this.requests.open[i].status = 'rejected';
+          this.requests.closed.push(
+            this.requests.open.pop(this.requests.open[i])
+          );
+          await this.display_alert(true);
+        },
+        error: async (err) => {
+          this.parse_error_msg(err);
+          await this.display_alert(false);
+        },
+      });
   }
 }
