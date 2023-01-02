@@ -11,7 +11,7 @@ const User = mongoose.model(
     phone: {type: String, required: true},
     job: {type: String, required: false},
     description: {type: String, required: false},
-    rank: {type: String, default: 1},
+    rank: {type: Number, default: 1},
     roles: [
       {
         type: mongoose.Schema.Types.ObjectId,

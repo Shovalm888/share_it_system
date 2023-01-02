@@ -24,7 +24,7 @@
             <td *ngFor="let attr_name of table_attrs.headers.slice(1)">
               {{ ent_info[model_attr2headers[attr_name]] }}
             </td>
-            <th>
+            <td>
               <div class="row">
                 <aside>
                   <i
@@ -39,17 +39,9 @@
                   ></i>
                 </aside>
 
-                <button
-                  *ngIf="ent_info.status === 'Available'"
-                  class="btn btn-primary mx-2 flex-fill bd-highlight"
-                  (click)="borrow(i)"
-                >
-                  Borrow
-                </button>
-
                 <a [routerLink]="['board-tool', ent_info._id]"  routerLinkActive="active" class="link-info mx-2 flex-fill bd-highlight" >Tool page</a>
               </div>
-            </th>
+            </td>
           </tr>
 
           <tr>

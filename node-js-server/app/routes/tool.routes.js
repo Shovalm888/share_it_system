@@ -24,5 +24,11 @@ module.exports = function(app) {
 
   app.get("/api/tool/board-tool/requests", [authJwt.verifyToken], controller.requests);
 
+  app.post("/api/tool/board-tool/request/feedback", [authJwt.verifyToken], controller.request_feedback);
+
   app.get("/api/tool/board-tool/requests/:id", [authJwt.verifyToken], controller.tool_requests);
+
+  app.post("/api/tool/board-tool/request/:id", [authJwt.verifyToken], controller.update_request);
+
+  app.post("/api/tool/board-tool/request_status/:id", [authJwt.verifyToken], controller.update_request_status);
 };

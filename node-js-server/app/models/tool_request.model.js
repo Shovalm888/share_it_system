@@ -8,6 +8,8 @@ const ToolRequest = mongoose.model(
     borrow_duration: {type: String, required: true},
     expiration_date: {type: Date, required: true},
     date: {type: Date, required: true},
+    owner_feedback: {type: Boolean, default: false},
+    my_feedback: {type: Boolean, default: false},
     approval_date: {type: Date, required: false},
     tool:
       {
