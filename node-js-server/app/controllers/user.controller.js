@@ -37,6 +37,13 @@ exports.users = (req, res) => {
     res.status(200).send({users: users});
   }).catch( err => {
     res.status(500).send({message: err});
-  });
-  
+  });  
+};
+
+exports.user = (req, res) => {
+  User.findOne({_id: req.params.id}).populate("roles", "name").then( user => {
+    res.status(200).send({user: user});
+  }).catch( err => {
+    res.status(500).send({message: err});
+  });  
 };

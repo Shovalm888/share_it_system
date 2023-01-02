@@ -18,8 +18,15 @@
       <div class="mb-3 h-100">
         <div class="card-body">
           <h5 class="card-title">Tool details</h5>
-          <div *ngFor="let item of tool_info | keyvalue">
-            Key: <b>{{ item.key }}</b> and Value: <b>{{ item.value }}</b>
+          <div class="table">
+            <div *ngFor="let attr of tool_info_to_display" class="row">
+              <div class="col">
+                <b>{{ attr }}:</b>
+              </div>
+              <div class="col">
+                {{ tool_info[request_model_attr2headers[attr]] }}
+              </div>
+            </div>
           </div>
         </div>
         <div class="m-3" *ngIf="tool_info.is_my_tool">
@@ -36,28 +43,41 @@
           <h6 class="card-subtitle mb-2 text-muted">
             Expired in {{ requests.approved.remaining_days }} days
           </h6>
-          <dl
+          <div
             class="row"
-            *ngFor="let request_attr of requests.appreved_list_attrs"
+            *ngFor="let request_attr of requests.approved_list_attrs"
           >
             <dt class="col-sm-4">{{ request_attr }}</dt>
             <dd class="col-sm-8">
               {{ requests.approved[request_model_attr2headers[request_attr]] }}
             </dd>
-          </dl>
+          </div>
           <dl
-          *ngIf="((requests.my === requests.approved) && !requests.approved.my_feedback) || 
-          (tool_info.is_my_tool && !requests.approved.owner_feedback)"
+            *ngIf="
+              (requests.my === requests.approved &&
+                !requests.approved.my_feedback) ||
+              (tool_info.is_my_tool && !requests.approved.owner_feedback)
+            "
             class="row"
           >
             <dt class="col-sm-4">Encourage peer</dt>
             <dd class="col-sm-8">
-              <i (click)="feedback_peer(true)" class="btn fa fa-thumbs-up btn-outline-success" aria-hidden="true" disabled="disabled"></i>
-              <i (click)="feedback_peer(false)" class="ml-3 btn fas fa-thumbs-down btn-outline-danger"></i>
+              <i
+                (click)="feedback_peer(true)"
+                class="btn fa fa-thumbs-up btn-outline-success"
+                aria-hidden="true"
+                disabled="disabled"
+              ></i>
+              <i
+                (click)="feedback_peer(false)"
+                class="ml-3 btn fas fa-thumbs-down btn-outline-danger"
+              ></i>
             </dd>
           </dl>
 
-          <button *ngIf="tool_info.is_my_tool" class="btn btn-outline-primary"> Finish the loan </button>
+          <button *ngIf="tool_info.is_my_tool" class="btn btn-outline-primary">
+            Finish the loan
+          </button>
         </div>
       </div>
     </div>
