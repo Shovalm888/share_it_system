@@ -16,8 +16,13 @@ module.exports = function(app) {
 
   app.post("/api/tool/add", [authJwt.verifyToken], controller.add);
 
-  app.post("/api/tool/request/", [authJwt.verifyToken], controller.request);
+  app.post("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.request);
 
   app.delete("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.delete_by_id);
 
+  app.delete("/api/tool/board-tool/requests/:id", [authJwt.verifyToken], controller.delete_request);
+
+  app.get("/api/tool/board-tool/requests", [authJwt.verifyToken], controller.requests);
+
+  app.get("/api/tool/board-tool/requests/:id", [authJwt.verifyToken], controller.tool_requests);
 };

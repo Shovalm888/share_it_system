@@ -32,6 +32,18 @@ export class ToolService {
     );
   }
 
+  deleteRequest(id: any): Observable<any> {
+    return this.http.delete(TOOL_API + 'board-tool/requests/' + id, { responseType: 'text' });
+  }
+
+  getRequests(): Observable<any> {
+    return this.http.get(TOOL_API + 'board-tool/requests/', { responseType: 'text' });
+  }
+
+  getToolRequests(id: any): Observable<any> {
+    return this.http.get(TOOL_API + 'board-tool/requests/' + id, { responseType: 'text' });
+  }
+
   getAllTools(): Observable<any> {
     return this.http.get(TOOL_API + 'tools', { responseType: 'text' });
   }
@@ -43,4 +55,17 @@ export class ToolService {
   deleteToolById(id: string): Observable<any> {
     return this.http.delete(TOOL_API + 'board-tool/' + id, { responseType: 'text' });
   }
+
+  requestTool(id: string, requestor: string, expiration_date: string, borrow_duration: string, content: string): Observable<any> {
+    return this.http.post(TOOL_API + 'board-tool/' + id, 
+    { 
+      requestor: requestor,
+      expiration_date: expiration_date,
+      borrow_duration: borrow_duration,
+      content: content
+    },
+    httpOptions
+    );
+  }
+
 }
