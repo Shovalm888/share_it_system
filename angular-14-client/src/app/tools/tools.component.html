@@ -108,6 +108,10 @@
           #f="ngForm"
           novalidate
         >
+
+        <div *ngIf="form_err_msg.length > 0" class="alert alert-danger" role="alert">
+          {{ form_err_msg }}
+        </div>
           <div class="form-group">
             <label for="name">*Tool name</label>
             <input
@@ -116,6 +120,7 @@
               name="name"
               [(ngModel)]="form.name"
               required
+              pattern="[a-zA-Z\s]+"
               minlength="2"
               maxlength="20"
               #name="ngModel"
@@ -129,25 +134,30 @@
               <div *ngIf="name.errors['maxlength']">
                 First name must be at most 20 characters
               </div>
+              <div *ngIf="name.errors['pattern']">
+                Tool name must contain letters
+              </div>
             </div>
           </div>
           <div class="form-group">
             <label for="manufacturing_date">*Manufacturing Date</label>
             <input
-              type="text"
+              type="string"
               class="form-control"
               name="manufacturing_date"
               [(ngModel)]="form.manufacturing_date"
               required
-              minlength="4"
+              pattern="\d*"
               maxlength="4"
               #manufacturing_date="ngModel"
               [ngClass]="{ 'is-invalid': f.submitted && manufacturing_date.errors }"
             />
             <div class="invalid-feedback" *ngIf="manufacturing_date.errors && f.submitted">
-              <div *ngIf="manufacturing_date.errors['required']">Manufacturing Date is required</div>
-              <div *ngIf="manufacturing_date.errors['minlength'] || manufacturing_date.errors['maxlength']">
-                Manufacturing Date must be a valid year
+              <div *ngIf="manufacturing_date.errors['required']">
+                Manufacturing Date is required
+              </div>
+              <div *ngIf="manufacturing_date.errors['pattern'] || manufacturing_date.errors['maxlength']">
+                Manufacturing Date must be 4 digits year, e.g: 1995
               </div>
             </div>
           </div>
@@ -178,6 +188,7 @@
               name="max_time_borrow"
               [(ngModel)]="form.max_time_borrow"
               required
+              pattern="[1-9]|1[0-9]|20"
               minlength="1"
               maxlength="20"
               #max_time_borrow="ngModel"
@@ -187,6 +198,9 @@
               <div *ngIf="max_time_borrow.errors['required']">Max Borrow Time is required</div>
               <div *ngIf="max_time_borrow.errors['minlength']">
                 Max Borrow Time must be at least 1 day
+              </div>
+              <div *ngIf="max_time_borrow.errors['pattern']">
+                Max Borrow Time must be positive
               </div>
             </div>
           </div>
