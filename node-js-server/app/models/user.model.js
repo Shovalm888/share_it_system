@@ -12,6 +12,7 @@ const User = mongoose.model(
     job: {type: String, required: false},
     description: {type: String, required: false},
     rank: {type: Number, default: 1},
+    allow_emails: {type: Boolean, default: false},
     roles: [
       {
         type: mongoose.Schema.Types.ObjectId,

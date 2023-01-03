@@ -1,8 +1,8 @@
-const express = require("express");
 const cors = require("cors");
+const express = require("express");
 const mongoose = require("mongoose");
-const cookieSession = require("cookie-session");
 var CronJob = require('cron').CronJob;
+const cookieSession = require("cookie-session");
 const controller = require('./app/controllers/server.controller')
 
 const dbConfig = require("./app/config/db.config");
@@ -133,4 +133,27 @@ function initial() {
      true, /* Start the job right now */
      //timeZone /* Time zone of this job. */
     );
+
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'shareitsystem901@gmail.com',
+        pass: '316567999'
+      }
+    });
+    
+    var mailOptions = {
+      from: 'shareitsystem901@gmail.com',
+      to: 'shovalm888@gmail.com',
+      subject: 'Sending Email using Node.js',
+      text: 'That was easy!'
+    };
+    
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
 }

@@ -17,6 +17,7 @@ exports.signup = (req, res) => {
     password: bcrypt.hashSync(req.body.password, 8),
     job: req.body.job || '',
     description: req.body.description || '',
+    allow_emails: req.body.allow_emails
   });
 
   OrganizationCode.find({ organization_code: req.body.organization_code })

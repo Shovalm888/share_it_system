@@ -28,12 +28,10 @@
             </div>
           </div>
         </div>
-        <div
+        <div *ngIf="tool_info.is_my_tool">
+          <div
           class="m-3"
-          *ngIf="
-            tool_info.is_my_tool && tool_info.status !== 'loaned';
-            else prevent_delete
-          "
+          *ngIf="tool_info.status !== 'loaned'; else prevent_delete"
         >
           <button (click)="delete_tool()" class="btn btn-outline-danger">
             Delete tool
@@ -44,6 +42,8 @@
             <p class="text-warning">*Loaned tool can not be deleted...</p>
           </ng-template>
         </div>
+        </div>
+        
       </div>
     </div>
     <div class="col border-right" *ngIf="requests.approved">
