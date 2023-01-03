@@ -130,6 +130,7 @@ displayStyle = "none";
             this.errorMessage = '';
             this.closePopup();
             this.load_tools();
+            // Map all form's attrs to null
           },
           error: err => {
             this.errorMessage = ('message' in err) ?  err.message: err.error.message;

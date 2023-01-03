@@ -94,7 +94,6 @@
     <div class="modal-content">
       <div class="con p-4">
         <form
-          *ngIf="!isSuccessful"
           name="form"
           (ngSubmit)="f.form.valid && onSubmit()"
           #f="ngForm"
