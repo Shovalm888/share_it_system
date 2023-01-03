@@ -119,10 +119,11 @@ function initial() {
     }
   });
 
-  new CronJob('00 * * * * *', function() {
+  new CronJob('0 0 * * * *', function() {
     /*
      * For it to runs every midnight: '0 0 * * *' 
-     * For it to runs every minute: '00 * * * * *'
+     * For it to runs every minute: '0 * * * * *'
+     * * For it to runs every hour: '0 0 * * * *'
     */    
     controller.closeExpiredPendingRequests();
     controller.closeExpiredApprovedRequests();

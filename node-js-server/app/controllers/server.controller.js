@@ -1,6 +1,7 @@
 const db = require("../models");
 const ToolRequest = db.tool_request;
 const User = db.user;
+const Tool = db.tool;
 
 exports.closeExpiredPendingRequests = async function run() {
 
@@ -20,14 +21,25 @@ exports.closeExpiredApprovedRequests = async function run() {
 
     const now = new Date();
     try {
-      const res = await ToolRequest.findOneAndUpdate({status: 'approved', expiration_date: {$lte: now}}, {$set: {status: 'closed'}}).populate("requestor");
+      const res = await ToolRequest.findOneAndUpdate({status: 'approved', expiration_date: {$lte: now}}, {$set: {status: 'closed'}}).populate("requestor").populate("tool");
+
       if(res){
+        const username = res.requestor.username;
+        const tool_name = res.tool.name;
+        console.log(`Closed ${username} request for ${tool_name} successfully`);
+
         const negative_rank_borrower = await User.findOneAndUpdate({_id: res.requestor._id}, { $inc: { rank: -1 } });
             if (negative_rank_borrower){
                 const prev_rank = negative_rank_borrower.rank;
-                const username = negative_rank_borrower.username;
+                console.log(`Decreased ${username} rank from ${prev_rank} to ${prev_rank - 1} successfully`);
 
-                console.log(`Closed ${username} requests successfully his rank decreased from ${prev_rank} to ${prev_rank - 1}`);
+                const tool = await Tool.findOneAndUpdate({_id: res.tool._id}, {status: 'available'});
+                if(tool){
+                    console.log(`Tool ${tool_name} status has changed to 'available'`);
+                } 
+                else {
+                    console.log(`Tool ${tool_name} was not found`);
+                }
             }
             else {
                 console.log(`User ${res.username} was not found`);
