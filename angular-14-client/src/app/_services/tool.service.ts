@@ -100,4 +100,8 @@ export class ToolService {
     );
   }
 
+  getToolHistory(id: string): Observable<any> {
+    return this.http.get(TOOL_API + 'tool-history/' + id);
+  }
+
 }

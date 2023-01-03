@@ -81,6 +81,13 @@ export class BoardToolComponent implements OnInit {
     Description: 'description',
   };
 
+  tool_history_to_display = {
+    To: 'expiration_date',
+    From: 'approval_date',
+    Borrower: 'requestor_name',
+    Username: 'requestor_username',
+  };
+
   tool_info_to_display = [
     'Name',
     'Owner name',
@@ -113,6 +120,7 @@ export class BoardToolComponent implements OnInit {
       this.toolService.getToolById(this.tool_id).subscribe({
         next: async (data) => {
           this.tool_info = data.tool;
+          this.get_tool_history();
           this.tool_info.owner_name = this.tool_info.owner.name;
           this.tool_info.owner_phone = this.tool_info.owner.phone;
           if (this.tool_info) {
@@ -300,6 +308,7 @@ export class BoardToolComponent implements OnInit {
             this.requests.closed.push(this.requests.approved);
 
             this.requests.approved = null;
+            this.get_tool_history();
             await this.display_alert(true);
           },
           error: async (err) => {
@@ -383,6 +392,7 @@ export class BoardToolComponent implements OnInit {
           this.requests.approved = this.requests.open.pop(
             this.requests.open[i]
           );
+          this.get_tool_history()
           await this.display_alert(true);
         },
         error: async (err) => {
@@ -411,5 +421,21 @@ export class BoardToolComponent implements OnInit {
           await this.display_alert(false);
         },
       });
+  }
+
+  update_tool_history() {}
+
+  get_tool_history() {
+    this.toolService.getToolHistory(this.tool_id).subscribe({
+      next: async (data) => {
+        // For UI:
+        this.action_msg = data.message;
+        this.tool_info.history = data.history;
+      },
+      error: async (err) => {
+        this.parse_error_msg(err);
+        await this.display_alert(false);
+      },
+    });
   }
 }

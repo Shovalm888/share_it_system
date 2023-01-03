@@ -164,14 +164,19 @@ exports.update_request = (req, res) => {
     }
   }
 
-  ToolRequest.findOneAndUpdate(filter, update, {new: true})
+  ToolRequest.findOneAndUpdate(filter, update, { new: true })
     .then((request) => {
       if (request) {
         res
           .status(200)
-          .send({ message: "Request has been updated sucessfully!", request: request });
+          .send({
+            message: "Request has been updated sucessfully!",
+            request: request,
+          });
       } else {
-        res.status(401).send({ message: "Request was not found", request: request });
+        res
+          .status(401)
+          .send({ message: "Request was not found", request: request });
       }
     })
     .catch((err) => {
@@ -180,34 +185,47 @@ exports.update_request = (req, res) => {
 };
 
 exports.update_request_status = (req, res) => {
-  update = { 
-    status: req.body.status,
-    expiration_date: req.body.expiration_date 
-  };
-  filter = { _id: req.params.id, status: { $in: ["approved", "pending"] }};
-  update_tool = {status: req.body.status === "approved" ? "not available" : "available"};
-  tool_filter = {status: req.body.status === "approved" ? "available" : "not available"}
+  const status = req.body.status;
 
-  ToolRequest.findOneAndUpdate(filter, update, {new: true})
+  filter = { _id: req.params.id, status: { $in: ["approved", "pending"] } };
+  update_tool = {
+    status: status === "approved" ? "not available" : "available",
+  };
+  tool_filter = {
+    status: status === "approved" ? "available" : "not available",
+  };
+  update_request = {
+    status: status,
+    expiration_date: req.body.expiration_date,
+  };
+  if (status === "approved") {
+    update_request.approval_date = new Date();
+  }
+
+  ToolRequest.findOneAndUpdate(filter, update_request, { new: true })
     .then((request) => {
-      if (request && req.body.status === "rejected") {
+      if (request && status === "rejected") {
         res
           .status(200)
-          .send({ message: "Request has been updated sucessfully!", request: request});
+          .send({
+            message: "Request has been updated sucessfully!",
+            request: request,
+          });
       } else if (request) {
         tool_filter._id = request.tool;
-        
-        Tool.findOneAndUpdate(tool_filter, update_tool).then(
-          (results) => {
-            if (results) {
-              res
-                .status(200)
-                .send({ message: "Request has been updated sucessfully!", request: request });
-            } else {
-              res.status(401).send({ message: "Request's tool was not found" });
-            }
+
+        Tool.findOneAndUpdate(tool_filter, update_tool).then((results) => {
+          if (results) {
+            res
+              .status(200)
+              .send({
+                message: "Request has been updated sucessfully!",
+                request: request,
+              });
+          } else {
+            res.status(401).send({ message: "Request's tool was not found" });
           }
-        );
+        });
       } else {
         res.status(401).send({ message: "Request was not found" });
       }
@@ -218,33 +236,83 @@ exports.update_request_status = (req, res) => {
 };
 
 exports.request_feedback = (req, res) => {
-  ToolRequest.findOne({_id: req.body.request_id}).populate("tool").then( request => {
-    inc = (req.body.feedback) ? 1 : -1;
-    initiator_id = req.body.id;
-    if(!request){
-      res.status(401).send({ message: "Request was not found" });
-    } else {
-      tool_owner_id = request.tool.owner._id;
-      is_owner_initiate = tool_owner_id == initiator_id;      
-
-      if(is_owner_initiate && !request.owner_feedback){
-        update_request = {owner_feedback: true};
-        user_filter = {_id: request.requestor};
-      } else if (!is_owner_initiate && !request.my_feedback){
-        update_request = {my_feedback: true};
-        user_filter = {_id: tool_owner_id};
+  ToolRequest.findOne({ _id: req.body.request_id })
+    .populate("tool")
+    .then((request) => {
+      inc = req.body.feedback ? 1 : -1;
+      initiator_id = req.body.id;
+      if (!request) {
+        res.status(401).send({ message: "Request was not found" });
       } else {
-        res.status(401).send({ message: "You can update feedback one per loan" });
-      }
-      ToolRequest.findOneAndUpdate(request.id, update_request, {new: true}).then( request => {
-        User.findOneAndUpdate(user_filter, {$inc: {rank: inc}}).then( _ => {
+        tool_owner_id = request.tool.owner._id;
+        is_owner_initiate = tool_owner_id == initiator_id;
+
+        if (is_owner_initiate && !request.owner_feedback) {
+          update_request = { owner_feedback: true };
+          user_filter = { _id: request.requestor };
+        } else if (!is_owner_initiate && !request.my_feedback) {
+          update_request = { my_feedback: true };
+          user_filter = { _id: tool_owner_id };
+        } else {
           res
-          .status(200)
-          .send({ message: "User have beed ranked successfully", request: request});
-        })
-      })
-    }
-  }).catch( err => {
-    res.status(500).send({ message: err });
-  });
+            .status(401)
+            .send({ message: "You can update feedback one per loan" });
+        }
+        ToolRequest.findOneAndUpdate(request.id, update_request, {
+          new: true,
+        }).then((request) => {
+          User.findOneAndUpdate(user_filter, { $inc: { rank: inc } }).then(
+            (_) => {
+              res
+                .status(200)
+                .send({
+                  message: "User have beed ranked successfully",
+                  request: request,
+                });
+            }
+          );
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
 };
+
+exports.tool_history = (req, res) => {
+  const tool_id = req.params.id;
+
+  ToolRequest.find({ tool: tool_id, approval_date: { $ne: null } })
+    .populate("requestor")
+    .sort({ approval_date: 1 })
+    .then((requests) => {
+      if (!requests) {
+        res.status(200).send({ message: "History was not found", history: []});
+      } else {
+        res
+          .status(200)
+          .send({
+            message: "Tool history based requests has found successfully",
+            history: parse_requests_to_history(requests),
+          });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+function parse_requests_to_history(requests) {
+  let response = [];
+  for(let i = 0; i < requests.length; i++){
+    response.push(
+      {
+        expiration_date: requests[i].expiration_date.toLocaleDateString(),
+        approval_date: requests[i].approval_date.toLocaleDateString(),
+        requestor_name: `${requests[i].requestor.fname} ${requests[i].requestor.lname}`,
+        requestor_username: requests[i].requestor.username
+      }
+    );
+  }
+  return response;
+}

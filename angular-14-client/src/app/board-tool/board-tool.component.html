@@ -75,7 +75,11 @@
             </dd>
           </dl>
 
-          <button (click)="finish_loan()" *ngIf="tool_info.is_my_tool" class="btn btn-outline-primary">
+          <button
+            (click)="finish_loan()"
+            *ngIf="tool_info.is_my_tool"
+            class="btn btn-outline-primary"
+          >
             Finish the loan
           </button>
         </div>
@@ -164,7 +168,10 @@
       </div>
     </div>
 
-    <div class="col border-right" *ngIf="requests.my && requests.my.status === 'pending'">
+    <div
+      class="col border-right"
+      *ngIf="requests.my && requests.my.status === 'pending'"
+    >
       <div class="card-body">
         <h5 class="card-title">Your request is {{ requests.my.status }}</h5>
         <h6 class="card-subtitle mb-2 text-muted">
@@ -260,6 +267,37 @@
         *ngIf="requests.open.length == 0"
       >
         <i class="" aria-hidden="true">There are no open requests</i>
+      </div>
+    </header>
+  </div>
+  <div class="row mt-5">
+    <header class="w-100">
+      <div *ngIf="tool_info.history && (tool_info.history.length > 0)">
+        <table class="table">
+          <thead>
+            <tr>
+              <th
+                scope="col"
+                *ngFor="let attr_name of tool_history_to_display | keyvalue"
+              >
+                {{ attr_name.key }}
+              </th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let ent_info of tool_info.history">
+            <tr class="card-header">
+              <td *ngFor="let attr_name of tool_history_to_display | keyvalue">
+                {{ ent_info[attr_name.value] }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div
+        class="w-100 jumbotron text-justify justify-content-center d-flex"
+        *ngIf="!tool_info.history || (tool_info.history.length === 0)"
+      >
+        <i class="" aria-hidden="true">There's no tool history</i>
       </div>
     </header>
   </div>

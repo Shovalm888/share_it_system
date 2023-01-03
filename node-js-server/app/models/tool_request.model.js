@@ -5,7 +5,7 @@ const ToolRequest = mongoose.model(
   new mongoose.Schema({
     status: {type: String, default: "pending"},  // approved, rejected, pending, closed
     content: {type: String, default: ""},
-    borrow_duration: {type: String, required: true},
+    borrow_duration: {type: Number, required: true},
     expiration_date: {type: Date, required: true},
     date: {type: Date, required: true},
     owner_feedback: {type: Boolean, default: false},
