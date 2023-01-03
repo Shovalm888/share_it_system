@@ -3,6 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieSession = require("cookie-session");
 var CronJob = require('cron').CronJob;
+const controller = require('./app/controllers/server.controller')
 
 const dbConfig = require("./app/config/db.config");
 
@@ -122,8 +123,9 @@ function initial() {
     /*
      * For it to runs every midnight: '0 0 * * *' 
      * For it to runs every minute: '00 * * * * *'
-    */
-      console.log(new Date());
+    */    
+    controller.closeExpiredPendingRequests();
+    controller.closeExpiredApprovedRequests();
     }, function () {
      /* This function is executed when the job stops */
     },

@@ -1,7 +1,7 @@
 const db = require("../models");
 const mongoose = require("mongoose");
 const OrganizationCode = db.organization_code;
-const User = db.user
+const User = db.user;
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");

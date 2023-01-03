@@ -356,13 +356,16 @@ export class BoardToolComponent implements OnInit {
         // For UI:
         const res = JSON.parse(data);
         this.action_msg = res.message;
+        this.requests.open.pop(this.requests.my);
+        this.requests.all.pop(this.requests.my);
         this.requests.my = null;
-        this.requests.open.pop(res.request);
-        this.requests.all.pop(res.request);
         await this.display_alert(true);
       },
       error: async (err) => {
         this.parse_error_msg(err);
+        this.requests.open.pop(this.requests.my);
+        this.requests.all.pop(this.requests.my);
+        this.requests.my = null;
         await this.display_alert(false);
       },
     });
