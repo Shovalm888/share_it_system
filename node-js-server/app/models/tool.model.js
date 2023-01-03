@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Tool = mongoose.model(
   "Tool",
   new mongoose.Schema({
-    name: {type: String, required: true, unique: true},
+    name: {type: String, required: true},
     manufacturing_date: {type: String, required: true},
     status: {type: String, required: true},
     max_time_borrow: {type: String, required: true},
