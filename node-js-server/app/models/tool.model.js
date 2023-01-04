@@ -5,7 +5,7 @@ const Tool = mongoose.model(
   new mongoose.Schema({
     name: {type: String, required: true},
     manufacturing_date: {type: String, required: true},
-    status: {type: String, required: true},
+    status: {type: String, required: true},  // 'avaialable', 'loaned', 'not available', 'broken'
     max_time_borrow: {type: String, required: true},
     categories: {type: String, default: ''},
     producer: {type: String, default: ''},

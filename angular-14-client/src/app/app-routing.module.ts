@@ -21,16 +21,6 @@ const routes: Routes = [
   { path: 'admin', component: BoardAdminComponent },
   { path: 'tools', component: ToolsComponent},
   { path: 'tools/board-tool/:id', component: BoardToolComponent},
-  // {
-  //   path: 'tools',
-  //   component: ToolsComponent,
-  //   children: [
-  //     {
-  //       path: 'board-tool/:id',
-  //       component: BoardToolComponent,
-  //     },
-  //   ],
-  // },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 ];
 

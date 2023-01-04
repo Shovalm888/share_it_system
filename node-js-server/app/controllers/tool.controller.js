@@ -36,7 +36,7 @@ exports.tool_by_id = (req, res) => {
 };
 
 exports.delete_by_id = (req, res) => {
-  Tool.findOneAndRemove({ _id: req.params.id, owner: { _id: req.userId } })
+  Tool.findOneAndRemove({_id: req.params.id, status: {$ne: 'loaned'}, owner: { _id: req.userId } })
     .then((results) => {
       if (results) {
         ToolRequest.deleteMany({ tool: results.id }).then((_) => {
@@ -189,10 +189,10 @@ exports.update_request_status = (req, res) => {
 
   filter = { _id: req.params.id, status: { $in: ["approved", "pending"] } };
   update_tool = {
-    status: status === "approved" ? "not available" : "available",
+    status: status === "approved" ? "loaned" : "available",
   };
   tool_filter = {
-    status: status === "approved" ? "available" : "not available",
+    status: status === "approved" ? "available" : "loaned",
   };
   update_request = {
     status: status,
@@ -214,7 +214,7 @@ exports.update_request_status = (req, res) => {
       } else if (request) {
         tool_filter._id = request.tool;
 
-        Tool.findOneAndUpdate(tool_filter, update_tool).then((results) => {
+        Tool.findOneAndUpdate(tool_filter, update_tool, {new: true}).then((results) => {
           if (results) {
             res
               .status(200)
@@ -307,12 +307,19 @@ function parse_requests_to_history(requests) {
   for(let i = 0; i < requests.length; i++){
     response.push(
       {
-        expiration_date: requests[i].expiration_date.toLocaleDateString(),
-        approval_date: requests[i].approval_date.toLocaleDateString(),
+        expiration_date: date2str(requests[i].expiration_date),
+        approval_date: date2str(requests[i].approval_date),
         requestor_name: `${requests[i].requestor.fname} ${requests[i].requestor.lname}`,
         requestor_username: requests[i].requestor.username
       }
     );
   }
   return response;
+}
+
+function date2str(date) {
+  const hours = (date.getHours()<10?'0':'') + date.getHours();
+  const minutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
+  const seconds = (date.getSeconds()<10?'0':'') + date.getSeconds()
+  return `${date.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
 }

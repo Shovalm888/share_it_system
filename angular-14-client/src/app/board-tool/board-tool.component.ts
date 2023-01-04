@@ -192,9 +192,7 @@ export class BoardToolComponent implements OnInit {
 
   devide_requests() {
     for (let i = 0; i < this.requests.all.length; i++) {
-      this.requests.all[i].date_s = new Date(
-        this.requests.all[i].date
-      ).toLocaleDateString();
+      this.requests.all[i].date_s = this.date2str(this.requests.all[i].date);
       this.requests.all[i].requestor_name =
         this.requests.all[i].requestor.fname +
         ' ' +
@@ -204,7 +202,7 @@ export class BoardToolComponent implements OnInit {
       this.requests.all[i].requestor_email =
         this.requests.all[i].requestor.email;
       if (this.requests.all[i].status === 'pending') {
-        this.requests.all[i].expiration_date_ = new Date(this.requests.all[i].expiration_date).toLocaleDateString()
+        this.requests.all[i].expiration_date_ = this.date2str(this.requests.all[i].expiration_date);
         this.requests.open.push(this.requests.all[i]);
         if (
           this.requests.all[i].requestor._id ===
@@ -284,10 +282,8 @@ export class BoardToolComponent implements OnInit {
           // For UI:
           this.action_msg = data.message;
 
-          data.request.date_s = new Date(
-            data.request.date
-          ).toLocaleDateString();
-          data.request.expiration_date_ = new Date(data.request.expiration_date).toLocaleDateString()
+          data.request.date_s = this.date2str(data.request.date);
+          data.request.expiration_date_ = this.date2str(data.request.expiration_date);
           this.requests.my = data.request;
           this.requests.open.push(data.request);
           this.requests.all.push(data.request);
@@ -311,7 +307,7 @@ export class BoardToolComponent implements OnInit {
   }
 
   finish_loan() {
-    if (confirm(`Are you sure to delete ${this.tool_info.name}?`)) {
+    if (confirm('Are you sure to close the current loan?')) {
       const now = new Date();
       this.toolService
         .updateRequestStatus(this.requests.approved._id, 'closed', now)
@@ -454,8 +450,6 @@ export class BoardToolComponent implements OnInit {
       });
   }
 
-  update_tool_history() {}
-
   get_tool_history() {
     this.toolService.getToolHistory(this.tool_id).subscribe({
       next: async (data) => {
@@ -507,5 +501,14 @@ export class BoardToolComponent implements OnInit {
       minutesToDday: minutesToDday,
       secondsToDday: secondsToDday,
     };
+  }
+
+  date2str(date: Date): string {
+    date = new Date(date);
+    
+    const hours = (date.getHours()<10?'0':'') + date.getHours();
+    const minutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
+    const seconds = (date.getSeconds()<10?'0':'') + date.getSeconds()
+    return `${date.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
   }
 }

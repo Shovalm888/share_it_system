@@ -28,11 +28,22 @@
             </div>
           </div>
         </div>
-        <div class="m-3" *ngIf="tool_info.is_my_tool">
+        <div *ngIf="tool_info.is_my_tool">
+          <div
+          class="m-3"
+          *ngIf="tool_info.status !== 'loaned'; else prevent_delete"
+        >
           <button (click)="delete_tool()" class="btn btn-outline-danger">
             Delete tool
           </button>
         </div>
+        <div class="m-3">
+          <ng-template #prevent_delete>
+            <p class="text-warning">*Loaned tool can not be deleted...</p>
+          </ng-template>
+        </div>
+        </div>
+        
       </div>
     </div>
     <div class="col border-right" *ngIf="requests.approved">
@@ -40,16 +51,16 @@
         <div class="card-body table">
           <h5 class="card-title">Current borrow info</h5>
           <h6 class="card-subtitle mb-2 text-muted">
-             
-            <div class="timer" *ngIf="(approved_borrow_left_time$ | async) as t; else sorry">
+            <div
+              class="timer"
+              *ngIf="approved_borrow_left_time$ | async as t; else sorry"
+            >
               <span>Expired in:</span>
-              <span id="hours"> {{t.hoursToDday}} </span>:
-              <span id="minutes"> {{t.minutesToDday}} </span>:
-              <span id="seconds"> {{t.secondsToDday}} </span>
+              <span id="hours"> {{ t.hoursToDday }} </span>:
+              <span id="minutes"> {{ t.minutesToDday }} </span>:
+              <span id="seconds"> {{ t.secondsToDday }} </span>
             </div>
-            <ng-template #sorry>
-            Calculating expiration date...
-          </ng-template>
+            <ng-template #sorry> Calculating expiration date... </ng-template>
           </h6>
           <div
             class="row"
@@ -190,25 +201,26 @@
       <div class="card-body">
         <h5 class="card-title">Your request is {{ requests.my.status }}</h5>
         <h6 class="card-subtitle mb-2 text-muted">
-          <div class="timer" *ngIf="(pending_borrow_left_time$ | async) as t; else sorry">
+          <div
+            class="timer"
+            *ngIf="pending_borrow_left_time$ | async as t; else sorry"
+          >
             <span>Expired in:</span>
-            <span id="hours"> {{t.hoursToDday}} </span>:
-            <span id="minutes"> {{t.minutesToDday}} </span>:
-            <span id="seconds"> {{t.secondsToDday}} </span>
+            <span id="hours"> {{ t.hoursToDday }} </span>:
+            <span id="minutes"> {{ t.minutesToDday }} </span>:
+            <span id="seconds"> {{ t.secondsToDday }} </span>
           </div>
-          <ng-template #sorry>
-          Calculating expiration date...
-        </ng-template>
+          <ng-template #sorry> Calculating expiration date... </ng-template>
         </h6>
         <div
-            class="row"
-            *ngFor="let request_attr of requests.pending_list_attrs"
-          >
-            <dt class="col-sm-5">{{ request_attr }}</dt>
-            <dd class="col-sm-6">
-              {{ requests.approved[request_model_attr2headers[request_attr]] }}
-            </dd>
-          </div>
+          class="row"
+          *ngFor="let request_attr of requests.pending_list_attrs"
+        >
+          <dt class="col-sm-5">{{ request_attr }}</dt>
+          <dd class="col-sm-6">
+            {{ requests.approved[request_model_attr2headers[request_attr]] }}
+          </dd>
+        </div>
         <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
         <button
           type="button"
@@ -304,7 +316,7 @@
   </div>
   <div class="row mt-5">
     <header class="w-100">
-      <div *ngIf="tool_info.history && (tool_info.history.length > 0)">
+      <div *ngIf="tool_info.history && tool_info.history.length > 0">
         <table class="table">
           <thead>
             <tr>
@@ -327,7 +339,7 @@
       </div>
       <div
         class="w-100 jumbotron text-justify justify-content-center d-flex"
-        *ngIf="!tool_info.history || (tool_info.history.length === 0)"
+        *ngIf="!tool_info.history || tool_info.history.length === 0"
       >
         <i class="" aria-hidden="true">There's no tool history</i>
       </div>
