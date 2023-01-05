@@ -30,20 +30,19 @@
         </div>
         <div *ngIf="tool_info.is_my_tool">
           <div
-          class="m-3"
-          *ngIf="tool_info.status !== 'loaned'; else prevent_delete"
-        >
-          <button (click)="delete_tool()" class="btn btn-outline-danger">
-            Delete tool
-          </button>
+            class="m-3"
+            *ngIf="tool_info.status !== 'loaned'; else prevent_delete"
+          >
+            <button (click)="delete_tool()" class="btn btn-outline-danger">
+              Delete tool
+            </button>
+          </div>
+          <div class="m-3">
+            <ng-template #prevent_delete>
+              <p class="text-warning">*Loaned tool can not be deleted...</p>
+            </ng-template>
+          </div>
         </div>
-        <div class="m-3">
-          <ng-template #prevent_delete>
-            <p class="text-warning">*Loaned tool can not be deleted...</p>
-          </ng-template>
-        </div>
-        </div>
-        
       </div>
     </div>
     <div class="col border-right" *ngIf="requests.approved">
@@ -209,12 +208,12 @@
           class="row"
           *ngFor="let request_attr of requests.pending_list_attrs"
         >
-          <dt class="col-sm-5">{{ request_attr }}</dt>
-          <dd class="col-sm-6">
-            {{ requests.approved[request_model_attr2headers[request_attr]] }}
+          <dt class="col-sm-5 card-text">{{ request_attr }}</dt>
+          <dd class="col-sm-6 card-text">
+            {{ requests.my[request_model_attr2headers[request_attr]] }}
           </dd>
         </div>
-        <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+
         <button
           type="button"
           class="btn btn-outline-danger mt-5"

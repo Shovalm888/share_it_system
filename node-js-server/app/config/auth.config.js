@@ -1,3 +1,3 @@
 module.exports = {
-  secret: "bezkoder-secret-key"
+  secret: "share_it-secret-key"
 };

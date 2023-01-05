@@ -1,11 +1,15 @@
 const cors = require("cors");
+const db = require("./app/models");
 const express = require("express");
 const mongoose = require("mongoose");
-var CronJob = require('cron').CronJob;
+var CronJob = require("cron").CronJob;
 const cookieSession = require("cookie-session");
-const controller = require('./app/controllers/server.controller')
-
 const dbConfig = require("./app/config/db.config");
+require("dotenv").config({ path: __dirname + "/.env" });
+const controller = require("./app/controllers/server.controller");
+
+const remote_username = encodeURIComponent(dbConfig.REMOTE_USERNAME);
+const remote_password = encodeURIComponent(dbConfig.REMOTE_PASSWORD);
 
 const app = express();
 
@@ -24,21 +28,27 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cookieSession({
-    name: "bezkoder-session",
+    name: "shareit-session",
     secret: "COOKIE_SECRET", // should use as secret environment variable
     httpOnly: true,
   })
 );
 
-const db = require("./app/models");
+const User = db.user;
 const Role = db.role;
 const OrganizationCode = db.organization_code;
 
+let db_url = `mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`;
+
+if(process.argv.slice(2).includes('--remote')){
+  db_url = `mongodb+srv://${remote_username}:${remote_password}@cluster0.ak13rx0.mongodb.net/test`;
+}
+
 db.mongoose
-  .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+  .connect(db_url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
+    useFindAndModify: false,
   })
   .then(() => {
     console.log("Successfully connect to MongoDB.");
@@ -61,7 +71,7 @@ require("./app/routes/tool.routes")(app);
 require("./app/routes/notification.routes")(app);
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.SHAREIT_PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
@@ -91,69 +101,83 @@ function initial() {
 
       new Role({
         name: "admin",
-      }).save((err) => {
-        if (err) {
-          console.log("error", err);
-        }
+      })
+        .save()
+        .then((role) => {
+          console.log("added 'admin' to roles collection");
 
-        console.log("added 'admin' to roles collection");
-      });
+          const u = new User({
+            _id: mongoose.Types.ObjectId(process.env.SHAREIT_SYSTEM_USER_ID),
+            username: process.env.SHAREIT_USERNAME,
+            email: process.env.SHAREIT_EMAIL,
+            password: process.env.SHAREIT_PASSWORD,
+            fname: process.env.SHAREIT_FNAME,
+            lname: process.env.SHAREIT_LNAME,
+            phone: process.env.SHAREIT_PHONE,
+            allow_emails: true,
+            roles: role,
+          });
+          u.save((err) => {
+            if (err) {
+              console.log("error", err);
+            }
+
+            console.log(
+              `added admin user ${process.env.SHAREIT_USERNAME} to users collection`
+            );
+          });
+        })
+        .catch((err) => {
+          console.log("error", err);
+        });
     }
   });
 
   OrganizationCode.estimatedDocumentCount((err, count) => {
     if (!err && count === 0) {
-      const ORG_CODE = process.env.ORG_CODE || '111111';
+      const org_code = process.env.SHAREIT_ORG_CODE || "111111";
       new OrganizationCode({
-        _id: mongoose.Types.ObjectId("112211221122"),
-        organization_code: ORG_CODE,
+        organization_code: org_code,
+        _id: mongoose.Types.ObjectId(
+          process.env.SHAREIT_ORG_CODE_ID || "112211221122"
+        ),
       }).save((err) => {
         if (err) {
           console.log("error", err);
         }
 
         console.log(
-          `added organization code ${ORG_CODE} to organization_code collection`
+          `added organization code ${org_code} to organization_code collection`
         );
       });
     }
   });
 
-  new CronJob('0 0 * * * *', function() {
-    /*
-     * For it to runs every midnight: '0 0 * * *' 
-     * For it to runs every minute: '0 * * * * *'
-     * * For it to runs every hour: '0 0 * * * *'
-    */    
-    controller.closeExpiredPendingRequests();
-    controller.closeExpiredApprovedRequests();
-    }, function () {
-     /* This function is executed when the job stops */
+  new CronJob(  // Will run every hour
+    "0 0 * * * *",
+    function () {
+      /*
+       * For it to runs every midnight: '0 0 * * *'
+       * For it to runs every minute: '0 * * * * *'
+       * * For it to runs every hour: '0 0 * * * *'
+       */
+      controller.closeExpiredApprovedRequests();
+      controller.closeExpiredPendingRequests();
     },
-     true, /* Start the job right now */
-     //timeZone /* Time zone of this job. */
-    );
+    function () {
+      /* This function is executed when the job stops */
+    },
+    true /* Start the job right now */
+  );
 
-    var transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'shareitsystem901@gmail.com',
-        pass: '316567999'
-      }
-    });
-    
-    var mailOptions = {
-      from: 'shareitsystem901@gmail.com',
-      to: 'shovalm888@gmail.com',
-      subject: 'Sending Email using Node.js',
-      text: 'That was easy!'
-    };
-    
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
-    });
+  new CronJob(  // Will run every midnight
+    "0 0 0 * * *",
+    function () {
+      controller.dbAutoBackUp();
+    },
+    function () {
+      /* This function is executed when the job stops */
+    },
+    true /* Start the job right now */
+  );
 }

@@ -56,10 +56,9 @@ export class ToolService {
     return this.http.delete(TOOL_API + 'board-tool/' + id, { responseType: 'text' });
   }
 
-  requestTool(id: string, requestor: string, expiration_date: Date, borrow_duration: string, content: string): Observable<any> {
+  requestTool(id: string, expiration_date: Date, borrow_duration: string, content: string): Observable<any> {
     return this.http.post(TOOL_API + 'board-tool/' + id, 
     { 
-      requestor: requestor,
       expiration_date: expiration_date,
       borrow_duration: borrow_duration,
       content: content

@@ -12,7 +12,10 @@ module.exports = function(app) {
 
   app.get("/api/notification/notifications/", [authJwt.verifyToken], controller.notifications);
 
-  app.get("/api/notification/recipient_notifications/:id", [authJwt.verifyToken], controller.recipient_notifications);
+  app.get("/api/notification/user_notifications/:id", [authJwt.verifyToken], controller.user_notifications);
 
-  app.get("/api/notification/sender_notifications/:id", [authJwt.verifyToken], controller.sender_notifications);
+  app.post("/api/notification/create/", controller.create_notification);
+
+  app.delete("/api/notification/:id", controller.delete_by_id);
+
 };
