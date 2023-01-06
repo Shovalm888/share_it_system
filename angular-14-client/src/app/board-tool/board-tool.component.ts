@@ -12,6 +12,7 @@ import { StorageService } from '../_services/storage.service';
 import { ToolService } from '../_services/tool.service';
 import { map, shareReplay } from 'rxjs/operators';
 import { interval, Observable } from 'rxjs';
+import { splitNsName } from '@angular/compiler';
 
 const DEFAULT_DURATION = 4000;
 @Component({
@@ -37,6 +38,7 @@ const DEFAULT_DURATION = 4000;
   ],
 })
 export class BoardToolComponent implements OnInit {
+  today = this.local_date_to_str(new Date());
   action_msg?: string;
   isBorrowRequestFailed: boolean = false;
   isActionSucceed: boolean = false;
@@ -122,7 +124,6 @@ export class BoardToolComponent implements OnInit {
     private storageService: StorageService,
     private router: Router
   ) {
-
   }
 
   ngOnInit() {
@@ -272,7 +273,6 @@ export class BoardToolComponent implements OnInit {
     this.toolService
       .requestTool(
         this.tool_id,
-        this.storageService.getUser().id,
         expiration_date,
         this.form.borrow_duration,
         this.form.content || ''
@@ -408,6 +408,7 @@ export class BoardToolComponent implements OnInit {
       .subscribe({
         next: async (data) => {
           // For UI:
+          this.tool_info.status = 'loaned';
           this.action_msg = data.message;
           this.requests.open[i].status = 'approved';
           this.requests.approved = this.requests.open.pop(
@@ -454,7 +455,6 @@ export class BoardToolComponent implements OnInit {
     this.toolService.getToolHistory(this.tool_id).subscribe({
       next: async (data) => {
         // For UI:
-        this.action_msg = data.message;
         this.tool_info.history = data.history;
       },
       error: async (err) => {
@@ -496,6 +496,14 @@ export class BoardToolComponent implements OnInit {
     const secondsToDday =
       Math.floor(timeDifference / milliSecondsInASecond) % secondsInAMinute;
 
+    if(((hoursToDday + (hoursInADay*daysToDday)) * minutesToDday * secondsToDday) <= 0){
+      return {
+        hoursToDday: 0,
+        minutesToDday: 0,
+        secondsToDday: 0,
+      };
+    }
+
     return {
       hoursToDday: hoursToDday + (hoursInADay*daysToDday),
       minutesToDday: minutesToDday,
@@ -504,11 +512,25 @@ export class BoardToolComponent implements OnInit {
   }
 
   date2str(date: Date): string {
-    date = new Date(date);
+    const date_ = new Date(date);
     
-    const hours = (date.getHours()<10?'0':'') + date.getHours();
-    const minutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
-    const seconds = (date.getSeconds()<10?'0':'') + date.getSeconds()
-    return `${date.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
+    const hours = (date_.getHours()<10?'0':'') + date_.getHours();
+    const minutes = (date_.getMinutes()<10?'0':'') + date_.getMinutes();
+    const seconds = (date_.getSeconds()<10?'0':'') + date_.getSeconds();
+    return `${date_.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
+  }
+
+  local_date_to_str(date: Date): string {
+    let date_ = new Date(date).toLocaleDateString();
+    let date_l = date_.split('/');
+    let str = date_l.pop() + '-';
+    for (let i = 0; i < 2 ; i++){
+      if (date_l[i].length === 1){
+        str += '0';
+      }
+      str += date_l[i] + "-";
+    }
+
+    return str.slice(0,10);
   }
 }

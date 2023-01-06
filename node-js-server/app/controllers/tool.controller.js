@@ -1,7 +1,9 @@
+const { mongoose } = require("../models");
 const db = require("../models");
 const Tool = db.tool;
-const ToolRequest = db.tool_request;
 const User = db.user;
+const Notification = db.notification;
+const ToolRequest = db.tool_request;
 
 exports.tools = (req, res) => {
   Tool.find()
@@ -36,7 +38,11 @@ exports.tool_by_id = (req, res) => {
 };
 
 exports.delete_by_id = (req, res) => {
-  Tool.findOneAndRemove({_id: req.params.id, status: {$ne: 'loaned'}, owner: { _id: req.userId } })
+  Tool.findOneAndRemove({
+    _id: req.params.id,
+    status: { $ne: "loaned" },
+    owner: { _id: req.userId },
+  })
     .then((results) => {
       if (results) {
         ToolRequest.deleteMany({ tool: results.id }).then((_) => {
@@ -78,24 +84,41 @@ exports.add = (req, res) => {
 };
 
 exports.request = (req, res) => {
+  const now = new Date();
+
   const tool_request = new ToolRequest({
-    // status: req.body.status,  defaule pending
     content: req.body.content,
     borrow_duration: req.body.borrow_duration,
-    expiration_date: new Date(req.body.expiration_date), // formatted like: "YYYY-MM-DD"
-    date: new Date(),
+    expiration_date: new Date(req.body.expiration_date),
+    date: now,
     tool: req.params.id,
-    requestor: req.body.requestor,
+    requestor: req.userId,
   });
 
   tool_request
     .save()
-    .then((new_tool_request) => {
-      res.status(200).send({
-        message: "Tool request was added successfully!",
-        request: new_tool_request,
-      });
-      return;
+    .then((request) => {
+      request
+        .populate("tool")
+        .populate("requestor")
+        .execPopulate()
+        .then((request) => {
+          new Notification({
+            content: `${request.requestor.username} would like to borrow a tool`,
+            date: now,
+            sender: req.userId,
+            recipient: request.tool.owner,
+            request: request,
+            link: "tools/board-tool/" + req.params.id,
+          })
+            .save()
+            .then((_) => {
+              res.status(200).send({
+                message: "Request has been created successfully",
+                request: request,
+              });
+            });
+        });
     })
     .catch((err) => {
       res.status(500).send({ message: err });
@@ -138,12 +161,21 @@ exports.tool_requests = (req, res) => {
 };
 
 exports.delete_request = (req, res) => {
-  ToolRequest.findOneAndRemove({ _id: req.params.id, status: "pending" })
-    .then((results) => {
-      if (results) {
-        res
-          .status(200)
-          .send({ message: "Request has been deleted sucessfully!" });
+  ToolRequest.findOneAndRemove({
+    _id: req.params.id,
+    status: "pending",
+    requestor: req.userId,
+  })
+    .then((request) => {
+      if (request) {
+        Notification.findOneAndRemove({
+          request: request,
+          sender: req.userId,
+        }).then((_) => {
+          res
+            .status(200)
+            .send({ message: "Request has been deleted sucessfully!" });
+        });
       } else {
         res.status(401).send({ message: "Request was not found" });
       }
@@ -167,12 +199,10 @@ exports.update_request = (req, res) => {
   ToolRequest.findOneAndUpdate(filter, update, { new: true })
     .then((request) => {
       if (request) {
-        res
-          .status(200)
-          .send({
-            message: "Request has been updated sucessfully!",
-            request: request,
-          });
+        res.status(200).send({
+          message: "Request has been updated sucessfully!",
+          request: request,
+        });
       } else {
         res
           .status(401)
@@ -185,6 +215,7 @@ exports.update_request = (req, res) => {
 };
 
 exports.update_request_status = (req, res) => {
+  const now = new Date();
   const status = req.body.status;
 
   filter = { _id: req.params.id, status: { $in: ["approved", "pending"] } };
@@ -192,6 +223,7 @@ exports.update_request_status = (req, res) => {
     status: status === "approved" ? "loaned" : "available",
   };
   tool_filter = {
+    owner: req.userId,
     status: status === "approved" ? "available" : "loaned",
   };
   update_request = {
@@ -199,35 +231,58 @@ exports.update_request_status = (req, res) => {
     expiration_date: req.body.expiration_date,
   };
   if (status === "approved") {
-    update_request.approval_date = new Date();
+    update_request.approval_date = now;
   }
 
-  ToolRequest.findOneAndUpdate(filter, update_request, { new: true })
+  ToolRequest.findOneAndUpdate(filter, update_request, {
+    new: true,
+  })
+    .populate("requestor")
     .then((request) => {
-      if (request && status === "rejected") {
+      if (!request) {
         res
-          .status(200)
-          .send({
-            message: "Request has been updated sucessfully!",
-            request: request,
+          .status(401)
+          .send({ message: "Request was not found", request: request });
+      } else if (status === "approved") {
+        Tool.findOneAndUpdate(tool_filter, update_tool, { new: true })
+          .populate("owner")
+          .then((tool) => {
+            if (!tool) {
+              res
+                .status(401)
+                .send({ message: "Tool was not found", request: request });
+            } else {
+              new Notification({
+                date: now,
+                sender: tool.owner,
+                recipient: request.requestor,
+                link: "tools/board-tool/" + request.tool._id,
+                content: `Your request have been approved, please contact me. \nPhone: ${tool.owner.phone}\nEmail: ${tool.owner.email}`,
+              })
+                .save()
+                .then((_) => {
+                  res.status(200).send({
+                    message: "Request has been updated sucessfully!",
+                    request: request,
+                  });
+                });
+            }
           });
-      } else if (request) {
-        tool_filter._id = request.tool;
-
-        Tool.findOneAndUpdate(tool_filter, update_tool, {new: true}).then((results) => {
-          if (results) {
-            res
-              .status(200)
-              .send({
-                message: "Request has been updated sucessfully!",
-                request: request,
-              });
-          } else {
-            res.status(401).send({ message: "Request's tool was not found" });
-          }
-        });
       } else {
-        res.status(401).send({ message: "Request was not found" });
+        new Notification({
+          date: now,
+          sender: mongoose.Types.ObjectId(req.userId),
+          recipient: request.requestor,
+          link: "tools/board-tool/" + request.tool._id,
+          content: `Your request has been ${status}`,
+        })
+          .save()
+          .then((_) => {
+            res.status(200).send({
+              message: "Request has been updated sucessfully!",
+              request: request,
+            });
+          });
       }
     })
     .catch((err) => {
@@ -263,12 +318,10 @@ exports.request_feedback = (req, res) => {
         }).then((request) => {
           User.findOneAndUpdate(user_filter, { $inc: { rank: inc } }).then(
             (_) => {
-              res
-                .status(200)
-                .send({
-                  message: "User have beed ranked successfully",
-                  request: request,
-                });
+              res.status(200).send({
+                message: "User have beed ranked successfully",
+                request: request,
+              });
             }
           );
         });
@@ -287,14 +340,12 @@ exports.tool_history = (req, res) => {
     .sort({ approval_date: 1 })
     .then((requests) => {
       if (!requests) {
-        res.status(200).send({ message: "History was not found", history: []});
+        res.status(200).send({ message: "History was not found", history: [] });
       } else {
-        res
-          .status(200)
-          .send({
-            message: "Tool history based requests has found successfully",
-            history: parse_requests_to_history(requests),
-          });
+        res.status(200).send({
+          message: "Tool history based requests has found successfully",
+          history: parse_requests_to_history(requests),
+        });
       }
     })
     .catch((err) => {
@@ -304,22 +355,20 @@ exports.tool_history = (req, res) => {
 
 function parse_requests_to_history(requests) {
   let response = [];
-  for(let i = 0; i < requests.length; i++){
-    response.push(
-      {
-        expiration_date: date2str(requests[i].expiration_date),
-        approval_date: date2str(requests[i].approval_date),
-        requestor_name: `${requests[i].requestor.fname} ${requests[i].requestor.lname}`,
-        requestor_username: requests[i].requestor.username
-      }
-    );
+  for (let i = 0; i < requests.length; i++) {
+    response.push({
+      expiration_date: date2str(requests[i].expiration_date),
+      approval_date: date2str(requests[i].approval_date),
+      requestor_name: `${requests[i].requestor.fname} ${requests[i].requestor.lname}`,
+      requestor_username: requests[i].requestor.username,
+    });
   }
   return response;
 }
 
 function date2str(date) {
-  const hours = (date.getHours()<10?'0':'') + date.getHours();
-  const minutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
-  const seconds = (date.getSeconds()<10?'0':'') + date.getSeconds()
+  const hours = (date.getHours() < 10 ? "0" : "") + date.getHours();
+  const minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+  const seconds = (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
   return `${date.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
 }

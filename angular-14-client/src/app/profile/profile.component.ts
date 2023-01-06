@@ -18,6 +18,7 @@ export class ProfileComponent implements OnInit {
     this.user_service.getUsersById(self_id).subscribe({
       next: data => {
         this.currentUser = data.user;
+        this.currentUser.name2display = `${this.capitalize_strings(this.currentUser.fname)} ${this.capitalize_strings(this.currentUser.lname)}` 
       },
       error: err => {
         if (err.error) {
@@ -32,5 +33,9 @@ export class ProfileComponent implements OnInit {
         }
       }
     })
+  }
+
+  capitalize_strings(str: string): string{
+    return str.slice(0,1).toUpperCase() + str.slice(1);
   }
 }
