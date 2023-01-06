@@ -5,7 +5,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th scope="col"  *ngFor="let attr_name of table_attrs.headers">
+            <th scope="col" *ngFor="let attr_name of table_attrs.headers">
             {{ attr_name }}
             </th>
           </tr>
@@ -13,9 +13,6 @@
         <tbody *ngFor="let user_info of table_attrs.entry_info; let i = index">
           <tr class="card-header">
             <th scope="row">{{ i + 1 }}</th>
-            <div class="thumb">
-              <img class="img-fluid" src="../../assets/images/user.png" alt="" width="100" height="100" alt="">
-            </div>
             <td *ngFor="let attr_name of table_attrs.headers.slice(1)">
               {{ user_info[model_attr2headers[attr_name]] }}
             </td>
@@ -72,10 +69,3 @@
     </div>
   </header>
 </div>
-
-
-
-
-
-
-

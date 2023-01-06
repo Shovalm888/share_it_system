@@ -12,6 +12,7 @@ import { StorageService } from '../_services/storage.service';
 import { ToolService } from '../_services/tool.service';
 import { map, shareReplay } from 'rxjs/operators';
 import { interval, Observable } from 'rxjs';
+import { splitNsName } from '@angular/compiler';
 
 const DEFAULT_DURATION = 4000;
 @Component({
@@ -37,6 +38,7 @@ const DEFAULT_DURATION = 4000;
   ],
 })
 export class BoardToolComponent implements OnInit {
+  today = this.local_date_to_str(new Date());
   action_msg?: string;
   isBorrowRequestFailed: boolean = false;
   isActionSucceed: boolean = false;
@@ -122,7 +124,6 @@ export class BoardToolComponent implements OnInit {
     private storageService: StorageService,
     private router: Router
   ) {
-
   }
 
   ngOnInit() {
@@ -515,7 +516,21 @@ export class BoardToolComponent implements OnInit {
     
     const hours = (date_.getHours()<10?'0':'') + date_.getHours();
     const minutes = (date_.getMinutes()<10?'0':'') + date_.getMinutes();
-    const seconds = (date_.getSeconds()<10?'0':'') + date_.getSeconds()
+    const seconds = (date_.getSeconds()<10?'0':'') + date_.getSeconds();
     return `${date_.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
+  }
+
+  local_date_to_str(date: Date): string {
+    let date_ = new Date(date).toLocaleDateString();
+    let date_l = date_.split('/');
+    let str = date_l.pop() + '-';
+    for (let i = 0; i < 2 ; i++){
+      if (date_l[i].length === 1){
+        str += '0';
+      }
+      str += date_l[i] + "-";
+    }
+
+    return str.slice(0,10);
   }
 }

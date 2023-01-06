@@ -119,13 +119,11 @@
               exp
               type="date"
               class="form-control"
-              placeholder="YYYY-MM-DD"
               data-provide="datepicker"
               name="expiration_date"
               [(ngModel)]="form.expiration_date"
               required
-              min="2023-01-05"
-              max="2099-12-31"
+              [attr.min]="today"
               #expiration_date="ngModel"
               [ngClass]="{
                 'is-invalid': f.submitted && expiration_date.errors
@@ -161,7 +159,7 @@
                 Borrow Duration is required
               </div>
               <div *ngIf="borrow_duration.errors['min']">
-                Borrow Duration must be positive period!
+                Borrow Duration must be valid number of days!
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 const db = require("../models");
 const mongoose = require("mongoose");
+require("dotenv").config({ path: __dirname + "/.env" });
 const OrganizationCode = db.organization_code;
 const User = db.user;
 
@@ -33,7 +34,8 @@ exports.setOrganizationCode = (req, res) => {
 };
 
 exports.users = (req, res) => {
-  User.find().populate("roles", "name").then( users => {
+  User.find({_id: {$ne: mongoose.Types.ObjectId(`${process.env.SHAREIT_SYSTEM_USER_ID || '112211221122'}`)}})
+  .populate("roles", "name").then( users => {
     res.status(200).send({users: users});
   }).catch( err => {
     res.status(500).send({message: err});
