@@ -8,79 +8,9 @@
   <i class="fa-solid fa-plus btn" (click)="openPopup()"
     ><br /><small class="">Add tool</small></i
   >
-  <header class="">
-    <div *ngIf="table_attrs.entry_info.length > 0">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col" *ngFor="let attr_name of table_attrs.headers">
-              {{ attr_name }}
-            </th>
-          </tr>
-        </thead>
-        <tbody *ngFor="let ent_info of table_attrs.entry_info; let i = index">
-          <tr class="card-header">
-            <th scope="row">{{ i + 1 }}</th>
-            <td *ngFor="let attr_name of table_attrs.headers.slice(1)">
-              {{ ent_info[model_attr2headers[attr_name]] }}
-            </td>
-            <td>
-              <div class="row">
-                <aside>
-                  <i
-                    class="fa-solid fa-eye-slash btn mx-2 flex-fill bd-highlight"
-                    *ngIf="ent_info.show"
-                    (click)="collapse(i)"
-                  ></i>
-                  <i
-                    class="fa-solid fa-eye btn mx-2 flex-fill bd-highlight"
-                    *ngIf="!ent_info.show"
-                    (click)="expand(i)"
-                  ></i>
-                </aside>
 
-                <a [routerLink]="['board-tool', ent_info._id]"  routerLinkActive="active" class="link-info mx-2 flex-fill bd-highlight" >Tool page</a>
-              </div>
-            </td>
-          </tr>
+  <app-generic-table [table_attrs]="table_attrs" [headers2model_attr]="headers2model_attr" [err_msg]="err_msg"></app-generic-table>
 
-          <tr>
-            <td [attr.colspan]="table_attrs.headers.length">
-              <div class="collapsible" [@collapse]="!ent_info.show">
-                <div *ngFor="let attr_name of table_attrs.card_attrs">
-                  <div
-                    class="row"
-                    *ngIf="ent_info[model_attr2headers[attr_name]]"
-                  >
-                    <div class="col-sm-3">
-                      <h6 class="mb-0">{{ attr_name }}</h6>
-                    </div>
-                    <div class="col-sm-9 text-secondary">
-                      {{ ent_info[model_attr2headers[attr_name]] }}
-                    </div>
-                  </div>
-                </div>
-                <hr />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div
-      class="jumbotron text-justify justify-content-center d-flex"
-      *ngIf="table_attrs.entry_info.length == 0 && !err_msg"
-    >
-      <i class="" aria-hidden="true">No data to display</i>
-    </div>
-    <div
-      class="alert alert-danger text-justify justify-content-center d-flex"
-      role="alert"
-      *ngIf="table_attrs.entry_info.length == 0 && err_msg"
-    >
-      <i class="" aria-hidden="true">{{ err_msg }}</i>
-    </div>
-  </header>
 </div>
 
 <!-- From here is the Modal form of tool adding -->

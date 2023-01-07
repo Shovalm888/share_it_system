@@ -1,37 +1,21 @@
+import { generic_table_attr } from './../generic-table/generic-table.component';
 import { Component, Input, OnInit } from '@angular/core';
 import { UserService } from '../_services/user.service';
-import {
-  AUTO_STYLE,
-  animate,
-  state,
-  style,
-  transition,
-  trigger
-} from '@angular/animations';
-
-const DEFAULT_DURATION = 300;
 
 @Component({
   selector: 'app-board-user',
   templateUrl: './board-user.component.html',
-  styleUrls: ['./board-user.component.css'],
-  animations: [
-    trigger('collapse', [
-      state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
-      state('true', style({ height: '0', visibility: 'hidden' })),
-      transition('false => true', animate(DEFAULT_DURATION + 'ms ease-in')),
-      transition('true => false', animate(DEFAULT_DURATION + 'ms ease-out'))
-    ])
-  ]
+  styleUrls: ['./board-user.component.css']
 })
 export class BoardUserComponent implements OnInit {
   err_msg?: string;
-  table_attrs: any = {
+  table_attrs: generic_table_attr = {
+    is_collapsable: true,
     headers: ["#", "First Name", "Last Name", "User Name"],
     card_attrs: ["Phone Number", "Email", "Rank", "Roles", "Job", "Description"],
     entry_info: []
   };
-  model_attr2headers: any = {
+  headers2model_attr: any = {
     "First Name": "fname",
     "Last Name": "lname",
     "User Name": "username",
@@ -62,7 +46,7 @@ export class BoardUserComponent implements OnInit {
           }
         }
 
-        this.capitalize_all_entries();
+        
       },
       error: err => {
         if (err.error) {
@@ -77,23 +61,5 @@ export class BoardUserComponent implements OnInit {
         }
       }
     });
-  }
-
-  collapse(i: any) {
-    this.table_attrs.entry_info[i].show = false;
-  }
-
-  expand(i: any) {
-    this.table_attrs.entry_info[i].show = true;
-  }
-
-  capitalize_all_entries() {
-    for(let i = 0; i < this.table_attrs.entry_info.length; i++){
-      for (const [key, value] of Object.entries(this.table_attrs.entry_info[i])) {
-        if (typeof value === 'string' && value.length > 0){
-          this.table_attrs.entry_info[i][key] = value[0].toUpperCase() + value.slice(1);
-        }
-      }
-    }
   }
 }

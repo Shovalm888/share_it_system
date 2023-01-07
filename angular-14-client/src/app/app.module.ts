@@ -17,6 +17,7 @@ import { BoardUserComponent } from './board-user/board-user.component';
 import { httpInterceptorProviders } from './_helpers/http.interceptor';
 import { ToolsComponent } from './tools/tools.component';
 import { BoardToolComponent } from './board-tool/board-tool.component';
+import { GenericTableComponent } from './generic-table/generic-table.component';
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import { BoardToolComponent } from './board-tool/board-tool.component';
     BoardUserComponent,
     ToolsComponent,
     BoardToolComponent,
+    GenericTableComponent,
 
   ],
   imports: [

@@ -15,7 +15,8 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div [attr.class]="nav_class" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto" routerLinkActive="active">
+        <ul class="navbar-nav mr-auto collapsible"
+        [@collapse]="!navbarCollapsed" routerLinkActive="active">
           <li class="nav-item">
             <a href="/home" class="nav-link" routerLink="home">Home </a>
           </li>
@@ -56,7 +57,7 @@
             <i
               href="/profile"
               class="nav-link fa-solid fa-bell"
-              style="line-height: 1.5"
+              style="line-height: 1.7"
               *ngIf="isLoggedIn"
               routerLink="profile"
             ></i>

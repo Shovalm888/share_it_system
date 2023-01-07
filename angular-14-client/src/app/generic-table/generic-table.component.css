@@ -4,4 +4,8 @@
 
 tr.hide-table-padding td {
   padding: 0;
-  }
+}
+
+.center_input {
+  text-align: center;
+}
