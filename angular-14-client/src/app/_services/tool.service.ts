@@ -103,4 +103,8 @@ export class ToolService {
     return this.http.get(TOOL_API + 'tool-history/' + id);
   }
 
+  getMyTools(): Observable<any> {
+    return this.http.get(TOOL_API + 'my_tools');
+  }
+
 }

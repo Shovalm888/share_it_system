@@ -16,6 +16,7 @@ export interface actions_metadata_t{
 }
 
 export interface generic_table_attr{
+  height?: string,
   headers: any,
   card_attrs: any,
   entry_info: any,

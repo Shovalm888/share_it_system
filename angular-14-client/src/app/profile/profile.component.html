@@ -1,15 +1,15 @@
-<div class="container" *ngIf="currentUser; else loggedOut">
+<div class="container" *ngIf="current_user; else loggedOut">
   <div class="main-body">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="main-breadcrumb">
       <ol class="breadcrumb">
-        <h3>{{ currentUser.name2display }}'s profile</h3>
+        <h3>{{ current_user.full_name }}'s profile</h3>
       </ol>
     </nav>
     <!-- /Breadcrumb -->
 
     <div class="row gutters-sm">
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <div class="card">
           <div class="card-body">
             <div class="d-flex flex-column align-items-center text-center">
@@ -18,67 +18,36 @@
                 class="rounded-circle"
                 width="150"
               />
-              <div class="mt-3">
-                <h4>Description</h4>
-                <p>{{ currentUser.description }}</p>
-              </div>
+            </div>
+            <div *ngIf="current_user.description; else no_description">
+              <h4 class="mt-3">{{ current_user.description }}</h4>
+            </div>
+            <div>
+              <ng-template #no_description>
+                <p class="mt-4 text-secondary">
+                  Description was not provided...
+                </p>
+              </ng-template>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
-        <div class="card h-100">
-          Here we'll put the notification || tools list
-        </div>
-      </div>
+
       <div class="col-md-8">
         <div class="card mb-3">
           <div class="card-body">
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Full Name</h6>
+            <div *ngFor="let attr of user_properties | keyvalue">
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">{{ attr.key }}</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{ current_user[attr.value] }}
+                </div>
               </div>
-              <div class="col-sm-9 text-secondary">
-                {{ currentUser.fname }} {{ currentUser.lname }}
-              </div>
+              <hr />
             </div>
-            <hr />
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Email</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                {{ currentUser.email }}
-              </div>
-            </div>
-            <hr />
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Phone</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                {{ currentUser.phone }}
-              </div>
-            </div>
-            <hr />
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Address</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                Bay Area, San Francisco, CA
-              </div>
-            </div>
-            <hr />
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Rank</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                {{ currentUser.rank }}
-              </div>
-            </div>
-            <hr />
+
             <div class="row">
               <div class="col-sm-12">
                 <a
@@ -93,96 +62,33 @@
         </div>
 
         <div class="row gutters-sm">
-          <div class="col-sm-6 mb-3">
+          <div class="col mb-3">
             <div class="card h-100">
               <div class="card-body">
                 <h6 class="d-flex align-items-center mb-3">
-                  <i class="material-icons text-info mr-2"></i>My Tools
+                  <i class="material-icons text-info m-2"></i>Notifications
                 </h6>
 
-                <small>Truck</small>
-                <h6 class="d-flex align-items-center mb-3">
-                  <i class="material-icons text-info mr-2"></i>
-                </h6>
-
-                <small>Screwdriver</small>
-                <h6 class="d-flex align-items-center mb-3">
-                  <i class="material-icons text-info mr-2"></i>
-                </h6>
-
-                <small>Raining Coat</small>
-                <h6 class="d-flex align-items-center mb-3">
-                  <i class="material-icons text-info mr-2"></i>
-                </h6>
-
-                <small>Microphone</small>
-                <h6 class="d-flex align-items-center mb-3">
-                  <i class="material-icons text-info mr-2"></i>
-                </h6>
+                <app-generic-table
+                  [table_attrs]="table_attrs"
+                  [headers2model_attr]="headers2model_attr"
+                  [err_msg]="err_msg"
+                ></app-generic-table>
               </div>
             </div>
           </div>
-          <div class="col-sm-6 mb-3">
+          <div class="col mb-3">
             <div class="card h-100">
               <div class="card-body">
                 <h6 class="d-flex align-items-center mb-3">
-                  <i class="material-icons text-info mr-2"></i>Borrowed Tools
+                  <i class="material-icons text-info m-2"></i>My Tools
                 </h6>
-                <small>Web Design</small>
-                <div class="progress mb-3" style="height: 5px">
-                  <div
-                    class="progress-bar bg-primary"
-                    role="progressbar"
-                    style="width: 80%"
-                    aria-valuenow="80"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  ></div>
-                </div>
-                <small>Website Markup</small>
-                <div class="progress mb-3" style="height: 5px">
-                  <div
-                    class="progress-bar bg-primary"
-                    role="progressbar"
-                    style="width: 72%"
-                    aria-valuenow="72"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  ></div>
-                </div>
-                <small>One Page</small>
-                <div class="progress mb-3" style="height: 5px">
-                  <div
-                    class="progress-bar bg-primary"
-                    role="progressbar"
-                    style="width: 89%"
-                    aria-valuenow="89"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  ></div>
-                </div>
-                <small>Mobile Template</small>
-                <div class="progress mb-3" style="height: 5px">
-                  <div
-                    class="progress-bar bg-primary"
-                    role="progressbar"
-                    style="width: 55%"
-                    aria-valuenow="55"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  ></div>
-                </div>
-                <small>Backend API</small>
-                <div class="progress mb-3" style="height: 5px">
-                  <div
-                    class="progress-bar bg-primary"
-                    role="progressbar"
-                    style="width: 66%"
-                    aria-valuenow="66"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  ></div>
-                </div>
+
+                <app-generic-table
+                  [table_attrs]="table_attrs"
+                  [headers2model_attr]="headers2model_attr"
+                  [err_msg]="err_msg"
+                ></app-generic-table>
               </div>
             </div>
           </div>

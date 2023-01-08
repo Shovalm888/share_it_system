@@ -21,6 +21,22 @@ exports.tools = (req, res) => {
     });
 };
 
+exports.my_tools = (req, res) => {
+  Tool.find({owner: req.userId})
+    .populate("owner")
+    .then((tools) => {
+      if (!tools) {
+        res.status(401).send({ message: "Tools was not found" });
+        return;
+      } else {
+        res.status(200).send({ tools: tools });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
 exports.tool_by_id = (req, res) => {
   Tool.findOne({ _id: req.params.id })
     .populate("owner", { username: 1, fname: 1, lname: 1 })
