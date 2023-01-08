@@ -1,6 +1,10 @@
 <div class="container">
   <header class="">
-    <div class="table-responsive" *ngIf="table_attrs.entry_info.length > 0" [attr.style]="table_attrs.height">
+    <div
+      class="table-responsive"
+      *ngIf="table_attrs.entry_info.length > 0"
+      [attr.style]="table_attrs.height"
+    >
       <table class="table">
         <thead>
           <tr>
@@ -11,8 +15,11 @@
         </thead>
         <tbody *ngFor="let ent_info of table_attrs.entry_info; let i = index">
           <tr class="card-header">
-            <th scope="row">{{ i + 1 }}</th>
-            <td class="col-sm-3" *ngFor="let attr_name of table_attrs.headers.slice(1)">
+            <th class="col-sm-1">{{ i + 1 }}</th>
+            <td
+              class="col-sm-3"
+              *ngFor="let attr_name of table_attrs.headers.slice(1)"
+            >
               {{ ent_info[headers2model_attr[attr_name]] }}
             </td>
             <td class="col-sm-2" *ngIf="table_attrs.is_collapsable">
@@ -29,6 +36,13 @@
                     (click)="expand(i)"
                   ></i>
                 </aside>
+
+                <div *ngIf="function" class="btn">
+                  <i
+                    class="{{ function.icon }}"
+                    (click)="function.action(ent_info, table_attrs)"
+                  ></i>
+                </div>
 
                 <a
                   *ngIf="ent_info.link_name"
@@ -53,8 +67,23 @@
                     <div class="col-sm-3">
                       <h6 class="mb-0">{{ attr_name }}</h6>
                     </div>
-                    <div class="col-sm-9 text-secondary">
+                    <div
+                      *ngIf="headers2model_attr[attr_name] !== 'link'"
+                      class="col-sm-9 text-secondary"
+                    >
                       {{ ent_info[headers2model_attr[attr_name]] }}
+                    </div>
+                    <div
+                      *ngIf="headers2model_attr[attr_name] === 'link'"
+                      class="col-sm-9 text-secondary"
+                    >
+                      <a
+                        [routerLink]="['/' + ent_info.link]"
+                        routerLinkActive="active"
+                        class="link-info mx-2 flex-fill bd-highlight"
+                      >
+                        go to tool page
+                      </a>
                     </div>
                   </div>
                 </div>

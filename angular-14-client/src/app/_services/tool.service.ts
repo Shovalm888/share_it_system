@@ -107,4 +107,12 @@ export class ToolService {
     return this.http.get(TOOL_API + 'my_tools');
   }
 
+  getMyBorrows(): Observable<any> {
+    return this.http.get(TOOL_API + 'my_borrows');
+  }
+
+  getMyNotifications(): Observable<any> {
+    return this.http.get(TOOL_API + 'my_notifications');
+  }
+
 }

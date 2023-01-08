@@ -22,7 +22,7 @@ exports.tools = (req, res) => {
 };
 
 exports.my_tools = (req, res) => {
-  Tool.find({owner: req.userId})
+  Tool.find({ owner: req.userId })
     .populate("owner")
     .then((tools) => {
       if (!tools) {
@@ -30,6 +30,39 @@ exports.my_tools = (req, res) => {
         return;
       } else {
         res.status(200).send({ tools: tools });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+exports.my_borrows = (req, res) => {
+  ToolRequest.find({ requestor: req.userId, status: "approved" })
+    .populate("tool")
+    .then((requests) => {
+      if (!requests) {
+        res.status(401).send({ message: "Borrows tools were not found" });
+        return;
+      } else {
+        res.status(200).send({ requests: requests });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+exports.my_notifications = (req, res) => {
+  Notification.find({ recipient: req.userId})
+    .sort({ date: 1 })
+    .populate("sender")
+    .then((notifications) => {
+      if (!notifications) {
+        res.status(401).send({ message: "Borrows tools were not found" });
+        return;
+      } else {
+        res.status(200).send({ notifications: notifications });
       }
     })
     .catch((err) => {

@@ -46,7 +46,7 @@ exports.create_notification = (req, res) => {
 };
 
 exports.delete_by_id = (req, res) => {
-  Notification.findOneAndRemove({_id: req.params.id, sender: req.userId})
+  Notification.findOneAndRemove({_id: req.params.id, $or: [{ recipient: req.userId }, { sender: req.userId }]})
     .then((results) => {
       if (results) {
         res.status(200).send({ message: 'Notification has been deleted sucessfully!' });

@@ -40,4 +40,10 @@ module.exports = function(app) {
     [authJwt.verifyToken],
     controller.user
   );
+
+  app.post(
+    "/api/test/user/update-user",
+    [authJwt.verifyToken],
+    controller.update_user
+  );
 };

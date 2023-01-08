@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const Notification = mongoose.model(
   "Notification",
   new mongoose.Schema({
-    watched: { type: Boolean, default: false },
     content: { type: String, required: true },
     link:    {type: String},
     date:    { type: Date, required: true },

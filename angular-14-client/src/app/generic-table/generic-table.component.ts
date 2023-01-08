@@ -12,7 +12,7 @@ const DEFAULT_DURATION = 300;
 
 export interface actions_metadata_t{
   icon: string,
-  condition: Record<string,(number | string)[]>
+  action: any
 }
 
 export interface generic_table_attr{
@@ -39,10 +39,8 @@ export interface generic_table_attr{
 export class GenericTableComponent implements OnInit {
 
   @Input() table_attrs: generic_table_attr={} as generic_table_attr;
+  @Input() function?: actions_metadata_t; 
   @Input() err_msg?: string;
-  @Input() data: any; 
-  @Input() functions: any; 
-  @Input() global_cfg: any = {};
   @Input() headers2model_attr: any;
 
   constructor() { }

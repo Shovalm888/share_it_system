@@ -49,3 +49,15 @@ exports.user = (req, res) => {
     res.status(500).send({message: err});
   });  
 };
+
+exports.update_user = (req, res) => {
+  if(req.body.password){
+    req.body.password = bcrypt.hashSync(req.body.password, 8);
+  }
+
+  User.findOneAndUpdate({_id: req.userId}, req.body, {new: true}).populate("roles", "name").then( user => {
+    res.status(200).send({message: "User have been updated successfully", user: user});
+  }).catch( err => {
+    res.status(500).send({message: err});
+  });  
+};

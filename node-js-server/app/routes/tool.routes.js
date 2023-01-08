@@ -14,6 +14,10 @@ module.exports = function(app) {
 
   app.get("/api/tool/my_tools", [authJwt.verifyToken], controller.my_tools);
 
+  app.get("/api/tool/my_borrows", [authJwt.verifyToken], controller.my_borrows);
+  
+  app.get("/api/tool/my_notifications", [authJwt.verifyToken], controller.my_notifications);
+
   app.get("/api/tool/tool-history/:id", [authJwt.verifyToken], controller.tool_history);
 
   app.get("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.tool_by_id);
