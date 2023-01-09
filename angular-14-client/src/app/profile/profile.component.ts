@@ -4,7 +4,10 @@ import { ToolService } from './../_services/tool.service';
 import { UserService } from './../_services/user.service';
 import { Component, OnInit } from '@angular/core';
 import { StorageService } from '../_services/storage.service';
-import { actions_metadata_t, generic_table_attr } from '../generic-table/generic-table.component';
+import {
+  actions_metadata_t,
+  generic_table_attr,
+} from '../generic-table/generic-table.component';
 import {
   animate,
   AUTO_STYLE,
@@ -34,8 +37,8 @@ const DEFAULT_DURATION = 3000;
       state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
       state('true', style({ height: '0', visibility: 'hidden' })),
       transition('false => true', animate(600 + 'ms ease-in')),
-      transition('true => false', animate(600 + 'ms ease-out'))
-    ])
+      transition('true => false', animate(600 + 'ms ease-out')),
+    ]),
   ],
 })
 export class ProfileComponent implements OnInit {
@@ -54,7 +57,7 @@ export class ProfileComponent implements OnInit {
     allow_emails: false,
   };
   isActionSucceed: boolean = false;
-  isActionFailed: boolean = false; 
+  isActionFailed: boolean = false;
   isSuccessful = false;
   isChangesFailed = false;
   errorMessage = '';
@@ -62,8 +65,10 @@ export class ProfileComponent implements OnInit {
 
   notification_function: actions_metadata_t = {
     icon: 'fas fa-trash-alt',
-    action: (i: any) => {this.delete_notification(i)}
-  }
+    action: (i: any) => {
+      this.delete_notification(i);
+    },
+  };
 
   my_tools_attrs: generic_table_attr = {
     is_collapsable: true,
@@ -121,8 +126,7 @@ export class ProfileComponent implements OnInit {
     private user_service: UserService,
     private tool_service: ToolService,
     private notification_service: NotificationService
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.user_service.getUser().subscribe({
@@ -141,7 +145,8 @@ export class ProfileComponent implements OnInit {
         this.tool_service.getMyTools().subscribe({
           next: (data) => {
             this.my_tools_attrs.entry_info = data.tools;
-            this.current_user.tools_amount = this.my_tools_attrs.entry_info.length;
+            this.current_user.tools_amount =
+              this.my_tools_attrs.entry_info.length;
             for (let i = 0; i < this.my_tools_attrs.entry_info.length; i++) {
               this.my_tools_attrs.entry_info[i].link_name = 'Tool page';
             }
@@ -213,7 +218,7 @@ export class ProfileComponent implements OnInit {
         this.my_borrows_attrs.entry_info = data.requests;
         for (let i = 0; i < this.my_borrows_attrs.entry_info.length; i++) {
           this.my_borrows_attrs.entry_info[i].link =
-            'board-tool/' + this.my_borrows_attrs.entry_info[i]._id;
+            '/tools/board-tool/' + this.my_borrows_attrs.entry_info[i].tool._id;
           this.my_borrows_attrs.entry_info[i]._id =
             this.my_borrows_attrs.entry_info[i].tool._id;
           this.my_borrows_attrs.entry_info[i].name =
@@ -257,19 +262,25 @@ export class ProfileComponent implements OnInit {
     return str.slice(0, 10);
   }
 
-  delete_notification(i: any){
-    this.notification_service.deleteNotification(this.my_notifications_attrs.entry_info[i]._id).subscribe({
-      next: async (data) => {
-        // For UI:
-        this.action_msg = data.message;
-        this.my_notifications_attrs.entry_info.pop(this.my_notifications_attrs.entry_info[i])
-        await this.display_alert(true);
-      },
-      error: async (err) => {
-        this.parse_error_msg(err);
-        await this.display_alert(false);
-      },
-    });
+  delete_notification(i: any) {
+    if (confirm('Are you sure you want to delete this message?')) {
+      this.notification_service
+        .deleteNotification(this.my_notifications_attrs.entry_info[i]._id)
+        .subscribe({
+          next: async (data) => {
+            // For UI:
+            this.action_msg = data.message;
+            this.my_notifications_attrs.entry_info.pop(
+              this.my_notifications_attrs.entry_info[i]
+            );
+            await this.display_alert(true);
+          },
+          error: async (err) => {
+            this.parse_error_msg(err);
+            await this.display_alert(false);
+          },
+        });
+    }
   }
 
   edit_user() {
@@ -283,7 +294,10 @@ export class ProfileComponent implements OnInit {
     let tmp = this.form;
     let current_user = this.current_user;
     Object.keys(this.form).forEach(function (key, index) {
-      if ((key !== 'password' && tmp[key] !== current_user[key]) || (key === 'password' && tmp[key] !== null)) {
+      if (
+        (key !== 'password' && tmp[key] !== current_user[key]) ||
+        (key === 'password' && tmp[key] !== null)
+      ) {
         changes[key] = tmp[key];
       }
     });

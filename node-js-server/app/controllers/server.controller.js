@@ -5,6 +5,7 @@ const db = require("../models");
 const mongoose = require("mongoose");
 const exec = require("child_process").exec;
 const dbConfig = require("../config/db.config");
+const notifyConfig = require("../config/notifying.config");
 
 const remote_username = encodeURIComponent(dbConfig.REMOTE_USERNAME);
 const remote_password = encodeURIComponent(dbConfig.REMOTE_PASSWORD);
@@ -16,11 +17,11 @@ const ToolRequest = db.tool_request;
 
 // Concatenate root directory path with our backup folder.
 const backupDirPath = path.join(process.cwd(), "database-backup/");
-const local_db = process.argv.slice(2).includes('--remote');
+const local_db = process.argv.slice(2).includes("--remote");
 
 const dbOptions = {
-  user: local_db ? remote_username: (dbConfig.USER_ID || ''),
-  pass: local_db ? remote_password: (dbConfig.USER_PASSWORD || ''),
+  user: local_db ? remote_username : dbConfig.USER_ID || "",
+  pass: local_db ? remote_password : dbConfig.USER_PASSWORD || "",
   host: dbConfig.HOST,
   port: dbConfig.PORT,
   database: dbConfig.DB,
@@ -87,7 +88,11 @@ exports.dbAutoBackUp = () => {
     }
 
     // Command for mongodb dump process
-    let cmd = `mongodump /h ${dbOptions.host} /port ${dbOptions.port} /d ${dbOptions.database} ${dbOptions.user ? `/u ${dbOptions.user}`: ''} ${dbOptions.user ? `/p ${dbOptions.pass}`: ''} /o "${newBackupPath}"`;
+    let cmd = `mongodump /h ${dbOptions.host} /port ${dbOptions.port} /d ${
+      dbOptions.database
+    } ${dbOptions.user ? `/u ${dbOptions.user}` : ""} ${
+      dbOptions.user ? `/p ${dbOptions.pass}` : ""
+    } /o "${newBackupPath}"`;
 
     exec(cmd, (error, stdout, stderr) => {
       if (this.empty(error)) {
@@ -98,8 +103,7 @@ exports.dbAutoBackUp = () => {
             exec("rm -rf " + oldBackupPath, (err) => {});
           }
         }
-      }
-      else {
+      } else {
         console.log("Failed to create system backup with the error: " + stderr);
       }
     });
@@ -245,6 +249,51 @@ exports.closeExpiredApprovedRequests = async function run() {
 
       console.log(
         `Updated ${tools.nModified}/${res.length} tools' status to 'available'`
+      );
+    }
+  } catch (err) {
+    console.error(`Something went wrong: ${err}`);
+  }
+};
+
+exports.notifyDayBeforeBorrowEnds = async function run() {
+  const now = new Date();
+  const threshold_time = new Date(
+    now.getTime() + 1000 * 60 * 60 * notifyConfig.NUM_OF_HOURS_BEFORE_EXP
+  );
+
+  try {
+    const res = await ToolRequest.find({
+      status: "approved",
+      expiration_date: { $lte: threshold_time },
+    })
+      .populate("requestor")
+      .populate("tool");
+
+    if (res.length > 0) {
+      const ack_users = await Notification.bulkWrite(
+        res.map((request) => ({
+          updateOne: {
+            filter: {
+              sender: mongoose.Types.ObjectId(
+                process.env.SHAREIT_SYSTEM_USER_ID
+              ),
+              recipient: request.requestor,
+              request: request,
+            },
+            update: {
+              content: `Your borrow for ${request.tool.name} is about to be expired, please return the tool in time.`,
+              date: now,
+              link: "tools/board-tool/" + request.tool._id,
+            },
+            upsert: true,
+            new: true,
+          },
+        }))
+      );
+
+      console.log(
+        `Ack ${ack_users.nModified}/${res.length} users about borrow's end of time`
       );
     }
   } catch (err) {

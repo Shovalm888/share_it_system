@@ -6,6 +6,7 @@ var CronJob = require("cron").CronJob;
 const cookieSession = require("cookie-session");
 const dbConfig = require("./app/config/db.config");
 require("dotenv").config({ path: __dirname + "/.env" });
+const notifyConfig = require("./app/config/notifying.config");
 const controller = require("./app/controllers/server.controller");
 
 const remote_username = encodeURIComponent(dbConfig.REMOTE_USERNAME);
@@ -174,6 +175,17 @@ function initial() {
     "0 0 0 * * *",
     function () {
       controller.dbAutoBackUp();
+    },
+    function () {
+      /* This function is executed when the job stops */
+    },
+    true /* Start the job right now */
+  );
+
+  new CronJob(  // Will run every "HOUR_OF_SENDING_NOTIFY" Oclock
+    `0 0 ${notifyConfig.HOUR_OF_SENDING_NOTIFY} * * *`,
+    function () {
+      controller.notifyDayBeforeBorrowEnds();
     },
     function () {
       /* This function is executed when the job stops */

@@ -146,6 +146,7 @@
               [(ngModel)]="form.borrow_duration"
               required
               min="1"
+              max="{{ tool_info.max_time_borrow }}"
               #borrow_duration="ngModel"
               [ngClass]="{
                 'is-invalid': f.submitted && borrow_duration.errors
@@ -158,8 +159,8 @@
               <div *ngIf="borrow_duration.errors['required']">
                 Borrow Duration is required
               </div>
-              <div *ngIf="borrow_duration.errors['min']">
-                Borrow Duration must be valid number of days!
+              <div *ngIf="borrow_duration.errors['min'] || borrow_duration.errors['max']">
+                Borrow Duration must be between 1 to {{ tool_info.max_time_borrow }} days
               </div>
             </div>
           </div>
