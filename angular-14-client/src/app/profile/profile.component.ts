@@ -62,7 +62,7 @@ export class ProfileComponent implements OnInit {
 
   notification_function: actions_metadata_t = {
     icon: 'fas fa-trash-alt',
-    action: this.delete_notification
+    action: (i: any) => {this.delete_notification(i)}
   }
 
   my_tools_attrs: generic_table_attr = {
@@ -78,7 +78,7 @@ export class ProfileComponent implements OnInit {
     entry_info: [],
   };
 
-  my_notifications_attrs: generic_table_attr = {
+  public my_notifications_attrs: generic_table_attr = {
     is_collapsable: true,
     headers: ['#', 'From', 'Date'],
     card_attrs: ['Content', 'Link'],
@@ -121,7 +121,8 @@ export class ProfileComponent implements OnInit {
     private user_service: UserService,
     private tool_service: ToolService,
     private notification_service: NotificationService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.user_service.getUser().subscribe({
@@ -136,28 +137,28 @@ export class ProfileComponent implements OnInit {
             tmp[key] = data.user[key];
           }
         });
-      },
-      error: (err) => {
-        if (err.error) {
-          try {
-            const res = JSON.parse(err.error);
-            this.err_msg = res.message;
-          } catch {
-            this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
-          }
-        } else {
-          this.err_msg = `Error with status: ${err.status}`;
-        }
-      },
-    });
 
-    this.tool_service.getMyTools().subscribe({
-      next: (data) => {
-        this.my_tools_attrs.entry_info = data.tools;
-        this.current_user.tools_amount = this.my_tools_attrs.entry_info.length;
-        for (let i = 0; i < this.my_tools_attrs.entry_info.length; i++) {
-          this.my_tools_attrs.entry_info[i].link_name = 'Tool page';
-        }
+        this.tool_service.getMyTools().subscribe({
+          next: (data) => {
+            this.my_tools_attrs.entry_info = data.tools;
+            this.current_user.tools_amount = this.my_tools_attrs.entry_info.length;
+            for (let i = 0; i < this.my_tools_attrs.entry_info.length; i++) {
+              this.my_tools_attrs.entry_info[i].link_name = 'Tool page';
+            }
+          },
+          error: (err) => {
+            if (err.error) {
+              try {
+                const res = JSON.parse(err.error);
+                this.err_msg = res.message;
+              } catch {
+                this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
+              }
+            } else {
+              this.err_msg = `Error with status: ${err.status}`;
+            }
+          },
+        });
       },
       error: (err) => {
         if (err.error) {

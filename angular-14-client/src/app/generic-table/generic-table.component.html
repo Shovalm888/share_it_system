@@ -40,14 +40,14 @@
                 <div *ngIf="function" class="btn">
                   <i
                     class="{{ function.icon }}"
-                    (click)="function.action(ent_info, table_attrs)"
+                    (click)="function.action(i)"
                   ></i>
                 </div>
 
                 <a
                   *ngIf="ent_info.link_name"
                   style="line-height: 2.3"
-                  [routerLink]="['board-tool', ent_info._id]"
+                  [routerLink]="['/tools/board-tool', ent_info._id]"
                   routerLinkActive="active"
                   class="link-info mx-2 flex-fill bd-highlight"
                   >{{ ent_info.link_name }}</a

@@ -16,6 +16,6 @@ module.exports = function(app) {
 
   app.post("/api/notification/create/", controller.create_notification);
 
-  app.delete("/api/notification/:id", controller.delete_by_id);
+  app.delete("/api/notification/:id", [authJwt.verifyToken], controller.delete_by_id);
 
 };
