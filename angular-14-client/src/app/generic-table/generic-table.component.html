@@ -17,41 +17,38 @@
           <tr class="card-header">
             <th class="col-sm-1">{{ i + 1 }}</th>
             <td
-              class="col-sm-3"
+              class="col-md-2"
               *ngFor="let attr_name of table_attrs.headers.slice(1)"
             >
               {{ ent_info[headers2model_attr[attr_name]] }}
             </td>
-            <td class="col-sm-2" *ngIf="table_attrs.is_collapsable">
+            <td class="col-sm-2">
               <div class="row">
-                <aside>
-                  <i
-                    class="fa-solid fa-eye-slash btn"
-                    *ngIf="ent_info.show"
-                    (click)="collapse(i)"
-                  ></i>
-                  <i
-                    class="fa-solid fa-eye btn"
-                    *ngIf="!ent_info.show"
-                    (click)="expand(i)"
-                  ></i>
-                </aside>
-
-                <div *ngIf="function" class="btn">
-                  <i
-                    class="{{ function.icon }}"
-                    (click)="function.action(i)"
-                  ></i>
+                <div *ngIf="table_attrs.is_collapsable">
+                  <aside>
+                    <i
+                      class="fa-solid fa-eye-slash btn"
+                      *ngIf="ent_info.show"
+                      (click)="collapse(i)"
+                    ></i>
+                    <i
+                      class="fa-solid fa-eye btn"
+                      *ngIf="!ent_info.show"
+                      (click)="expand(i)"
+                    ></i>
+                  </aside>
                 </div>
 
-                <a
-                  *ngIf="ent_info.link_name"
-                  style="line-height: 2.3"
-                  [routerLink]="['/tools/board-tool', ent_info._id]"
-                  routerLinkActive="active"
-                  class="link-info mx-2 flex-fill bd-highlight"
-                  >{{ ent_info.link_name }}</a
-                >
+                <div *ngFor="let elem of functions || []" class="btn">
+                  <i class="{{ elem.icon }}" (click)="elem.action(i)"></i>
+                </div>
+
+                <div *ngIf="ent_info.function" class="btn">
+                  <i
+                    class="{{ ent_info.function.icon }}"
+                    (click)="ent_info.function.action(i)"
+                  ></i>
+                </div>
               </div>
             </td>
           </tr>
@@ -82,7 +79,7 @@
                         routerLinkActive="active"
                         class="link-info mx-2 flex-fill bd-highlight"
                       >
-                        go to tool page
+                        <u>go to tool page</u>
                       </a>
                     </div>
                   </div>

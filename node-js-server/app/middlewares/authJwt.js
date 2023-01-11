@@ -20,6 +20,25 @@ verifyToken = (req, res, next) => {
   });
 };
 
+verifySuspention = (req, res, next) => {
+  User.findById(req.userId).exec((err, user) => {
+    if (err) {
+      res.status(500).send({ message: err });
+      return;
+    }
+
+    if (user.is_suspended) {
+      res
+        .status(403)
+        .send({ message: "Action allowed for not suspended users only!" });
+      return;
+    } else {
+      next();
+      return;
+    }
+  });
+};
+
 isAdmin = (req, res, next) => {
   User.findById(req.userId).exec((err, user) => {
     if (err) {
@@ -86,5 +105,6 @@ const authJwt = {
   verifyToken,
   isAdmin,
   isModerator,
+  verifySuspention
 };
 module.exports = authJwt;

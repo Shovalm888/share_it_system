@@ -1,16 +1,28 @@
 <div class="container">
-  <div class="alert alert-success" role="alert" *ngIf="isSuccessful && successMessage">
+  <div
+    class="alert alert-success"
+    role="alert"
+    *ngIf="isSuccessful && successMessage"
+  >
     {{ successMessage }}
   </div>
-  <div class="alert alert-danger" role="alert" *ngIf="isAddingToolFailed && errorMessage">
+  <div
+    class="alert alert-danger"
+    role="alert"
+    *ngIf="isAddingToolFailed && errorMessage"
+  >
     {{ errorMessage }}
   </div>
   <i class="fa-solid fa-plus btn" (click)="openPopup()"
     ><br /><small class="">Add tool</small></i
   >
 
-  <app-generic-table [table_attrs]="table_attrs" [headers2model_attr]="headers2model_attr" [err_msg]="err_msg"></app-generic-table>
-
+  <app-generic-table
+    [table_attrs]="table_attrs"
+    [headers2model_attr]="headers2model_attr"
+    [err_msg]="err_msg"
+    [functions]="functions"
+  ></app-generic-table>
 </div>
 
 <!-- From here is the Modal form of tool adding -->
@@ -29,10 +41,13 @@
           #f="ngForm"
           novalidate
         >
-
-        <div *ngIf="form_err_msg.length > 0" class="alert alert-danger" role="alert">
-          {{ form_err_msg }}
-        </div>
+          <div
+            *ngIf="form_err_msg.length > 0"
+            class="alert alert-danger"
+            role="alert"
+          >
+            {{ form_err_msg }}
+          </div>
           <div class="form-group">
             <label for="name">*Tool name</label>
             <input
@@ -70,13 +85,23 @@
               pattern="\d*"
               maxlength="4"
               #manufacturing_date="ngModel"
-              [ngClass]="{ 'is-invalid': f.submitted && manufacturing_date.errors }"
+              [ngClass]="{
+                'is-invalid': f.submitted && manufacturing_date.errors
+              }"
             />
-            <div class="invalid-feedback" *ngIf="manufacturing_date.errors && f.submitted">
+            <div
+              class="invalid-feedback"
+              *ngIf="manufacturing_date.errors && f.submitted"
+            >
               <div *ngIf="manufacturing_date.errors['required']">
                 Manufacturing Date is required
               </div>
-              <div *ngIf="manufacturing_date.errors['pattern'] || manufacturing_date.errors['maxlength']">
+              <div
+                *ngIf="
+                  manufacturing_date.errors['pattern'] ||
+                  manufacturing_date.errors['maxlength']
+                "
+              >
                 Manufacturing Date must be 4 digits year, e.g: 1995
               </div>
             </div>
@@ -112,10 +137,17 @@
               minlength="1"
               maxlength="20"
               #max_time_borrow="ngModel"
-              [ngClass]="{ 'is-invalid': f.submitted && max_time_borrow.errors }"
+              [ngClass]="{
+                'is-invalid': f.submitted && max_time_borrow.errors
+              }"
             />
-            <div class="invalid-feedback" *ngIf="max_time_borrow.errors && f.submitted">
-              <div *ngIf="max_time_borrow.errors['required']">Max Borrow Time is required</div>
+            <div
+              class="invalid-feedback"
+              *ngIf="max_time_borrow.errors && f.submitted"
+            >
+              <div *ngIf="max_time_borrow.errors['required']">
+                Max Borrow Time is required
+              </div>
               <div *ngIf="max_time_borrow.errors['minlength']">
                 Max Borrow Time must be at least 1 day
               </div>
@@ -135,7 +167,10 @@
               #categories="ngModel"
               [ngClass]="{ 'is-invalid': f.submitted && categories.errors }"
             />
-            <div class="invalid-feedback" *ngIf="categories.errors && f.submitted">
+            <div
+              class="invalid-feedback"
+              *ngIf="categories.errors && f.submitted"
+            >
               <div *ngIf="categories.errors['maxlength']">
                 Categories must be at most 20 characters
               </div>
@@ -152,7 +187,10 @@
               #producer="ngModel"
               [ngClass]="{ 'is-invalid': f.submitted && producer.errors }"
             />
-            <div class="invalid-feedback" *ngIf="producer.errors && f.submitted">
+            <div
+              class="invalid-feedback"
+              *ngIf="producer.errors && f.submitted"
+            >
               <div *ngIf="producer.errors['maxlength']">
                 Producer must be at most 20 characters
               </div>
@@ -169,13 +207,16 @@
               #description="ngModel"
               [ngClass]="{ 'is-invalid': f.submitted && description.errors }"
             />
-            <div class="invalid-feedback" *ngIf="description.errors && f.submitted">
+            <div
+              class="invalid-feedback"
+              *ngIf="description.errors && f.submitted"
+            >
               <div *ngIf="description.errors['maxlength']">
                 Decription can be at most 20 characters
               </div>
             </div>
           </div>
-          
+
           <div class="row">
             <div class="col">
               <button

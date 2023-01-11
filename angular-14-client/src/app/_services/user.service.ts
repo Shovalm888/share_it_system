@@ -41,4 +41,12 @@ export class UserService {
   updateUser(params_dict: any): Observable<any> {
     return this.http.post(API_URL + 'user/update-user', params_dict, httpOptions);
   }
+
+  suspendUser(id: any): Observable<any> {
+    return this.http.post(API_URL + 'user/suspend/' + id , httpOptions);
+  }
+
+  elevatedUser(id: any): Observable<any> {
+    return this.http.post(API_URL + 'user/elevated/' + id , httpOptions);
+  }
 }

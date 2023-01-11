@@ -54,8 +54,8 @@ exports.my_borrows = (req, res) => {
 };
 
 exports.my_notifications = (req, res) => {
-  Notification.find({ recipient: req.userId})
-    .sort({ date: 1 })
+  Notification.find({ recipient: req.userId })
+    .sort({ date: -1 })
     .populate("sender")
     .then((notifications) => {
       if (!notifications) {
@@ -283,56 +283,74 @@ exports.update_request_status = (req, res) => {
     update_request.approval_date = now;
   }
 
-  ToolRequest.findOneAndUpdate(filter, update_request, {
-    new: true,
-  })
-    .populate("requestor")
-    .then((request) => {
-      if (!request) {
-        res
-          .status(401)
-          .send({ message: "Request was not found", request: request });
-      } else if (status === "approved") {
-        Tool.findOneAndUpdate(tool_filter, update_tool, { new: true })
-          .populate("owner")
-          .then((tool) => {
-            if (!tool) {
-              res
-                .status(401)
-                .send({ message: "Tool was not found", request: request });
-            } else {
-              new Notification({
-                date: now,
-                sender: tool.owner,
-                recipient: request.requestor,
-                link: "tools/board-tool/" + request.tool._id,
-                content: `Your request have been approved, please contact me. \nPhone: ${tool.owner.phone}\nEmail: ${tool.owner.email}`,
-              })
-                .save()
-                .then((_) => {
-                  res.status(200).send({
-                    message: "Request has been updated sucessfully!",
-                    request: request,
-                  });
-                });
+  User.findOne({ _id: req.userId })
+    .then((tool_owner) => {
+      ToolRequest.findOneAndUpdate(filter, update_request, {
+        new: true,
+      })
+        .populate("requestor")
+        .then((request) => {
+          if (!request) {
+            res
+              .status(401)
+              .send({ message: "Request was not found", request: request });
+          } else if (status === "approved") {
+            Tool.findOneAndUpdate(tool_filter, update_tool, { new: true })
+              .populate("owner")
+              .then((tool) => {
+                if (!tool) {
+                  res
+                    .status(401)
+                    .send({ message: "Tool was not found", request: request });
+                } else {
+                  new Notification({
+                    date: now,
+                    sender: tool.owner,
+                    recipient: request.requestor,
+                    link: "tools/board-tool/" + request.tool._id,
+                    content: `Your request have been approved, please contact me. \nPhone: ${tool.owner.phone}\nEmail: ${tool.owner.email}`,
+                  })
+                    .save()
+                    .then((_) => {
+                      res.status(200).send({
+                        message: "Request has been updated sucessfully!",
+                        request: request,
+                      });
+                    });
+                }
+              });
+          } else {
+            // Status == 'closed'
+            if (tool_owner.is_suspended == true){
+              update_tool = {status: 'not available'};
             }
-          });
-      } else {
-        new Notification({
-          date: now,
-          sender: mongoose.Types.ObjectId(req.userId),
-          recipient: request.requestor,
-          link: "tools/board-tool/" + request.tool._id,
-          content: `Your request has been ${status}`,
-        })
-          .save()
-          .then((_) => {
-            res.status(200).send({
-              message: "Request has been updated sucessfully!",
-              request: request,
-            });
-          });
-      }
+            
+            Tool.findOneAndUpdate(tool_filter, update_tool, { new: true })
+              .populate("owner")
+              .then((tool) => {
+                if (!tool) {
+                  res
+                    .status(401)
+                    .send({ message: "Tool was not found", request: request });
+                } else {
+                  new Notification({
+                    date: now,
+                    sender: mongoose.Types.ObjectId(req.userId),
+                    recipient: request.requestor,
+                    link: "tools/board-tool/" + request.tool._id,
+                    content: `Your request has been ${status}`,
+                  })
+                    .save()
+                    .then((_) => {
+                      res.status(200).send({
+                        message: "Request has been updated sucessfully!",
+                        request: request,
+                      });
+                    });
+                }
+              });
+          }
+        });
     })
     .catch((err) => {
       res.status(500).send({ message: err });
@@ -386,7 +404,7 @@ exports.tool_history = (req, res) => {
 
   ToolRequest.find({ tool: tool_id, approval_date: { $ne: null } })
     .populate("requestor")
-    .sort({ approval_date: 1 })
+    .sort({ approval_date: -1 })
     .then((requests) => {
       if (!requests) {
         res.status(200).send({ message: "History was not found", history: [] });

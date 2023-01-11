@@ -46,4 +46,16 @@ module.exports = function(app) {
     [authJwt.verifyToken],
     controller.update_user
   );
+
+  app.post(
+    "/api/test/user/suspend/:id",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.suspend_user
+  );
+
+  app.post(
+    "/api/test/user/elevated/:id",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.elevated_user
+  );
 };

@@ -1,16 +1,5 @@
 <!-- display tool was not found in case of !tool_info -->
-<div class="container">
-  <div class="row">
-    <aside class="w-100">
-      <div class="alert alert-success" [@fade]="isActionSucceed">
-        {{ action_msg }}
-      </div>
-
-      <div class="alert alert-danger" [@fade]="isActionFailed">
-        {{ action_msg }}
-      </div>
-    </aside>
-  </div>
+<div class="container mt-5">
   <div class="row">
     <!-- Tool info + delete button + current borrow if exist -->
     <div class="col-sm-5 border-left border-right">
@@ -343,4 +332,16 @@
       </div>
     </header>
   </div>
+</div>
+
+<div class="alert-top" *ngIf="action_msg">
+  <aside class="w-100 mt-0">
+    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
+      {{ action_msg }}
+    </div>
+
+    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
+      {{ action_msg }}
+    </div>
+  </aside>
 </div>

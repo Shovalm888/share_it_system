@@ -3,7 +3,7 @@ import { StorageService } from '../_services/storage.service';
 import { ToolService } from '../_services/tool.service';
 import { Router } from '@angular/router';
 import { VariableBinding } from '@angular/compiler';
-import { generic_table_attr } from '../generic-table/generic-table.component';
+import { actions_metadata_t, generic_table_attr } from '../generic-table/generic-table.component';
 
 
 @Component({
@@ -12,6 +12,11 @@ import { generic_table_attr } from '../generic-table/generic-table.component';
   styleUrls: ['./tools.component.css']
 }) // form err msg!!!!!!!!!!!!!!
 export class ToolsComponent implements OnInit {
+  functions: Array<actions_metadata_t> = [{
+    icon: "fa-solid fa-link",
+    action: (i: any) => {this.go_to(i)}
+  }];
+
   form_err_msg: string = '';
   err_msg?: string;
   displayStyle = 'none';
@@ -67,7 +72,6 @@ export class ToolsComponent implements OnInit {
       next: (data) => {
         this.table_attrs.entry_info = JSON.parse(data).tools;
         for (let i = 0; i < this.table_attrs.entry_info.length; i++) {
-          this.table_attrs.entry_info[i].link_name = 'Tool page';
           this.table_attrs.entry_info[i].owner =
             this.table_attrs.entry_info[i].owner.username;
         }
@@ -98,6 +102,10 @@ export class ToolsComponent implements OnInit {
     }
 
     return this.form_err_msg.length == 0;
+  }
+
+  go_to(i: any){
+    this.router.navigate(['/tools/board-tool/' , this.table_attrs.entry_info[i]._id]);
   }
 
   onSubmit(): void {

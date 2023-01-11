@@ -22,9 +22,9 @@ module.exports = function(app) {
 
   app.get("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.tool_by_id);
 
-  app.post("/api/tool/add", [authJwt.verifyToken], controller.add);
+  app.post("/api/tool/add", [authJwt.verifyToken, authJwt.verifySuspention], controller.add);
 
-  app.post("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.request);
+  app.post("/api/tool/board-tool/:id", [authJwt.verifyToken, authJwt.verifySuspention], controller.request);
 
   app.delete("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.delete_by_id);
 
@@ -32,11 +32,11 @@ module.exports = function(app) {
 
   app.get("/api/tool/board-tool/requests", [authJwt.verifyToken], controller.requests);
 
-  app.post("/api/tool/board-tool/request/feedback", [authJwt.verifyToken], controller.request_feedback);
+  app.post("/api/tool/board-tool/request/feedback", [authJwt.verifyToken, authJwt.verifySuspention], controller.request_feedback);
 
   app.get("/api/tool/board-tool/requests/:id", [authJwt.verifyToken], controller.tool_requests);
 
-  app.post("/api/tool/board-tool/request/:id", [authJwt.verifyToken], controller.update_request);
+  app.post("/api/tool/board-tool/request/:id", [authJwt.verifyToken, authJwt.verifySuspention], controller.update_request);
 
   app.post("/api/tool/board-tool/request_status/:id", [authJwt.verifyToken], controller.update_request_status);
 };

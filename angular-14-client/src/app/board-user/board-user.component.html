@@ -1,2 +1,38 @@
-<app-generic-table [table_attrs]="table_attrs" [headers2model_attr]="headers2model_attr" [err_msg]="err_msg"></app-generic-table>
+<div class="container">
+  <div class="table">
+    <div class="form-row mx-3 mt-5 d-flex justify-content-center">
+      <div class="col-7">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Search"
+          aria-label="Search"
+        />
+      </div>
+      <div class="col-3">
+        <button class="btn btn-outline-primary w-100">Search</button>
+      </div>
+    </div>
 
+    <div class="row mx-3 mt-5">
+      <app-generic-table
+        class="w-100"
+        [table_attrs]="table_attrs"
+        [headers2model_attr]="headers2model_attr"
+        [err_msg]="err_msg"
+      ></app-generic-table>
+    </div>
+  </div>
+</div>
+
+<div class="alert-top" *ngIf="action_msg">
+  <aside class="w-100 mt-0">
+    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
+      {{ action_msg }}
+    </div>
+
+    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
+      {{ action_msg }}
+    </div>
+  </aside>
+</div>

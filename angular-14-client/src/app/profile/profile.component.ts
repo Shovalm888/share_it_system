@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { NotificationService } from './../_services/notification.service';
 import { map } from 'rxjs/operators';
 import { ToolService } from './../_services/tool.service';
@@ -63,14 +64,25 @@ export class ProfileComponent implements OnInit {
   errorMessage = '';
   action_msg = '';
 
-  notification_function: actions_metadata_t = {
+  notification_functions: Array<actions_metadata_t> = [{
     icon: 'fas fa-trash-alt',
     action: (i: any) => {
       this.delete_notification(i);
     },
-  };
+  }];
+
+  tool_functions: Array<actions_metadata_t> = [{
+    icon: "fa-solid fa-link",
+    action: (i: any) => {this.go_to_my_tool(i)}
+  }];
+
+  borrow_functions: Array<actions_metadata_t> = [{
+    icon: "fa-solid fa-link",
+    action: (i: any) => {this.go_to_my_borrow(i)}
+  }];
 
   my_tools_attrs: generic_table_attr = {
+    height: "height: 500px !important;",
     is_collapsable: true,
     headers: ['#', 'Tool Name', 'Status'],
     card_attrs: [
@@ -84,6 +96,7 @@ export class ProfileComponent implements OnInit {
   };
 
   public my_notifications_attrs: generic_table_attr = {
+    height: "height: 500px !important;",
     is_collapsable: true,
     headers: ['#', 'From', 'Date'],
     card_attrs: ['Content', 'Link'],
@@ -91,9 +104,10 @@ export class ProfileComponent implements OnInit {
   };
 
   my_borrows_attrs: generic_table_attr = {
-    is_collapsable: true,
+    height: "height: 500px !important;",
+    is_collapsable: false,
     headers: ['#', 'Tool Name', 'Expired'],
-    card_attrs: ['Link'],
+    card_attrs: [],
     entry_info: [],
   };
 
@@ -122,7 +136,7 @@ export class ProfileComponent implements OnInit {
   };
 
   constructor(
-    private storageService: StorageService,
+    private router: Router,
     private user_service: UserService,
     private tool_service: ToolService,
     private notification_service: NotificationService
@@ -147,9 +161,6 @@ export class ProfileComponent implements OnInit {
             this.my_tools_attrs.entry_info = data.tools;
             this.current_user.tools_amount =
               this.my_tools_attrs.entry_info.length;
-            for (let i = 0; i < this.my_tools_attrs.entry_info.length; i++) {
-              this.my_tools_attrs.entry_info[i].link_name = 'Tool page';
-            }
           },
           error: (err) => {
             if (err.error) {
@@ -195,7 +206,7 @@ export class ProfileComponent implements OnInit {
             this.my_notifications_attrs.entry_info[i].sender.lname
           )}`;
           this.my_notifications_attrs.entry_info[i].date =
-            this.local_date_to_str(
+            this.date2str(
               this.my_notifications_attrs.entry_info[i].date
             );
         }
@@ -217,14 +228,12 @@ export class ProfileComponent implements OnInit {
       next: (data) => {
         this.my_borrows_attrs.entry_info = data.requests;
         for (let i = 0; i < this.my_borrows_attrs.entry_info.length; i++) {
-          this.my_borrows_attrs.entry_info[i].link =
-            '/tools/board-tool/' + this.my_borrows_attrs.entry_info[i].tool._id;
           this.my_borrows_attrs.entry_info[i]._id =
             this.my_borrows_attrs.entry_info[i].tool._id;
           this.my_borrows_attrs.entry_info[i].name =
             this.my_borrows_attrs.entry_info[i].tool.name;
           this.my_borrows_attrs.entry_info[i].expiration_date =
-            this.local_date_to_str(
+            this.date2str(
               this.my_borrows_attrs.entry_info[i].expiration_date
             );
         }
@@ -248,18 +257,13 @@ export class ProfileComponent implements OnInit {
     return str.slice(0, 1).toUpperCase() + str.slice(1);
   }
 
-  local_date_to_str(date: Date): string {
-    let date_ = new Date(date).toLocaleDateString();
-    let date_l = date_.split('/');
-    let str = date_l.pop() + '-';
-    for (let i = 0; i < 2; i++) {
-      if (date_l[i].length === 1) {
-        str += '0';
-      }
-      str += date_l[i] + '-';
-    }
-
-    return str.slice(0, 10);
+  date2str(date: Date): string {
+    const date_ = new Date(date);
+    
+    const hours = (date_.getHours()<10?'0':'') + date_.getHours();
+    const minutes = (date_.getMinutes()<10?'0':'') + date_.getMinutes();
+    const seconds = (date_.getSeconds()<10?'0':'') + date_.getSeconds();
+    return `${date_.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
   }
 
   delete_notification(i: any) {
@@ -281,6 +285,14 @@ export class ProfileComponent implements OnInit {
           },
         });
     }
+  }
+
+  go_to_my_tool(i: any){
+    this.router.navigate(['/tools/board-tool/' , this.my_tools_attrs.entry_info[i]._id]);
+  }
+
+  go_to_my_borrow(i: any){
+    this.router.navigate(['/tools/board-tool/' , this.my_borrows_attrs.entry_info[i]._id]);
   }
 
   edit_user() {

@@ -1,15 +1,4 @@
-<div class="container" *ngIf="current_user; else loggedOut">
-  <div class="row collapsible" [@collapse]="!action_msg">
-    <aside class="w-100">
-      <div class="alert alert-success" [@fade]="isActionSucceed">
-        {{ action_msg }}
-      </div>
-
-      <div class="alert alert-danger" [@fade]="isActionFailed">
-        {{ action_msg }}
-      </div>
-    </aside>
-  </div>
+<div class="container mt-5" *ngIf="current_user; else loggedOut">
   <div class="main-body">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="main-breadcrumb">
@@ -292,6 +281,7 @@
               [table_attrs]="my_borrows_attrs"
               [headers2model_attr]="headers2model_attr"
               [err_msg]="err_msg"
+              [functions]="borrow_functions"
             ></app-generic-table>
           </div>
         </div>
@@ -309,7 +299,7 @@
               [table_attrs]="my_notifications_attrs"
               [headers2model_attr]="headers2model_attr"
               [err_msg]="err_msg"
-              [function]="notification_function"
+              [functions]="notification_functions"
             ></app-generic-table>
           </div>
         </div>
@@ -325,6 +315,7 @@
               [table_attrs]="my_tools_attrs"
               [headers2model_attr]="headers2model_attr"
               [err_msg]="err_msg"
+              [functions]="tool_functions"
             ></app-generic-table>
           </div>
         </div>
@@ -333,3 +324,16 @@
   </div>
 </div>
 <ng-template #loggedOut> Please login. </ng-template>
+
+
+<div class="alert-top" *ngIf="action_msg">
+  <aside class="w-100 mt-0">
+    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
+      {{ action_msg }}
+    </div>
+
+    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
+      {{ action_msg }}
+    </div>
+  </aside>
+</div>

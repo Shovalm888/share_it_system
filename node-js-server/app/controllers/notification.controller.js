@@ -17,7 +17,7 @@ exports.user_notifications = (req, res) => {
   Notification.find({$or: [{ recipient: req.userId }, { sender: req.userId }]})
     .populate("sender")
     .populate("recipient")
-    .sort({date: 1})
+    .sort({date: -1})
     .then((notifications) => {
       res.status(200).send({ notifications: notifications });
     })

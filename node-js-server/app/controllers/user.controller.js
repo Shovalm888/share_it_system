@@ -1,7 +1,11 @@
 const db = require("../models");
 const mongoose = require("mongoose");
+const { deleteMany } = require("../models/user.model");
 require("dotenv").config({ path: __dirname + "/.env" });
 const OrganizationCode = db.organization_code;
+const ToolRequest = db.tool_request;
+const Notification = db.notification;
+const Tool = db.tool;
 const User = db.user;
 
 exports.allAccess = (req, res) => {
@@ -21,43 +25,169 @@ exports.moderatorBoard = (req, res) => {
 };
 
 exports.setOrganizationCode = (req, res) => {
-  const id = mongoose.Types.ObjectId('112211221122');
+  const id = mongoose.Types.ObjectId("112211221122");
   const new_code = req.body.organization_code;
 
-  OrganizationCode.findOneAndUpdate({_id: id}, {organization_code: new_code})
-  .then( results => {
-    res.status(200).send({message: results});
-  })
-  .catch( err => {
-    res.status(500).send({message: err});
-  });
+  OrganizationCode.findOneAndUpdate(
+    { _id: id },
+    { organization_code: new_code }
+  )
+    .then((results) => {
+      res.status(200).send({ message: results });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
 };
 
 exports.users = (req, res) => {
-  User.find({_id: {$ne: mongoose.Types.ObjectId(`${process.env.SHAREIT_SYSTEM_USER_ID || '112211221122'}`)}})
-  .populate("roles", "name").then( users => {
-    res.status(200).send({users: users});
-  }).catch( err => {
-    res.status(500).send({message: err});
-  });  
+  User.find({
+    _id: {
+      $ne: mongoose.Types.ObjectId(
+        `${process.env.SHAREIT_SYSTEM_USER_ID || "112211221122"}`
+      ),
+    },
+  })
+    .populate("roles", "name")
+    .then((users) => {
+      res.status(200).send({ users: users });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
 };
 
 exports.user = (req, res) => {
-  User.findOne({_id: req.userId}).populate("roles", "name").then( user => {
-    res.status(200).send({user: user});
-  }).catch( err => {
-    res.status(500).send({message: err});
-  });  
+  User.findOne({ _id: req.userId })
+    .populate("roles", "name")
+    .then((user) => {
+      res.status(200).send({ user: user });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
 };
 
 exports.update_user = (req, res) => {
-  if(req.body.password){
+  if (req.body.password) {
     req.body.password = bcrypt.hashSync(req.body.password, 8);
   }
 
-  User.findOneAndUpdate({_id: req.userId}, req.body, {new: true}).populate("roles", "name").then( user => {
-    res.status(200).send({message: "User have been updated successfully", user: user});
-  }).catch( err => {
-    res.status(500).send({message: err});
-  });  
+  User.findOneAndUpdate({ _id: req.userId }, req.body, { new: true })
+    .populate("roles", "name")
+    .then((user) => {
+      res
+        .status(200)
+        .send({ message: "User have been updated successfully", user: user });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+exports.suspend_user = async (req, res) => {
+  const now = Date();
+  const user_id = req.params.id;
+
+  try {
+    // Suspend user
+    await User.findOneAndUpdate({ _id: user_id }, { is_suspended: true });
+
+    // Notify user regard his suspention
+    await Notification({
+      sender: mongoose.Types.ObjectId(process.env.SHAREIT_SYSTEM_USER_ID),
+      recipient: user_id,
+      content: "You have been Suspended by the system's admin.",
+      date: now,
+    }).save();
+
+    // Depricates user's tools
+    await Tool.bulkWrite([
+      {
+        updateMany: {
+          filter: { owner: user_id, status: { $ne: "loaned" } },
+          update: { status: "not available" },
+        },
+      },
+    ]);
+
+    // Reject user's requests
+    await ToolRequest.bulkWrite([
+      {
+        updateMany: {
+          filter: { requestor: user_id, status: "pending" },
+          update: { status: "rejected by system" },
+        },
+      },
+    ]);
+
+    // Reject users requests for the current user's tools
+    const user_tools = await Tool.find({ owner: user_id });
+    const others_requests = await ToolRequest.find({
+      status: "pending",
+      tool: { $in: user_tools },
+    })
+      .populate("tool")
+      .populate("requestor");
+
+    await ToolRequest.bulkWrite(
+      others_requests.map((request) => ({
+        updateOne: {
+          filter: request ,
+          update: { status: "rejected by system" },
+        },
+      }))
+    );
+
+    // Notify those users regarding the rejecting
+    await Notification.bulkWrite(
+      others_requests.map((request) => ({
+        updateOne: {
+          filter: {
+            sender: mongoose.Types.ObjectId(process.env.SHAREIT_SYSTEM_USER_ID),
+            recipient: request.requestor,
+          },
+          update: {
+            content: `Your request for ${request.tool.name} was rejected by admin, the owner got suspended.`,
+            date: now,
+          },
+          upsert: true,
+          new: true,
+        },
+      }))
+    );
+
+    res
+        .status(200)
+        .send({ message: "User have been suspended successfully" });
+
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+
+exports.elevated_user = async (req, res) => {
+  const now = Date();
+  const user_id = req.params.id;
+
+  try {
+    // Suspend user
+    await User.findOneAndUpdate({ _id: user_id }, { is_suspended: false });
+
+    // Notify user regard his suspention
+    await Notification({
+      sender: mongoose.Types.ObjectId(process.env.SHAREIT_SYSTEM_USER_ID),
+      recipient: user_id,
+      content: "You have been Elevated by the system's admin.",
+      date: now,
+    }).save();
+
+    res
+    .status(200)
+    .send({ message: "User have been elevated successfully" });
+
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };

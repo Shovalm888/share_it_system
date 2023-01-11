@@ -39,7 +39,7 @@ export interface generic_table_attr{
 export class GenericTableComponent implements OnInit {
 
   @Input() table_attrs: generic_table_attr={} as generic_table_attr;
-  @Input() function?: actions_metadata_t; 
+  @Input() functions?: Array<actions_metadata_t>; 
   @Input() err_msg?: string;
   @Input() headers2model_attr: any;
 
