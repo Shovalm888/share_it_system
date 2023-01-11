@@ -72,7 +72,7 @@ exports.my_notifications = (req, res) => {
 
 exports.tool_by_id = (req, res) => {
   Tool.findOne({ _id: req.params.id })
-    .populate("owner", { username: 1, fname: 1, lname: 1 })
+    .populate("owner", { username: 1, fname: 1, lname: 1, phone: 1 })
     .then((tool) => {
       if (!tool) {
         res.status(401).send({ message: "Tool was not found" });
@@ -102,6 +102,20 @@ exports.delete_by_id = (req, res) => {
       } else {
         res.status(401).send({ message: "Tool was not found" });
       }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+exports.update_tool = (req, res) => {
+
+  Tool.findOneAndUpdate({ _id: req.params.id, owner: req.userId }, req.body, { new: true })
+    .populate("owner")
+    .then((tool) => {
+      res
+        .status(200)
+        .send({ message: "Tool have been updated successfully", tool: tool });
     })
     .catch((err) => {
       res.status(500).send({ message: err });

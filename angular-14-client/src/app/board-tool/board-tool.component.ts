@@ -14,7 +14,7 @@ import { map, shareReplay } from 'rxjs/operators';
 import { interval, Observable } from 'rxjs';
 import { splitNsName } from '@angular/compiler';
 
-const DEFAULT_DURATION = 4000;
+const DEFAULT_DURATION = 3000;
 @Component({
   selector: 'app-board-tool',
   templateUrl: './board-tool.component.html',
@@ -39,11 +39,12 @@ const DEFAULT_DURATION = 4000;
 })
 export class BoardToolComponent implements OnInit {
   today = this.local_date_to_str(new Date());
+  current_year = new Date().getFullYear()
+  suspended_user: boolean = false;
   action_msg?: string;
   isBorrowRequestFailed: boolean = false;
   isActionSucceed: boolean = false;
   isActionFailed: boolean = false;
-  borrowRequestErrorMessage?: string;
   err_msg?: string;
   tool_id: string = '';
   tool_info: any = {};
@@ -63,11 +64,7 @@ export class BoardToolComponent implements OnInit {
       'Phone',
       'Email',
     ],
-    pending_list_attrs: [
-      'Creation date',
-      'Duration',
-      'Content',
-    ],
+    pending_list_attrs: ['Creation date', 'Duration', 'Content'],
     entry_info: [],
   };
 
@@ -87,7 +84,7 @@ export class BoardToolComponent implements OnInit {
     'Manufactoring date': 'manufacturing_date',
     Producer: 'producer',
     Description: 'description',
-    'Expiration date': "expiration_date_"
+    'Expiration date': 'expiration_date_',
   };
 
   tool_history_to_display = {
@@ -109,6 +106,19 @@ export class BoardToolComponent implements OnInit {
     'Description',
   ];
 
+  edit_state: boolean = false;
+  tool_form: any = {
+    name: null,
+    manufacturing_date: null,
+    status: null,
+    max_time_borrow: null,
+    categories: null,
+    producer: null,
+    description: null
+  }
+
+  statuses = ['available', 'not available', 'broken' ];
+
   form: any = {
     expiration_date: null,
     borrow_duration: 1,
@@ -117,16 +127,15 @@ export class BoardToolComponent implements OnInit {
   approved_borrow_left_time$?: Observable<any>;
   pending_borrow_left_time$?: Observable<any>;
 
-
   constructor(
     private route: ActivatedRoute,
     private toolService: ToolService,
     private storageService: StorageService,
     private router: Router
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
+    this.suspended_user = this.storageService.getUser().is_suspended;
     this.sub = this.route.params.subscribe(async (params) => {
       this.tool_id = params['id'];
       this.get_tool_requests();
@@ -134,7 +143,10 @@ export class BoardToolComponent implements OnInit {
         next: async (data) => {
           this.tool_info = data.tool;
           this.get_tool_history();
-          this.tool_info.owner_name = this.tool_info.owner.name;
+          this.tool_info.owner_name =
+            this.tool_info.owner.name = `${this.capitalize_strings(
+              this.tool_info.owner.fname
+            )} ${this.capitalize_strings(this.tool_info.owner.lname)}`;
           this.tool_info.owner_phone = this.tool_info.owner.phone;
           if (this.tool_info) {
             this.tool_info.is_my_tool =
@@ -145,6 +157,7 @@ export class BoardToolComponent implements OnInit {
             await this.display_alert(false);
             this.router.navigate(['tools']);
           }
+          this.cp_tool_to_form();
         },
         error: async (err) => {
           this.parse_error_msg(err);
@@ -203,7 +216,9 @@ export class BoardToolComponent implements OnInit {
       this.requests.all[i].requestor_email =
         this.requests.all[i].requestor.email;
       if (this.requests.all[i].status === 'pending') {
-        this.requests.all[i].expiration_date_ = this.date2str(this.requests.all[i].expiration_date);
+        this.requests.all[i].expiration_date_ = this.date2str(
+          this.requests.all[i].expiration_date
+        );
         this.requests.open.push(this.requests.all[i]);
         if (
           this.requests.all[i].requestor._id ===
@@ -212,15 +227,17 @@ export class BoardToolComponent implements OnInit {
           this.requests.my = this.requests.all[i];
 
           this.pending_borrow_left_time$ = interval(1000).pipe(
-            map((x) => this.calcDateDiff(new Date(this.requests.my.expiration_date))),
+            map((x) =>
+              this.calcDateDiff(new Date(this.requests.my.expiration_date))
+            ),
             shareReplay(1)
           );
-
         }
       } else if (this.requests.all[i].status === 'approved') {
-
         this.approved_borrow_left_time$ = interval(1000).pipe(
-          map((x) => this.calcDateDiff(new Date(this.requests.approved.expiration_date))),
+          map((x) =>
+            this.calcDateDiff(new Date(this.requests.approved.expiration_date))
+          ),
           shareReplay(1)
         );
 
@@ -283,13 +300,17 @@ export class BoardToolComponent implements OnInit {
           this.action_msg = data.message;
 
           data.request.date_s = this.date2str(data.request.date);
-          data.request.expiration_date_ = this.date2str(data.request.expiration_date);
+          data.request.expiration_date_ = this.date2str(
+            data.request.expiration_date
+          );
           this.requests.my = data.request;
           this.requests.open.push(data.request);
           this.requests.all.push(data.request);
 
           this.pending_borrow_left_time$ = interval(1000).pipe(
-            map((x) => this.calcDateDiff(new Date(this.requests.my.expiration_date))),
+            map((x) =>
+              this.calcDateDiff(new Date(this.requests.my.expiration_date))
+            ),
             shareReplay(1)
           );
 
@@ -375,14 +396,16 @@ export class BoardToolComponent implements OnInit {
     if (is_sucess) {
       this.isActionFailed = false;
       this.isActionSucceed = true;
-      await this.delay(4);
+      await this.delay(3);
       this.isActionSucceed = false;
     } else {
       this.isActionFailed = true;
       this.isActionSucceed = false;
-      await this.delay(4);
+      await this.delay(3);
       this.isActionFailed = false;
     }
+    await this.delay(3);
+    this.action_msg = '';
   }
 
   collapse(i: any, req_type: string) {
@@ -395,7 +418,9 @@ export class BoardToolComponent implements OnInit {
 
   approve_borrow(i: any) {
     const now = new Date().getTime();
-    let new_expiration_date = new Date(now + 86400000 * this.requests.open[i].borrow_duration);
+    let new_expiration_date = new Date(
+      now + 86400000 * this.requests.open[i].borrow_duration
+    );
     new_expiration_date.setMinutes(0);
     new_expiration_date.setSeconds(0);
     new_expiration_date.setHours(new_expiration_date.getHours() + 1);
@@ -416,7 +441,11 @@ export class BoardToolComponent implements OnInit {
           );
 
           this.approved_borrow_left_time$ = interval(1000).pipe(
-            map((x) => this.calcDateDiff(new Date(this.requests.approved.expiration_date))),
+            map((x) =>
+              this.calcDateDiff(
+                new Date(this.requests.approved.expiration_date)
+              )
+            ),
             shareReplay(1)
           );
 
@@ -496,7 +525,12 @@ export class BoardToolComponent implements OnInit {
     const secondsToDday =
       Math.floor(timeDifference / milliSecondsInASecond) % secondsInAMinute;
 
-    if(((hoursToDday + (hoursInADay*daysToDday)) * minutesToDday * secondsToDday) <= 0){
+    if (
+      (hoursToDday + hoursInADay * daysToDday) *
+        minutesToDday *
+        secondsToDday <=
+      0
+    ) {
       return {
         hoursToDday: 0,
         minutesToDday: 0,
@@ -505,7 +539,7 @@ export class BoardToolComponent implements OnInit {
     }
 
     return {
-      hoursToDday: hoursToDday + (hoursInADay*daysToDday),
+      hoursToDday: hoursToDday + hoursInADay * daysToDday,
       minutesToDday: minutesToDday,
       secondsToDday: secondsToDday,
     };
@@ -513,10 +547,10 @@ export class BoardToolComponent implements OnInit {
 
   date2str(date: Date): string {
     const date_ = new Date(date);
-    
-    const hours = (date_.getHours()<10?'0':'') + date_.getHours();
-    const minutes = (date_.getMinutes()<10?'0':'') + date_.getMinutes();
-    const seconds = (date_.getSeconds()<10?'0':'') + date_.getSeconds();
+
+    const hours = (date_.getHours() < 10 ? '0' : '') + date_.getHours();
+    const minutes = (date_.getMinutes() < 10 ? '0' : '') + date_.getMinutes();
+    const seconds = (date_.getSeconds() < 10 ? '0' : '') + date_.getSeconds();
     return `${date_.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
   }
 
@@ -524,13 +558,62 @@ export class BoardToolComponent implements OnInit {
     let date_ = new Date(date).toLocaleDateString();
     let date_l = date_.split('/');
     let str = date_l.pop() + '-';
-    for (let i = 0; i < 2 ; i++){
-      if (date_l[i].length === 1){
+    for (let i = 0; i < 2; i++) {
+      if (date_l[i].length === 1) {
         str += '0';
       }
-      str += date_l[i] + "-";
+      str += date_l[i] + '-';
     }
 
-    return str.slice(0,10);
+    return str.slice(0, 10);
+  }
+
+  capitalize_strings(str: string): string {
+    return str.slice(0, 1).toUpperCase() + str.slice(1);
+  }
+
+  save_changes() {
+    this.edit_state = false;
+
+    let changes: any = {};
+    let tmp = this.tool_form;
+    let tool_info = this.tool_info;
+    Object.keys(this.tool_form).forEach(function (key, index) {
+      if (tmp[key] !== tool_info[key]) {
+        changes[key] = tmp[key];
+      }
+    });
+
+    this.toolService.editTool(this.tool_id, changes).subscribe({
+      next: async (data) => {
+        // For UI:
+        this.action_msg = data.message;
+
+        this.cp_tool_to_form(true)
+
+        await this.display_alert(true);
+      },
+      error: async (err) => {
+        this.parse_error_msg(err);
+        await this.display_alert(false);
+      },
+    });
+  }
+
+  closeForm() {
+    this.edit_state = false;
+    this.cp_tool_to_form();
+  }
+
+  cp_tool_to_form(reverse: boolean = false) {
+    let tmp = this.tool_form;
+    let tool_info = this.tool_info;
+    Object.keys(this.tool_form).forEach(function (key, index) {
+      if (reverse) {
+        tool_info[key] = tmp[key];
+      } else {
+        tmp[key] = tool_info[key];
+      }
+    });
   }
 }

@@ -22,6 +22,8 @@ module.exports = function(app) {
 
   app.get("/api/tool/board-tool/:id", [authJwt.verifyToken], controller.tool_by_id);
 
+  app.post("/api/tool/update/:id", [authJwt.verifyToken, authJwt.verifySuspention], controller.update_tool);
+
   app.post("/api/tool/add", [authJwt.verifyToken, authJwt.verifySuspention], controller.add);
 
   app.post("/api/tool/board-tool/:id", [authJwt.verifyToken, authJwt.verifySuspention], controller.request);

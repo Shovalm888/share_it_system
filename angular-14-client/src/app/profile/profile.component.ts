@@ -104,7 +104,7 @@ export class ProfileComponent implements OnInit {
   };
 
   my_borrows_attrs: generic_table_attr = {
-    height: "height: 500px !important;",
+    height: "height: 267px !important;",
     is_collapsable: false,
     headers: ['#', 'Tool Name', 'Expired'],
     card_attrs: [],

@@ -91,7 +91,10 @@ export class ToolsComponent implements OnInit {
     });
   }
 
-  // validationnnnnnn!!!!!!!!!!!!!!
+  go_to(i: any){
+    this.router.navigate(['/tools/board-tool/' , this.table_attrs.entry_info[i]._id]);
+  }
+
   validateYear(manufacturing_date: number): boolean {
     this.form_err_msg = '';
     const min_year = 1800;
@@ -102,10 +105,6 @@ export class ToolsComponent implements OnInit {
     }
 
     return this.form_err_msg.length == 0;
-  }
-
-  go_to(i: any){
-    this.router.navigate(['/tools/board-tool/' , this.table_attrs.entry_info[i]._id]);
   }
 
   onSubmit(): void {
