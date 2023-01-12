@@ -21,6 +21,7 @@ export class ToolsComponent implements OnInit {
   err_msg?: string;
   displayStyle = 'none';
   table_attrs: generic_table_attr = {
+    height: 'height: 50rem; !important',
     is_collapsable: true,
     headers: ['#', 'Tool Name', 'Manufacturing Date', 'Status'],
     card_attrs: [
@@ -40,7 +41,7 @@ export class ToolsComponent implements OnInit {
     Categories: 'categories',
     Producer: 'producer',
     Owner: 'owner',
-    Decription: 'description',
+    Description: 'description',
   };
   form: any = {
     name: null,

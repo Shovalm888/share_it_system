@@ -64,7 +64,7 @@ export class BoardUserComponent implements OnInit {
     Rank: 'rank',
     Roles: '_roles',
     Job: 'job',
-    Decription: 'description',
+    Description: 'description',
   };
 
   constructor(

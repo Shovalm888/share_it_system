@@ -192,4 +192,27 @@ function initial() {
     },
     true /* Start the job right now */
   );
+
+  // var users = require('../../generated_users.json');
+  // var User = require('./app/models/user.model');
+  // User.insertMany(users).then( users => {
+  //   console.log(users);
+  // }).catch(err => {
+  //   console.log(err);
+  // })
+  // var tools = require('../../generated_tools.json');
+  // var User = require('./app/models/tool.model');
+  // User.insertMany(tools).then( tools => {
+  //   console.log(tools);
+  // }).catch(err => {
+  //   console.log(err);
+  // })
+
+  // User.find().then( u => {
+  //   let ids = [];
+  //   for (let i = 0 ; i < u.length; i++){
+  //     ids.push(u[i].id);
+  //   }
+  //   console.log(ids);
+  // })
 }

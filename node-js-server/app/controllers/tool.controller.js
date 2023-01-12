@@ -8,6 +8,7 @@ const ToolRequest = db.tool_request;
 exports.tools = (req, res) => {
   Tool.find()
     .populate("owner", "username")
+    .sort({status: 1})
     .then((tools) => {
       if (!tools) {
         res.status(401).send({ message: "Tools was not found" });
