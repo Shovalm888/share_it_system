@@ -20,6 +20,8 @@ export class ToolsComponent implements OnInit {
   form_err_msg: string = '';
   err_msg?: string;
   displayStyle = 'none';
+  entry_info_backup = [];
+  search_pattern: string = '';
   table_attrs: generic_table_attr = {
     height: 'height: 50rem; !important',
     is_collapsable: true,
@@ -76,6 +78,7 @@ export class ToolsComponent implements OnInit {
           this.table_attrs.entry_info[i].owner =
             this.table_attrs.entry_info[i].owner.username;
         }
+        this.entry_info_backup = this.table_attrs.entry_info;
       },
       error: (err) => {
         if (err.error) {
@@ -161,6 +164,21 @@ export class ToolsComponent implements OnInit {
   }
   closePopup() {
     this.displayStyle = 'none';
+  }
+
+  search_regex(){
+    if (this.search_pattern) {
+      this.table_attrs.entry_info = [];
+      const pat = new RegExp(this.search_pattern.toLocaleLowerCase());
+      for (let i = 0; i < this.entry_info_backup.length; i++){
+        if (JSON.stringify(this.entry_info_backup[i]).replace(/['",:\[\]\{\}_ ]/g, "").toLowerCase().search(pat) !== -1){
+          this.table_attrs.entry_info.push(this.entry_info_backup[i])
+        }
+      }
+    }
+    else {
+      this.table_attrs.entry_info = this.entry_info_backup;
+    }
   }
 
 }

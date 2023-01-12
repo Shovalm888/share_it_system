@@ -61,18 +61,18 @@
                     class="row"
                     *ngIf="ent_info[headers2model_attr[attr_name]]"
                   >
-                    <div class="col-sm-3">
+                    <div class="col-4">
                       <h6 class="mb-0">{{ attr_name }}</h6>
                     </div>
                     <div
                       *ngIf="headers2model_attr[attr_name] !== 'link'"
-                      class="col-sm-9 text-secondary"
+                      class="col-7 text-secondary"
                     >
                       {{ ent_info[headers2model_attr[attr_name]] }}
                     </div>
                     <div
                       *ngIf="headers2model_attr[attr_name] === 'link'"
-                      class="col-sm-9 text-secondary"
+                      class="col-7 text-secondary"
                     >
                       <a
                         [routerLink]="['/' + ent_info.link]"
