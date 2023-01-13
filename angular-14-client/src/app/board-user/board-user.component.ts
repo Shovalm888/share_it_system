@@ -34,6 +34,8 @@ const DEFAULT_DURATION = 3000;
 })
 export class BoardUserComponent implements OnInit {
   err_msg?: string;
+  entry_info_backup = [];
+  search_pattern: string = '';
   table_attrs: generic_table_attr = {
     height: 'height: 50rem; !important',
     is_collapsable: true,
@@ -117,6 +119,8 @@ export class BoardUserComponent implements OnInit {
             }
           }
         }
+
+        this.entry_info_backup = this.table_attrs.entry_info;
       },
       error: async (err) => {
         this.parse_error_msg(err);
@@ -144,6 +148,7 @@ export class BoardUserComponent implements OnInit {
               },
             };
 
+            this.entry_info_backup = this.table_attrs.entry_info;
             await this.display_alert(true);
           },
           error: async (err) => {
@@ -169,6 +174,7 @@ export class BoardUserComponent implements OnInit {
               },
             };
 
+            this.entry_info_backup = this.table_attrs.entry_info;
             await this.display_alert(true);
           },
           error: async (err) => {
@@ -209,6 +215,21 @@ export class BoardUserComponent implements OnInit {
       }
     } else {
       this.action_msg = `Error with status: ${err.status}`;
+    }
+  }
+
+  search_regex(){
+    if (this.search_pattern) {
+      this.table_attrs.entry_info = [];
+      const pat = new RegExp(this.search_pattern.toLocaleLowerCase());
+      for (let i = 0; i < this.entry_info_backup.length; i++){
+        if (JSON.stringify(this.entry_info_backup[i]).replace(/['",:\[\]\{\}_ ]/g, "").toLowerCase().search(pat) !== -1){
+          this.table_attrs.entry_info.push(this.entry_info_backup[i])
+        }
+      }
+    }
+    else {
+      this.table_attrs.entry_info = this.entry_info_backup;
     }
   }
 }

@@ -39,7 +39,7 @@ const DEFAULT_DURATION = 3000;
 })
 export class BoardToolComponent implements OnInit {
   today = this.local_date_to_str(new Date());
-  current_year = new Date().getFullYear()
+  current_year = new Date().getFullYear();
   suspended_user: boolean = false;
   action_msg?: string;
   isBorrowRequestFailed: boolean = false;
@@ -114,10 +114,10 @@ export class BoardToolComponent implements OnInit {
     max_time_borrow: null,
     categories: null,
     producer: null,
-    description: null
-  }
+    description: null,
+  };
 
-  statuses = ['available', 'not available', 'broken' ];
+  statuses = ['available', 'not available', 'broken'];
 
   form: any = {
     expiration_date: null,
@@ -503,6 +503,14 @@ export class BoardToolComponent implements OnInit {
 
     const timeDifference = dDay - Date.now();
 
+    if (timeDifference <= 0) {
+      return {
+        hoursToDday: 0,
+        minutesToDday: 0,
+        secondsToDday: 0,
+      };
+    }
+    
     const daysToDday = Math.floor(
       timeDifference /
         (milliSecondsInASecond *
@@ -524,19 +532,6 @@ export class BoardToolComponent implements OnInit {
 
     const secondsToDday =
       Math.floor(timeDifference / milliSecondsInASecond) % secondsInAMinute;
-
-    if (
-      (hoursToDday + hoursInADay * daysToDday) *
-        minutesToDday *
-        secondsToDday <=
-      0
-    ) {
-      return {
-        hoursToDday: 0,
-        minutesToDday: 0,
-        secondsToDday: 0,
-      };
-    }
 
     return {
       hoursToDday: hoursToDday + hoursInADay * daysToDday,
@@ -589,7 +584,7 @@ export class BoardToolComponent implements OnInit {
         // For UI:
         this.action_msg = data.message;
 
-        this.cp_tool_to_form(true)
+        this.cp_tool_to_form(true);
 
         await this.display_alert(true);
       },

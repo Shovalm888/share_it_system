@@ -136,7 +136,7 @@ exports.closeExpiredPendingRequests = async function run() {
       );
 
       console.log(
-        `Closed ${tool_res.nModified} requests and removed ${note_res.nRemoved} notification successfully at ~${now}`
+        `Closed ${tool_res.modifiedCount} requests and removed ${note_res.nRemoved} notification successfully at ~${now}`
       );
 
       const ack_users = await Notification.bulkWrite(
@@ -160,7 +160,7 @@ exports.closeExpiredPendingRequests = async function run() {
         }))
       );
 
-      if (ack_users.nModified === res.length) {
+      if (ack_users.modifiedCount === res.length) {
         console.log(`Successfully ack ${res.length} users`);
       }
     }
@@ -178,7 +178,13 @@ exports.closeExpiredApprovedRequests = async function run() {
       expiration_date: { $lte: now },
     })
       .populate("requestor")
-      .populate("tool");
+      .populate({
+        path: "tool",
+        populate: {
+          path: "owner",
+          model: "User",
+        },
+      });
 
     if (res.length > 0) {
       const tool_res = await ToolRequest.bulkWrite(
@@ -190,7 +196,7 @@ exports.closeExpiredApprovedRequests = async function run() {
         }))
       );
 
-      console.log(`Closed ${tool_res.nModified}/${res.length} reuests`);
+      console.log(`Closed ${tool_res.modifiedCount}/${res.length} reuests`);
 
       let acks_list = [];
       const acks_pairs = res.map((request) =>
@@ -222,7 +228,7 @@ exports.closeExpiredApprovedRequests = async function run() {
       const ack_users = await Notification.bulkWrite(acks_list);
 
       console.log(
-        `Ack ${ack_users.nModified}/${res.length} users about the tools closing`
+        `Ack ${ack_users.modifiedCount}/${res.length} users about the tools closing`
       );
 
       const decrease_rank = await User.bulkWrite(
@@ -235,20 +241,46 @@ exports.closeExpiredApprovedRequests = async function run() {
       );
 
       console.log(
-        `Decreased rank for ${decrease_rank.nModified}/${res.length} users`
+        `Decreased rank for ${decrease_rank.modifiedCount}/${res.length} users`
       );
 
-      const tools = await Tool.bulkWrite(
+      let suspended_users_tools = [];
+      for (let i = 0; i < res.length; i++) {
+        if (res[i].tool.owner.is_suspended === true) {
+          suspended_users_tools.push(res[i]);
+        }
+      }
+
+      for (let i = 0; i < suspended_users_tools.length; i++) {
+        res.pop(suspended_users_tools[i]);
+      }
+
+      const tools_1 = await Tool.bulkWrite(
         res.map((request) => ({
           updateOne: {
             filter: { _id: request.tool },
             update: { status: "available" },
+            new: true,
           },
         }))
       );
 
       console.log(
-        `Updated ${tools.nModified}/${res.length} tools' status to 'available'`
+        `Updated ${tools_1.modifiedCount}/${res.length} tools' status to 'available'`
+      );
+
+      const tools_2 = await Tool.bulkWrite(
+        suspended_users_tools.map((request) => ({
+          updateOne: {
+            filter: { _id: request.tool },
+            update: { status: "not available" },
+            new: true,
+          },
+        }))
+      );
+
+      console.log(
+        `Updated ${tools_2.modifiedCount}/${res.length} tools' status to 'not available'`
       );
     }
   } catch (err) {
@@ -293,7 +325,7 @@ exports.notifyDayBeforeBorrowEnds = async function run() {
       );
 
       console.log(
-        `Ack ${ack_users.nModified}/${res.length} users about borrow's end of time`
+        `Ack ${ack_users.modifiedCount}/${res.length} users about borrow's end of time`
       );
     }
   } catch (err) {
