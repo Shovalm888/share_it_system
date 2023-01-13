@@ -169,7 +169,17 @@ export class ToolsComponent implements OnInit {
   search_regex(){
     if (this.search_pattern) {
       this.table_attrs.entry_info = [];
-      const pat = new RegExp(this.search_pattern.toLocaleLowerCase());
+      let search_pattern = this.search_pattern.replace(",", " ");
+      search_pattern = search_pattern.replace("  ", " ");
+      search_pattern = search_pattern.toLocaleLowerCase();
+      let words = this.search_pattern.split(" ");
+      
+      for (let i = 0; i < words.length; i++){
+        words[i] = "(" + words[i] + ")"
+      }
+
+      let pattern_ = words.join("|");
+      const pat = new RegExp(pattern_);
       for (let i = 0; i < this.entry_info_backup.length; i++){
         if (JSON.stringify(this.entry_info_backup[i]).replace(/['",:\[\]\{\}_ ]/g, "").toLowerCase().search(pat) !== -1){
           this.table_attrs.entry_info.push(this.entry_info_backup[i])

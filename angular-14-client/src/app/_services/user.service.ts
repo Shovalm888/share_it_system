@@ -49,4 +49,8 @@ export class UserService {
   elevatedUser(id: any): Observable<any> {
     return this.http.post(API_URL + 'user/elevated/' + id , httpOptions);
   }
+
+  deleteUser(id: any): Observable<any> {
+    return this.http.post(API_URL + 'user/delete/' + id , httpOptions);
+  }
 }

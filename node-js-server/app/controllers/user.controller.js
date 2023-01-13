@@ -133,7 +133,7 @@ exports.suspend_user = async (req, res) => {
     await ToolRequest.bulkWrite(
       others_requests.map((request) => ({
         updateOne: {
-          filter: request ,
+          filter: request,
           update: { status: "rejected by system" },
         },
       }))
@@ -157,15 +157,11 @@ exports.suspend_user = async (req, res) => {
       }))
     );
 
-    res
-        .status(200)
-        .send({ message: "User have been suspended successfully" });
-
+    res.status(200).send({ message: "User have been suspended successfully" });
   } catch (err) {
     res.status(500).send(err);
   }
 };
-
 
 exports.elevated_user = async (req, res) => {
   const now = Date();
@@ -183,11 +179,93 @@ exports.elevated_user = async (req, res) => {
       date: now,
     }).save();
 
-    res
-    .status(200)
-    .send({ message: "User have been elevated successfully" });
-
+    res.status(200).send({ message: "User have been elevated successfully" });
   } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+
+exports.delete_user = async (req, res) => {
+  const now = Date();
+  const user_id = req.params.id;
+
+  try {
+    // Check that user doesn't have loaned tools
+    const loaned_tools = await Tool.find({ owner: user_id, status: "loaned" });
+    if (loaned_tools.length > 0) {
+      res.status(401).send({ message: "User have active loanes, suspend him to prevent more activities" });
+      return;
+    }
+
+    // Check that user doesn't have borrowed tools
+    const borrowed_tools = await ToolRequest.find({
+      requestor: user_id,
+      status: "approved",
+    });
+    if (borrowed_tools.length > 0) {
+      res.status(401).send({ message: "User have active borrows, suspend him to prevent more activities" });
+      return;
+    }
+
+    // Reject user's requests
+    await ToolRequest.bulkWrite([
+      {
+        updateMany: {
+          filter: { requestor: user_id, status: "pending" },
+          update: { status: "rejected by system" },
+        },
+      },
+    ]);
+
+    // Reject others' requests for its tools
+    const user_tools = await Tool.find({ owner: user_id });
+    const others_requests = await ToolRequest.find({
+      status: "pending",
+      tool: { $in: user_tools },
+    })
+      .populate("tool")
+      .populate("requestor");
+
+    await ToolRequest.bulkWrite(
+      others_requests.map((request) => ({
+        updateOne: {
+          filter: request,
+          update: { status: "rejected by system" },
+        },
+      }))
+    );
+
+    // Notify requestors
+    await Notification.bulkWrite(
+      others_requests.map((request) => ({
+        updateOne: {
+          filter: {
+            sender: mongoose.Types.ObjectId(process.env.SHAREIT_SYSTEM_USER_ID),
+            recipient: request.requestor,
+          },
+          update: {
+            content: `Your request for ${request.tool.name} was rejected by admin, the owner got removed.`,
+            date: now,
+          },
+          upsert: true,
+          new: true,
+        },
+      }))
+    );
+
+    // Delete user's notifications
+    await Notification.deleteMany({recipient: user_id});
+
+    // Delete all its tools
+    await Tool.deleteMany({owner: user_id});
+
+    // Delete user
+    await User.findOneAndDelete({_id: user_id});
+    
+    res.status(200).send({ message: "User have been deleted successfully" });
+  } 
+  catch (err) {
     res.status(500).send(err);
   }
 };

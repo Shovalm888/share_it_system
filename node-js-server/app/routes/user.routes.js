@@ -58,4 +58,10 @@ module.exports = function(app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.elevated_user
   );
+
+  app.post(
+    "/api/test/user/delete/:id",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.delete_user
+  );
 };

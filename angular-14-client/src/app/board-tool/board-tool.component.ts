@@ -283,9 +283,9 @@ export class BoardToolComponent implements OnInit {
       return;
     }
     let expiration_date = new Date(this.form.expiration_date);
-    expiration_date.setMinutes(0);
-    expiration_date.setSeconds(0);
-    expiration_date.setHours(expiration_date.getHours() + 1);
+    expiration_date.setMinutes(59);
+    expiration_date.setSeconds(59);
+    expiration_date.setHours(23);
 
     this.toolService
       .requestTool(
@@ -355,16 +355,22 @@ export class BoardToolComponent implements OnInit {
   }
 
   parse_error_msg(err: any) {
+    let message = '';
+
     if (err.error) {
       try {
-        const res = JSON.parse(err.error);
-        this.action_msg = res.message;
+        if(typeof err.error === "string"){
+          message = JSON.parse(err.error).message;
+        }
+        else {
+          message = err.error.message;
+        }
       } catch {
-        this.action_msg = `Error with status: ${err.status} - ${err.statusText}`;
+        message = err.statusText;
       }
-    } else {
-      this.action_msg = `Error with status: ${err.status}`;
     }
+    
+    this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 
   delete_pending_request() {

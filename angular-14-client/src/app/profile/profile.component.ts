@@ -366,15 +366,21 @@ export class ProfileComponent implements OnInit {
   }
 
   parse_error_msg(err: any) {
+    let message = '';
+
     if (err.error) {
       try {
-        const res = JSON.parse(err.error);
-        this.action_msg = res.message;
+        if(typeof err.error === "string"){
+          message = JSON.parse(err.error).message;
+        }
+        else {
+          message = err.error.message;
+        }
       } catch {
-        this.action_msg = `Error with status: ${err.status} - ${err.statusText}`;
+        message = err.statusText;
       }
-    } else {
-      this.action_msg = `Error with status: ${err.status}`;
     }
+    
+    this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 }

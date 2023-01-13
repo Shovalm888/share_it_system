@@ -3,7 +3,7 @@ import {
   actions_metadata_t,
   generic_table_attr,
 } from './../generic-table/generic-table.component';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UserService } from '../_services/user.service';
 import {
   animate,
@@ -34,7 +34,7 @@ const DEFAULT_DURATION = 3000;
 })
 export class BoardUserComponent implements OnInit {
   err_msg?: string;
-  entry_info_backup = [];
+  entry_info_backup: any = [];
   search_pattern: string = '';
   table_attrs: generic_table_attr = {
     height: 'height: 50rem; !important',
@@ -55,7 +55,10 @@ export class BoardUserComponent implements OnInit {
   isActionFailed: boolean = false;
   action_msg = '';
 
-  functions?: Array<actions_metadata_t>;
+  functions: Array<actions_metadata_t> = [{
+    icon: "fas fa-trash-alt",
+    action: (i: any) => {this.delete_user(i)}
+  }]
 
   headers2model_attr: any = {
     'First Name': 'fname',
@@ -185,6 +188,29 @@ export class BoardUserComponent implements OnInit {
     }
   }
 
+  delete_user(i: any) {
+    if (
+      confirm(
+        'Are you sure you want to DELETE this user?\nAll its related tools are going to lose.'
+      )
+    ) {
+      this.userService
+        .deleteUser(this.table_attrs.entry_info[i]._id)
+        .subscribe({
+          next: async (data) => {
+            this.action_msg = data.message;
+
+            this.entry_info_backup.pop(this.table_attrs.entry_info.pop(this.table_attrs.entry_info[i]));
+            await this.display_alert(true);
+          },
+          error: async (err) => {
+            this.parse_error_msg(err);
+            await this.display_alert(false);
+          },
+        });
+    }
+  }
+
   delay(sec: number) {
     return new Promise((resolve) => setTimeout(resolve, sec * 1000));
   }
@@ -205,23 +231,40 @@ export class BoardUserComponent implements OnInit {
     this.action_msg = '';
   }
 
+
   parse_error_msg(err: any) {
+    let message = '';
+
     if (err.error) {
       try {
-        const res = JSON.parse(err.error);
-        this.action_msg = res.message;
+        if(typeof err.error === "string"){
+          message = JSON.parse(err.error).message;
+        }
+        else {
+          message = err.error.message;
+        }
       } catch {
-        this.action_msg = `Error with status: ${err.status} - ${err.statusText}`;
+        message = err.statusText;
       }
-    } else {
-      this.action_msg = `Error with status: ${err.status}`;
     }
+    
+    this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 
   search_regex(){
     if (this.search_pattern) {
       this.table_attrs.entry_info = [];
-      const pat = new RegExp(this.search_pattern.toLocaleLowerCase());
+      let search_pattern = this.search_pattern.replace(",", " ");
+      search_pattern = search_pattern.replace("  ", " ");
+      search_pattern = search_pattern.toLocaleLowerCase();
+      let words = this.search_pattern.split(" ");
+      
+      for (let i = 0; i < words.length; i++){
+        words[i] = "(" + words[i] + ")"
+      }
+
+      let pattern_ = words.join("|");
+      const pat = new RegExp(pattern_);
       for (let i = 0; i < this.entry_info_backup.length; i++){
         if (JSON.stringify(this.entry_info_backup[i]).replace(/['",:\[\]\{\}_ ]/g, "").toLowerCase().search(pat) !== -1){
           this.table_attrs.entry_info.push(this.entry_info_backup[i])
