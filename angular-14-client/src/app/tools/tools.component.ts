@@ -4,20 +4,40 @@ import { ToolService } from '../_services/tool.service';
 import { Router } from '@angular/router';
 import { VariableBinding } from '@angular/compiler';
 import { actions_metadata_t, generic_table_attr } from '../generic-table/generic-table.component';
+import {
+  animate,
+  AUTO_STYLE,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 
+const DEFAULT_DURATION = 3000;
 
 @Component({
   selector: 'app-tools',
   templateUrl: './tools.component.html',
-  styleUrls: ['./tools.component.css']
-}) // form err msg!!!!!!!!!!!!!!
+  styleUrls: ['./tools.component.css'],
+  animations: [
+    trigger('fade', [
+      state('false', style({ visibility: AUTO_STYLE, opacity: 0 })),
+      state('true', style({ visibility: AUTO_STYLE, opacity: 1 })),
+      transition('false => true', animate(1000, style({ opacity: 1 }))),
+      transition(
+        'true => false',
+        animate(DEFAULT_DURATION, style({ opacity: 0 }))
+      ),
+    ])
+  ]
+})
 export class ToolsComponent implements OnInit {
   functions: Array<actions_metadata_t> = [{
     icon: "fa-solid fa-link",
     action: (i: any) => {this.go_to(i)}
   }];
 
-  form_err_msg: string = '';
+  current_year = new Date().getFullYear();
   err_msg?: string;
   displayStyle = 'none';
   entry_info_backup = [];
@@ -48,17 +68,15 @@ export class ToolsComponent implements OnInit {
   form: any = {
     name: null,
     manufacturing_date: null,
-    status: null,
     max_time_borrow: null,
     categories: null,
     producer: null,
     description: null,
   };
 
-  isSuccessful = false;
-  isAddingToolFailed = false;
-  errorMessage = '';
-  successMessage = '';
+  action_msg?: string;
+  isActionSucceed: boolean = false;
+  isActionFailed: boolean = false;
 
   constructor(
     private storageService: StorageService,
@@ -99,40 +117,23 @@ export class ToolsComponent implements OnInit {
     this.router.navigate(['/tools/board-tool/' , this.table_attrs.entry_info[i]._id]);
   }
 
-  validateYear(manufacturing_date: number): boolean {
-    this.form_err_msg = '';
-    const min_year = 1800;
-    const current_year = new Date().getFullYear();
-
-    if (manufacturing_date < min_year || manufacturing_date > current_year) {
-      this.form_err_msg += `Year must be between ${min_year} to ${current_year}`;
-    }
-
-    return this.form_err_msg.length == 0;
-  }
-
   onSubmit(): void {
     const {
       name,
       manufacturing_date,
-      status,
       max_time_borrow,
       categories,
       producer,
       description,
     } = this.form;
     const user_id = this.storageService.getUser().id;
-    if (!this.validateYear(manufacturing_date)) {
-      return;
-    }
 
-    const _status = status.toLowerCase();
 
     this.toolService
       .addTool(
         name,
         manufacturing_date,
-        _status,
+        'available',
         max_time_borrow,
         categories,
         producer,
@@ -140,21 +141,16 @@ export class ToolsComponent implements OnInit {
         description
       )
       .subscribe({
-        next: (data) => {
-          this.successMessage = data.message;
-          this.isSuccessful = true;
-          this.isAddingToolFailed = false;
-          this.errorMessage = '';
+        next: async (data) => {
+          this.action_msg = data.message;
           this.closePopup();
           this.load_tools();
-          // Map all form's attrs to null
+          this.form = {}
+          await this.display_alert(true);
         },
-        error: (err) => {
-          this.errorMessage =
-            'message' in err ? err.message : err.error.message;
-          this.isAddingToolFailed = true;
-          this.successMessage = '';
-          this.isSuccessful = false;
+        error: async (err) => {
+          this.parse_error_msg(err);
+          await this.display_alert(false);
         },
       });
   }
@@ -189,6 +185,45 @@ export class ToolsComponent implements OnInit {
     else {
       this.table_attrs.entry_info = this.entry_info_backup;
     }
+  }
+
+  delay(sec: number) {
+    return new Promise((resolve) => setTimeout(resolve, sec * 1000));
+  }
+
+  async display_alert(is_sucess: boolean) {
+    if (is_sucess) {
+      this.isActionFailed = false;
+      this.isActionSucceed = true;
+      await this.delay(3);
+      this.isActionSucceed = false;
+    } else {
+      this.isActionFailed = true;
+      this.isActionSucceed = false;
+      await this.delay(3);
+      this.isActionFailed = false;
+    }
+    await this.delay(3);
+    this.action_msg = '';
+  }
+
+  parse_error_msg(err: any) {
+    let message = '';
+
+    if (err.error) {
+      try {
+        if(typeof err.error === "string"){
+          message = JSON.parse(err.error).message;
+        }
+        else {
+          message = err.error.message;
+        }
+      } catch {
+        message = err.statusText;
+      }
+    }
+    
+    this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 
 }

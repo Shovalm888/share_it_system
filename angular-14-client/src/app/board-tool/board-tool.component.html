@@ -1,6 +1,11 @@
 <!-- display tool was not found in case of !tool_info -->
 <div class="container mt-5">
-  <div class="row">
+  <nav aria-label="breadcrumb" class="main-breadcrumb">
+    <ol class="breadcrumb">
+      <h3>{{tool_info.name}} page</h3>
+    </ol>
+  </nav>
+  <div class="row m-1">
     <!-- Tool info + delete button + current borrow if exist -->
     <div class="col-sm-5 border-left border-right">
       <div class="mb-3 h-100">
@@ -451,7 +456,7 @@
     </div>
   </div>
 
-  <div class="row mt-5">
+  <div class="row mt-5 mx-1">
     <header *ngIf="tool_info.is_my_tool" class="w-100">
       <div *ngIf="requests.open.length > 0">
         <table class="table">
@@ -532,7 +537,7 @@
       </div>
     </header>
   </div>
-  <div class="row mt-5">
+  <div class="row mt-5 mx-1">
     <header class="w-100">
       <div *ngIf="tool_info.history && tool_info.history.length > 0">
         <table class="table">

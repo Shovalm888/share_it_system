@@ -359,17 +359,16 @@ export class BoardToolComponent implements OnInit {
 
     if (err.error) {
       try {
-        if(typeof err.error === "string"){
+        if (typeof err.error === 'string') {
           message = JSON.parse(err.error).message;
-        }
-        else {
+        } else {
           message = err.error.message;
         }
       } catch {
         message = err.statusText;
       }
     }
-    
+
     this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 
@@ -379,16 +378,27 @@ export class BoardToolComponent implements OnInit {
         // For UI:
         const res = JSON.parse(data);
         this.action_msg = res.message;
-        this.requests.open.pop(this.requests.my);
-        this.requests.all.pop(this.requests.my);
+        let index = this.requests.open.indexOf(this.requests.my);
+        if (index > -1) {
+          this.requests.open.splice(index, 1);
+        }
+        index = this.requests.all.indexOf(this.requests.my);
+        if (index > -1) {
+          this.requests.all.splice(index, 1);
+        }
         this.requests.my = null;
         await this.display_alert(true);
       },
       error: async (err) => {
         this.parse_error_msg(err);
-        this.requests.open.pop(this.requests.my);
-        this.requests.all.pop(this.requests.my);
-        this.requests.my = null;
+        let index = this.requests.open.indexOf(this.requests.my);
+        if (index > -1) {
+          this.requests.open.splice(index, 1);
+        }
+        index = this.requests.all.indexOf(this.requests.my);
+        if (index > -1) {
+          this.requests.all.splice(index, 1);
+        }
         await this.display_alert(false);
       },
     });
@@ -442,9 +452,11 @@ export class BoardToolComponent implements OnInit {
           this.tool_info.status = 'loaned';
           this.action_msg = data.message;
           this.requests.open[i].status = 'approved';
-          this.requests.approved = this.requests.open.pop(
-            this.requests.open[i]
-          );
+
+          let index = this.requests.open.indexOf(this.requests.open[i]);
+          if (index > -1) {
+            this.requests.approved = this.requests.open.splice(index, 1);
+          }
 
           this.approved_borrow_left_time$ = interval(1000).pipe(
             map((x) =>
@@ -474,9 +486,11 @@ export class BoardToolComponent implements OnInit {
           // For UI:
           this.action_msg = data.message;
           this.requests.open[i].status = 'rejected';
-          this.requests.closed.push(
-            this.requests.open.pop(this.requests.open[i])
-          );
+
+          let index = this.requests.open.indexOf(this.requests.open[i]);
+          if (index > -1) {
+            this.requests.closed.push(this.requests.open.splice(index, 1));
+          }
           await this.display_alert(true);
         },
         error: async (err) => {
@@ -516,7 +530,7 @@ export class BoardToolComponent implements OnInit {
         secondsToDday: 0,
       };
     }
-    
+
     const daysToDday = Math.floor(
       timeDifference /
         (milliSecondsInASecond *

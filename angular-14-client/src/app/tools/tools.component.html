@@ -1,22 +1,12 @@
 <div class="container">
-  <div
-    class="alert alert-success"
-    role="alert"
-    *ngIf="isSuccessful && successMessage"
-  >
-    {{ successMessage }}
-  </div>
-  <div
-    class="alert alert-danger"
-    role="alert"
-    *ngIf="isAddingToolFailed && errorMessage"
-  >
-    {{ errorMessage }}
-  </div>
-
-  <div class="table">
-    <div class="form-row mx-3 mt-5 d-flex justify-content-center">
-      <div class="col-2">
+  <div class="table mt-5">
+    <nav aria-label="breadcrumb" class="main-breadcrumb">
+      <ol class="breadcrumb">
+        <h3>Tools list</h3>
+      </ol>
+    </nav>
+    <div class="form-row mx-3 mt-5">
+      <div class="col-sm=2">
         <i
           class="fa-solid fa-plus btn btn-outline-primary"
           (click)="openPopup()"
@@ -24,13 +14,13 @@
         >
       </div>
       <form
-        class="col-10 form-row mx-3 mt-5 d-flex justify-content-center"
+        class="col-md-10 form-row mx-3 d-flex justify-content-center"
         name="form"
         (ngSubmit)="search_regex()"
         #f="ngForm"
         novalidate
       >
-        <div class="col-7">
+        <div class="col-md-7">
           <input
             class="form-control mt-2"
             type="text"
@@ -70,26 +60,21 @@
   <!-- From here is the Modal form of tool adding -->
   <div
     class="modal"
+    style="overflow-y: scroll"
     tabindex="-1"
     role="dialog"
-    [ngStyle]="{ display: displayStyle }"
+    *ngIf="displayStyle === 'block'"
+    [ngStyle]="{ display: 'block' }"
   >
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="form">
       <div class="modal-content">
-        <div class="con p-4">
+        <div class="con p-4 modal-body">
           <form
             name="form"
             (ngSubmit)="f.form.valid && onSubmit()"
             #f="ngForm"
-            novalidate
+            validate
           >
-            <div
-              *ngIf="form_err_msg.length > 0"
-              class="alert alert-danger"
-              role="alert"
-            >
-              {{ form_err_msg }}
-            </div>
             <div class="form-group">
               <label for="name">*Tool name</label>
               <input
@@ -113,21 +98,19 @@
                 <div *ngIf="name.errors['maxlength']">
                   First name must be at most 20 characters
                 </div>
-                <div *ngIf="name.errors['pattern']">
-                  Tool name must contain letters
-                </div>
               </div>
             </div>
             <div class="form-group">
-              <label for="manufacturing_date">*Manufacturing Date</label>
+              <label for="manufacturing_date">Manufacturing Date</label>
               <input
-                type="string"
+                type="number"
                 class="form-control"
                 name="manufacturing_date"
                 [(ngModel)]="form.manufacturing_date"
                 required
-                pattern="\d*"
+                pattern="\d+"
                 maxlength="4"
+                max="{{ current_year }}"
                 #manufacturing_date="ngModel"
                 [ngClass]="{
                   'is-invalid': f.submitted && manufacturing_date.errors
@@ -148,27 +131,8 @@
                 >
                   Manufacturing Date must be 4 digits year, e.g: 1995
                 </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="status">*Status</label>
-              <input
-                type="text"
-                class="form-control"
-                name="status"
-                [(ngModel)]="form.status"
-                required
-                minlength="2"
-                #status="ngModel"
-                [ngClass]="{ 'is-invalid': f.submitted && status.errors }"
-              />
-              <div
-                class="invalid-feedback"
-                *ngIf="status.errors && f.submitted"
-              >
-                <div *ngIf="status.errors['required']">Status is required</div>
-                <div *ngIf="status.errors['minlength']">
-                  Status must be at least 2 characters
+                <div *ngIf="manufacturing_date.errors['max']">
+                  Manufacturing Date must be smaller than the current year
                 </div>
               </div>
             </div>
@@ -266,10 +230,7 @@
 
             <div class="row">
               <div class="col">
-                <button
-                  class="btn btn-danger form-control btn-block"
-                  (click)="closePopup()"
-                >
+                <button class="btn btn-danger btn-block" (click)="closePopup()">
                   Cancel
                 </button>
               </div>
@@ -283,16 +244,21 @@
                 </button>
               </div>
             </div>
-
-            <div
-              class="alert alert-warning"
-              *ngIf="f.submitted && isAddingToolFailed"
-            >
-              Adding tool failed!<br />{{ errorMessage }}
-            </div>
           </form>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<div class="alert-top" *ngIf="action_msg">
+  <aside class="w-100 mt-0">
+    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
+      {{ action_msg }}
+    </div>
+
+    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
+      {{ action_msg }}
+    </div>
+  </aside>
 </div>

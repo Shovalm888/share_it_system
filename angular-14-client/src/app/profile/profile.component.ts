@@ -200,11 +200,11 @@ export class ProfileComponent implements OnInit {
         ) {
           this.my_notifications_attrs.entry_info[
             i
-          ].sender_full_name = `${this.capitalize_strings(
+          ].sender_full_name = (this.my_notifications_attrs.entry_info[i].sender) ? `${this.capitalize_strings(
             this.my_notifications_attrs.entry_info[i].sender.fname
           )} ${this.capitalize_strings(
             this.my_notifications_attrs.entry_info[i].sender.lname
-          )}`;
+          )}`: "Unknown"
           this.my_notifications_attrs.entry_info[i].date =
             this.date2str(
               this.my_notifications_attrs.entry_info[i].date
@@ -274,9 +274,7 @@ export class ProfileComponent implements OnInit {
           next: async (data) => {
             // For UI:
             this.action_msg = data.message;
-            this.my_notifications_attrs.entry_info.pop(
-              this.my_notifications_attrs.entry_info[i]
-            );
+            this.my_notifications_attrs.entry_info.splice(i, 1);
             await this.display_alert(true);
           },
           error: async (err) => {

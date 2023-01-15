@@ -55,10 +55,7 @@ export class BoardUserComponent implements OnInit {
   isActionFailed: boolean = false;
   action_msg = '';
 
-  functions: Array<actions_metadata_t> = [{
-    icon: "fas fa-trash-alt",
-    action: (i: any) => {this.delete_user(i)}
-  }]
+  functions?: Array<actions_metadata_t>
 
   headers2model_attr: any = {
     'First Name': 'fname',
@@ -103,6 +100,11 @@ export class BoardUserComponent implements OnInit {
             }
           }
           if (this.storage_service.getUser().roles.includes('ADMIN')) {
+            this.functions = [{
+              icon: "fas fa-trash-alt",
+              action: (i: any) => {this.delete_user(i)}
+            }];
+
             for (let i = 0; i < this.table_attrs.entry_info.length; i++) {
               if (this.table_attrs.entry_info[i].is_suspended) {
                 this.table_attrs.entry_info[i].function = {
@@ -199,8 +201,11 @@ export class BoardUserComponent implements OnInit {
         .subscribe({
           next: async (data) => {
             this.action_msg = data.message;
-
-            this.entry_info_backup.pop(this.table_attrs.entry_info.pop(this.table_attrs.entry_info[i]));
+            let tmp_obj = this.table_attrs.entry_info.splice(i, 1);
+            let index = this.table_attrs.entry_info.indexOf(tmp_obj);
+            if (index > -1) {
+              this.entry_info_backup.splice(index, 1);
+            }
             await this.display_alert(true);
           },
           error: async (err) => {

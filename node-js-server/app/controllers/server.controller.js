@@ -252,7 +252,10 @@ exports.closeExpiredApprovedRequests = async function run() {
       }
 
       for (let i = 0; i < suspended_users_tools.length; i++) {
-        res.pop(suspended_users_tools[i]);
+        let index = res.indexOf(suspended_users_tools[i]);
+        if (index > -1) {
+          res.splice(index, 1);
+        }
       }
 
       const tools_1 = await Tool.bulkWrite(
