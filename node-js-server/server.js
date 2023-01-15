@@ -9,6 +9,9 @@ require("dotenv").config({ path: __dirname + "/.env" });
 const notifyConfig = require("./app/config/notifying.config");
 const controller = require("./app/controllers/server.controller");
 
+const User = db.user;
+const Role = db.role;
+const OrganizationCode = db.organization_code;
 const remote_username = encodeURIComponent(dbConfig.REMOTE_USERNAME);
 const remote_password = encodeURIComponent(dbConfig.REMOTE_PASSWORD);
 
@@ -35,13 +38,10 @@ app.use(
   })
 );
 
-const User = db.user;
-const Role = db.role;
-const OrganizationCode = db.organization_code;
-
 let db_url = `mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`;
 
-if(process.argv.slice(2).includes('--remote')){
+// In case we want connecting to remote DB
+if (process.argv.slice(2).includes("--remote")) {
   db_url = `mongodb+srv://${remote_username}:${remote_password}@cluster0.ak13rx0.mongodb.net/test`;
 }
 
@@ -61,11 +61,11 @@ db.mongoose
   });
 
 // simple route
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.json({ message: "Welcome to bezkoder application." });
 });
 
-// routes
+// Add routes to server api
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/tool.routes")(app);
@@ -154,7 +154,7 @@ function initial() {
     }
   });
 
-  new CronJob(  // Will run every hour
+  new CronJob( // Will run every hour
     "0 0 * * * *",
     function () {
       /*
@@ -171,7 +171,7 @@ function initial() {
     true /* Start the job right now */
   );
 
-  new CronJob(  // Will run every midnight
+  new CronJob( // Will run every midnight
     "0 0 0 * * *",
     function () {
       controller.dbAutoBackUp();
@@ -182,7 +182,7 @@ function initial() {
     true /* Start the job right now */
   );
 
-  new CronJob(  // Will run every "HOUR_OF_SENDING_NOTIFY" Oclock
+  new CronJob( // Will run every "HOUR_OF_SENDING_NOTIFY" Oclock
     `0 0 ${notifyConfig.HOUR_OF_SENDING_NOTIFY} * * *`,
     function () {
       controller.notifyDayBeforeBorrowEnds();
