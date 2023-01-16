@@ -167,8 +167,8 @@ export class ToolsComponent implements OnInit {
       this.table_attrs.entry_info = [];
       let search_pattern = this.search_pattern.replace(",", " ");
       search_pattern = search_pattern.replace("  ", " ");
-      search_pattern = search_pattern.toLocaleLowerCase();
-      let words = this.search_pattern.split(" ");
+      search_pattern = search_pattern.replace(/['",:\[\]\{\}_ ]/g, " ").toLowerCase();
+      let words = search_pattern.split(" ");
       
       for (let i = 0; i < words.length; i++){
         words[i] = "(" + words[i] + ")"
