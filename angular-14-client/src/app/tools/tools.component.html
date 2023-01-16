@@ -108,7 +108,7 @@
                 name="manufacturing_date"
                 [(ngModel)]="form.manufacturing_date"
                 required
-                pattern="\d+"
+                pattern="\d{4}"
                 maxlength="4"
                 max="{{ current_year }}"
                 #manufacturing_date="ngModel"
