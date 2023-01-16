@@ -29,6 +29,9 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  /**
+   * It takes the values from the form and sends them to the authService.register() function.
+   */
   onSubmit(): void {
     const { fname, lname, username, email, phone, password, organization_code, job, description, allow_emails } = this.form;
 
@@ -46,6 +49,11 @@ export class RegisterComponent implements OnInit {
     });
   }
 
+  /**
+   * It returns a promise that resolves after a given number of seconds.
+   * @param {number} sec - number - The number of seconds to wait before resolving the promise.
+   * @returns A promise that will resolve after the specified number of seconds.
+   */
   delay(sec: number) {
     return new Promise((resolve) => setTimeout(resolve, sec * 1000));
   }

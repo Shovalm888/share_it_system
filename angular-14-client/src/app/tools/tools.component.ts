@@ -3,7 +3,10 @@ import { StorageService } from '../_services/storage.service';
 import { ToolService } from '../_services/tool.service';
 import { Router } from '@angular/router';
 import { VariableBinding } from '@angular/compiler';
-import { actions_metadata_t, generic_table_attr } from '../generic-table/generic-table.component';
+import {
+  actions_metadata_t,
+  generic_table_attr,
+} from '../generic-table/generic-table.component';
 import {
   animate,
   AUTO_STYLE,
@@ -28,14 +31,18 @@ const DEFAULT_DURATION = 3000;
         'true => false',
         animate(DEFAULT_DURATION, style({ opacity: 0 }))
       ),
-    ])
-  ]
+    ]),
+  ],
 })
 export class ToolsComponent implements OnInit {
-  functions: Array<actions_metadata_t> = [{
-    icon: "fa-solid fa-link",
-    action: (i: any) => {this.go_to(i)}
-  }];
+  functions: Array<actions_metadata_t> = [
+    {
+      icon: 'fa-solid fa-link',
+      action: (i: any) => {
+        this.go_to(i);
+      },
+    },
+  ];
 
   current_year = new Date().getFullYear();
   err_msg?: string;
@@ -55,6 +62,7 @@ export class ToolsComponent implements OnInit {
     ],
     entry_info: [],
   };
+  /* A map that maps the headers of the table to the attributes of the model. */
   headers2model_attr: any = {
     'Tool Name': 'name',
     'Manufacturing Date': 'manufacturing_date',
@@ -88,6 +96,9 @@ export class ToolsComponent implements OnInit {
     this.load_tools();
   }
 
+  /**
+   * It gets all the tools from the database and puts them in the table
+   */
   load_tools() {
     this.toolService.getAllTools().subscribe({
       next: (data) => {
@@ -113,10 +124,21 @@ export class ToolsComponent implements OnInit {
     });
   }
 
-  go_to(i: any){
-    this.router.navigate(['/tools/board-tool/' , this.table_attrs.entry_info[i]._id]);
+  /**
+   * It takes an index of an array and navigates to a new page with the id of the object at that index.
+   * </code>
+   * @param {any} i - any - the index of the entry in the table
+   */
+  go_to(i: any) {
+    this.router.navigate([
+      '/tools/board-tool/',
+      this.table_attrs.entry_info[i]._id,
+    ]);
   }
 
+  /**
+   * It takes the form data, sends it to the server, and then displays a message to the user.
+   */
   onSubmit(): void {
     const {
       name,
@@ -127,7 +149,6 @@ export class ToolsComponent implements OnInit {
       description,
     } = this.form;
     const user_id = this.storageService.getUser().id;
-
 
     this.toolService
       .addTool(
@@ -145,7 +166,7 @@ export class ToolsComponent implements OnInit {
           this.action_msg = data.message;
           this.closePopup();
           this.load_tools();
-          this.form = {}
+          this.form = {};
           await this.display_alert(true);
         },
         error: async (err) => {
@@ -155,42 +176,73 @@ export class ToolsComponent implements OnInit {
       });
   }
 
+  /**
+   * The function is called openPopup() and it sets the displayStyle property to 'block'.
+   */
   openPopup() {
     this.displayStyle = 'block';
   }
+  /**
+   * The function is called closePopup and it sets the displayStyle property to 'none'.
+   */
   closePopup() {
     this.displayStyle = 'none';
   }
 
-  search_regex(){
+  /**
+   * It takes a string, replaces all non-alphanumeric characters with spaces, splits the string into an
+   * array of words, adds parentheses to each word, joins the words back into a string, and then uses
+   * that string to create a regex pattern.
+   * </code>
+   */
+  search_regex() {
     if (this.search_pattern) {
       this.table_attrs.entry_info = [];
-      let search_pattern = this.search_pattern.replace(",", " ");
-      search_pattern = search_pattern.replace("  ", " ");
-      search_pattern = search_pattern.replace(/['",:\[\]\{\}_ ]/g, " ").toLowerCase();
-      let words = search_pattern.split(" ");
-      
-      for (let i = 0; i < words.length; i++){
-        words[i] = "(" + words[i] + ")"
+      let search_pattern = this.search_pattern.replace(',', ' ');
+      search_pattern = search_pattern.replace('  ', ' ');
+      search_pattern = search_pattern
+        .replace(/['",:\[\]\{\}_ ]/g, ' ')
+        .toLowerCase();
+      let words = search_pattern.split(' ');
+
+      for (let i = 0; i < words.length; i++) {
+        words[i] = '(' + words[i] + ')';
       }
 
-      let pattern_ = words.join("|");
+      let pattern_ = words.join('|');
       const pat = new RegExp(pattern_);
-      for (let i = 0; i < this.entry_info_backup.length; i++){
-        if (JSON.stringify(this.entry_info_backup[i]).replace(/['",:\[\]\{\}_ ]/g, "").toLowerCase().search(pat) !== -1){
-          this.table_attrs.entry_info.push(this.entry_info_backup[i])
+      for (let i = 0; i < this.entry_info_backup.length; i++) {
+        if (
+          JSON.stringify(this.entry_info_backup[i])
+            .replace(/['",:\[\]\{\}_ ]/g, '')
+            .toLowerCase()
+            .search(pat) !== -1
+        ) {
+          this.table_attrs.entry_info.push(this.entry_info_backup[i]);
         }
       }
-    }
-    else {
+    } else {
       this.table_attrs.entry_info = this.entry_info_backup;
     }
   }
 
+  /**
+   * It returns a promise that resolves after a given number of seconds.
+   * @param {number} sec - number - The number of seconds to wait before resolving the promise.
+   * @returns A promise that will resolve after the specified number of seconds.
+   */
   delay(sec: number) {
     return new Promise((resolve) => setTimeout(resolve, sec * 1000));
   }
 
+  /**
+   * If the action is successful, set the success flag to true and the failure flag to false, then wait
+   * 3 seconds, then set the success flag to false. If the action is not successful, set the failure
+   * flag to true and the success flag to false, then wait 3 seconds, then set the failure flag to
+   * false. Then wait 3 seconds, then set the action message to an empty string.
+   * @param {boolean} is_sucess - boolean - this is a boolean value that determines whether the action
+   * was successful or not.
+   */
   async display_alert(is_sucess: boolean) {
     if (is_sucess) {
       this.isActionFailed = false;
@@ -207,23 +259,27 @@ export class ToolsComponent implements OnInit {
     this.action_msg = '';
   }
 
+  /**
+   * If the error is a string, parse it as JSON and get the message property. If it's not a string,
+   * just get the message property. If it's neither, get the statusText property.
+   * </code>
+   * @param {any} err - any - the error object
+   */
   parse_error_msg(err: any) {
     let message = '';
 
     if (err.error) {
       try {
-        if(typeof err.error === "string"){
+        if (typeof err.error === 'string') {
           message = JSON.parse(err.error).message;
-        }
-        else {
+        } else {
           message = err.error.message;
         }
       } catch {
         message = err.statusText;
       }
     }
-    
+
     this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
-
 }

@@ -11,6 +11,8 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root',
 })
+/* It's a service class that makes HTTP requests to the backend.
+</code> */
 export class UserService {
   constructor(private http: HttpClient) {}
 
@@ -20,10 +22,6 @@ export class UserService {
 
   getUserBoard(): Observable<any> {
     return this.http.get(API_URL + 'user', { responseType: 'text' });
-  }
-
-  getModeratorBoard(): Observable<any> {
-    return this.http.get(API_URL + 'mod', { responseType: 'text' });
   }
 
   getAdminBoard(): Observable<any> {
@@ -39,18 +37,22 @@ export class UserService {
   }
 
   updateUser(params_dict: any): Observable<any> {
-    return this.http.post(API_URL + 'user/update-user', params_dict, httpOptions);
+    return this.http.post(
+      API_URL + 'user/update-user',
+      params_dict,
+      httpOptions
+    );
   }
 
   suspendUser(id: any): Observable<any> {
-    return this.http.post(API_URL + 'user/suspend/' + id , httpOptions);
+    return this.http.post(API_URL + 'user/suspend/' + id, httpOptions);
   }
 
   elevatedUser(id: any): Observable<any> {
-    return this.http.post(API_URL + 'user/elevated/' + id , httpOptions);
+    return this.http.post(API_URL + 'user/elevated/' + id, httpOptions);
   }
 
   deleteUser(id: any): Observable<any> {
-    return this.http.post(API_URL + 'user/delete/' + id , httpOptions);
+    return this.http.post(API_URL + 'user/delete/' + id, httpOptions);
   }
 }

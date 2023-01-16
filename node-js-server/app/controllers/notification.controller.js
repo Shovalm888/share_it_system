@@ -1,6 +1,9 @@
 const db = require("../models");
 const Notification = db.notification;
 
+/* A function that is being exported. It is a function that is being called when the user goes
+to the route /notifications. It is a function that is being called when the user goes to the route
+/notifications. It is a function that is being called when the user goes to the route. */
 exports.notifications = (req, res) => {
   Notification.find()
     .populate("sender")
@@ -13,6 +16,9 @@ exports.notifications = (req, res) => {
     });
 };
 
+/* This is a function that is being exported. It is a function that is being called when the user goes
+to the route /notifications/user. It is a function that is being called when the user goes to the
+route /notifications/user. It is a function that is being called when the user goes to the route. */
 exports.user_notifications = (req, res) => {
   Notification.find({$or: [{ recipient: req.userId }, { sender: req.userId }]})
     .populate("sender")
@@ -26,6 +32,7 @@ exports.user_notifications = (req, res) => {
     });
 };
 
+/* Creating a new notification. */
 exports.create_notification = (req, res) => {
   const notification = Notification({
     content: req.body.content,
@@ -46,6 +53,7 @@ exports.create_notification = (req, res) => {
     });
 };
 
+/* Deleting a notification by id. */
 exports.delete_by_id = (req, res) => {
   Notification.findOneAndRemove({_id: req.params.id, $or: [{ recipient: req.userId }, { sender: req.userId }]})
     .then((results) => {

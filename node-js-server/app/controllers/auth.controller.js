@@ -7,6 +7,7 @@ const OrganizationCode = db.organization_code;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
+/* This is a signup function that is used to sign up a user. */
 exports.signup = (req, res) => {
   const user = new User({
     fname: req.body.fname,
@@ -79,6 +80,7 @@ exports.signup = (req, res) => {
     });
 };
 
+/* The above code is a signin function that is used to sign in a user. */
 exports.signin = (req, res) => {
   User.findOne({
     username: req.body.username,
@@ -124,6 +126,7 @@ exports.signin = (req, res) => {
     });
 };
 
+/* Clearing the session. */
 exports.signout = async (req, res) => {
   try {
     req.session = null;

@@ -64,25 +64,35 @@ export class ProfileComponent implements OnInit {
   errorMessage = '';
   action_msg = '';
 
-  notification_functions: Array<actions_metadata_t> = [{
-    icon: 'fas fa-trash-alt',
-    action: (i: any) => {
-      this.delete_notification(i);
+  notification_functions: Array<actions_metadata_t> = [
+    {
+      icon: 'fas fa-trash-alt',
+      action: (i: any) => {
+        this.delete_notification(i);
+      },
     },
-  }];
+  ];
 
-  tool_functions: Array<actions_metadata_t> = [{
-    icon: "fa-solid fa-link",
-    action: (i: any) => {this.go_to_my_tool(i)}
-  }];
+  tool_functions: Array<actions_metadata_t> = [
+    {
+      icon: 'fa-solid fa-link',
+      action: (i: any) => {
+        this.go_to_my_tool(i);
+      },
+    },
+  ];
 
-  borrow_functions: Array<actions_metadata_t> = [{
-    icon: "fa-solid fa-link",
-    action: (i: any) => {this.go_to_my_borrow(i)}
-  }];
+  borrow_functions: Array<actions_metadata_t> = [
+    {
+      icon: 'fa-solid fa-link',
+      action: (i: any) => {
+        this.go_to_my_borrow(i);
+      },
+    },
+  ];
 
   my_tools_attrs: generic_table_attr = {
-    height: "height: 500px !important;",
+    height: 'height: 500px !important;',
     is_collapsable: true,
     headers: ['#', 'Tool Name', 'Status'],
     card_attrs: [
@@ -96,7 +106,7 @@ export class ProfileComponent implements OnInit {
   };
 
   public my_notifications_attrs: generic_table_attr = {
-    height: "height: 500px !important;",
+    height: 'height: 500px !important;',
     is_collapsable: true,
     headers: ['#', 'From', 'Date'],
     card_attrs: ['Content', 'Link'],
@@ -104,7 +114,7 @@ export class ProfileComponent implements OnInit {
   };
 
   my_borrows_attrs: generic_table_attr = {
-    height: "height: 267px !important;",
+    height: 'height: 267px !important;',
     is_collapsable: false,
     headers: ['#', 'Tool Name', 'Expired'],
     card_attrs: [],
@@ -142,6 +152,10 @@ export class ProfileComponent implements OnInit {
     private notification_service: NotificationService
   ) {}
 
+  /**
+   * It gets the user's data, then gets the user's tools, then gets the user's notifications, then gets
+   * the user's borrows.
+   */
   ngOnInit(): void {
     this.user_service.getUser().subscribe({
       next: (data) => {
@@ -198,17 +212,17 @@ export class ProfileComponent implements OnInit {
           i < this.my_notifications_attrs.entry_info.length;
           i++
         ) {
-          this.my_notifications_attrs.entry_info[
-            i
-          ].sender_full_name = (this.my_notifications_attrs.entry_info[i].sender) ? `${this.capitalize_strings(
-            this.my_notifications_attrs.entry_info[i].sender.fname
-          )} ${this.capitalize_strings(
-            this.my_notifications_attrs.entry_info[i].sender.lname
-          )}`: "Unknown"
-          this.my_notifications_attrs.entry_info[i].date =
-            this.date2str(
-              this.my_notifications_attrs.entry_info[i].date
-            );
+          this.my_notifications_attrs.entry_info[i].sender_full_name = this
+            .my_notifications_attrs.entry_info[i].sender
+            ? `${this.capitalize_strings(
+                this.my_notifications_attrs.entry_info[i].sender.fname
+              )} ${this.capitalize_strings(
+                this.my_notifications_attrs.entry_info[i].sender.lname
+              )}`
+            : 'Unknown';
+          this.my_notifications_attrs.entry_info[i].date = this.date2str(
+            this.my_notifications_attrs.entry_info[i].date
+          );
         }
       },
       error: (err) => {
@@ -232,10 +246,9 @@ export class ProfileComponent implements OnInit {
             this.my_borrows_attrs.entry_info[i].tool._id;
           this.my_borrows_attrs.entry_info[i].name =
             this.my_borrows_attrs.entry_info[i].tool.name;
-          this.my_borrows_attrs.entry_info[i].expiration_date =
-            this.date2str(
-              this.my_borrows_attrs.entry_info[i].expiration_date
-            );
+          this.my_borrows_attrs.entry_info[i].expiration_date = this.date2str(
+            this.my_borrows_attrs.entry_info[i].expiration_date
+          );
         }
       },
       error: (err) => {
@@ -253,19 +266,35 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  /**
+   * It takes a string, slices the first character off, capitalizes it, and then concatenates it with
+   * the rest of the string
+   * @param {string} str - string - This is the string that we want to capitalize.
+   * @returns The first character of the string is being returned in uppercase, and the rest of the
+   * string is being returned in lowercase.
+   */
   capitalize_strings(str: string): string {
     return str.slice(0, 1).toUpperCase() + str.slice(1);
   }
 
+  /**
+   * It takes a date object and returns a string in the format of "YYYY-MM-DD HH:MM:SS"
+   * @param {Date} date - Date - The date to convert to a string.
+   * @returns A string with the date and time in the format: `MM/DD/YYYY HH:MM:SS`
+   */
   date2str(date: Date): string {
     const date_ = new Date(date);
-    
-    const hours = (date_.getHours()<10?'0':'') + date_.getHours();
-    const minutes = (date_.getMinutes()<10?'0':'') + date_.getMinutes();
-    const seconds = (date_.getSeconds()<10?'0':'') + date_.getSeconds();
+
+    const hours = (date_.getHours() < 10 ? '0' : '') + date_.getHours();
+    const minutes = (date_.getMinutes() < 10 ? '0' : '') + date_.getMinutes();
+    const seconds = (date_.getSeconds() < 10 ? '0' : '') + date_.getSeconds();
     return `${date_.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
   }
 
+  /**
+   * It deletes a notification from the database and then removes it from the UI.
+   * @param {any} i - any = the index of the notification in the array of notifications
+   */
   delete_notification(i: any) {
     if (confirm('Are you sure you want to delete this message?')) {
       this.notification_service
@@ -285,18 +314,42 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  go_to_my_tool(i: any){
-    this.router.navigate(['/tools/board-tool/' , this.my_tools_attrs.entry_info[i]._id]);
+  /**
+   * "This function navigates to the tool page of the tool that was clicked on."
+   * </code>
+   * @param {any} i - any -&gt; the index of the tool in the array
+   */
+  go_to_my_tool(i: any) {
+    this.router.navigate([
+      '/tools/board-tool/',
+      this.my_tools_attrs.entry_info[i]._id,
+    ]);
   }
 
-  go_to_my_borrow(i: any){
-    this.router.navigate(['/tools/board-tool/' , this.my_borrows_attrs.entry_info[i]._id]);
+  /**
+   * "This function navigates to a specific tool page based on the tool's id."
+   * </code>
+   * @param {any} i - any =&gt; the index of the entry_info array
+   */
+  go_to_my_borrow(i: any) {
+    this.router.navigate([
+      '/tools/board-tool/',
+      this.my_borrows_attrs.entry_info[i]._id,
+    ]);
   }
 
+  /**
+   * When the edit button is clicked, the edit_state is set to true.
+   */
   edit_user() {
     this.edit_state = true;
   }
 
+  /**
+   * It takes the form data and compares it to the current user data. If there are any changes, it will
+   * update the user data.
+   * </code>
+   */
   save_changes() {
     this.edit_state = false;
 
@@ -332,6 +385,9 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  /**
+   * It takes the current user's data and puts it back into the form
+   */
   cancel_changes() {
     this.edit_state = false;
     let tmp = this.form;
@@ -343,10 +399,25 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  /**
+   * It returns a promise that resolves after a given number of seconds.
+   * @param {number} sec - number - The number of seconds to delay.
+   * @returns A promise that will resolve after the specified number of seconds.
+   */
   delay(sec: number) {
     return new Promise((resolve) => setTimeout(resolve, sec * 1000));
   }
 
+  /**
+   * If the is_sucess parameter is true, then set isActionFailed to false, set isActionSucceed to true,
+   * wait 3 seconds, set isActionSucceed to false, wait 3 seconds, set action_msg to an empty string.
+   *
+   * If the is_sucess parameter is false, then set isActionFailed to true, set isActionSucceed to
+   * false, wait 3 seconds, set isActionFailed to false, wait 3 seconds, set action_msg to an empty
+   * string.
+   * @param {boolean} is_sucess - boolean - this is a boolean value that determines whether the action
+   * was successful or not.
+   */
   async display_alert(is_sucess: boolean) {
     if (is_sucess) {
       this.isActionFailed = false;
@@ -363,22 +434,28 @@ export class ProfileComponent implements OnInit {
     this.action_msg = '';
   }
 
+  /**
+   * If the error is a string, parse it as JSON and get the message property.
+   * If the error is an object, get the message property.
+   * If the error is neither, get the statusText property.
+   * </code>
+   * @param {any} err - any - the error object
+   */
   parse_error_msg(err: any) {
     let message = '';
 
     if (err.error) {
       try {
-        if(typeof err.error === "string"){
+        if (typeof err.error === 'string') {
           message = JSON.parse(err.error).message;
-        }
-        else {
+        } else {
           message = err.error.message;
         }
       } catch {
         message = err.statusText;
       }
     }
-    
+
     this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 }

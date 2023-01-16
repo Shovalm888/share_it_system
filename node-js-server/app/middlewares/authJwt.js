@@ -4,6 +4,7 @@ const db = require("../models");
 const User = db.user;
 const Role = db.role;
 
+/* This is a function that is used to verify the token. */
 verifyToken = (req, res, next) => {
   let token = req.session.token;
 
@@ -20,6 +21,7 @@ verifyToken = (req, res, next) => {
   });
 };
 
+/* This is a function that is used to check if user is suspended. */
 verifySuspention = (req, res, next) => {
   User.findById(req.userId).exec((err, user) => {
     if (err) {
@@ -39,6 +41,7 @@ verifySuspention = (req, res, next) => {
   });
 };
 
+/* This is a function that is used to check if user is admin. */
 isAdmin = (req, res, next) => {
   User.findById(req.userId).exec((err, user) => {
     if (err) {
@@ -70,41 +73,11 @@ isAdmin = (req, res, next) => {
   });
 };
 
-isModerator = (req, res, next) => {
-  User.findById(req.userId).exec((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
-
-    Role.find(
-      {
-        _id: { $in: user.roles },
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        for (let i = 0; i < roles.length; i++) {
-          if (roles[i].name === "moderator") {
-            next();
-            return;
-          }
-        }
-
-        res.status(403).send({ message: "Require Moderator Role!" });
-        return;
-      }
-    );
-  });
-};
-
+/* Exporting the functions. */
 const authJwt = {
   verifyToken,
   isAdmin,
-  isModerator,
   verifySuspention
 };
+
 module.exports = authJwt;

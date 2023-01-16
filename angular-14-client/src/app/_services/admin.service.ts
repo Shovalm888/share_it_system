@@ -11,6 +11,7 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root',
 })
+/* It's a service that allows you to set the organization code */
 export class AdminService {
   constructor(private http: HttpClient) {}
 

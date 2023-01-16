@@ -11,6 +11,7 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root',
 })
+/* It's a service that uses the HttpClient to delete a notification */
 export class NotificationService {
   constructor(private http: HttpClient) {}
 

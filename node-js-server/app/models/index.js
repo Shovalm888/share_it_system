@@ -12,6 +12,6 @@ db.tool = require("./tool.model");
 db.tool_request = require("./tool_request.model");
 db.notification = require("./notification.model");
 
-db.ROLES = ["user", "admin", "moderator"];
+db.ROLES = ["user", "admin"];
 
 module.exports = db;

@@ -8,22 +8,22 @@ const Notification = db.notification;
 const Tool = db.tool;
 const User = db.user;
 
+/* This is a function that is exported to be used for public content. */
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
 };
 
+/* This is a function that is exported to be used for users content. */
 exports.userBoard = (req, res) => {
   res.status(200).send("User Content.");
 };
 
+/* This is a function that is exported to be admin for users content. */
 exports.adminBoard = (req, res) => {
   res.status(200).send("Admin Content.");
 };
 
-exports.moderatorBoard = (req, res) => {
-  res.status(200).send("Moderator Content.");
-};
-
+/* This is a function that is exported to be used to determine (set) the organization code. */
 exports.setOrganizationCode = (req, res) => {
   const id = mongoose.Types.ObjectId("112211221122");
   const new_code = req.body.organization_code;
@@ -40,6 +40,7 @@ exports.setOrganizationCode = (req, res) => {
     });
 };
 
+/* This is a function that is exported to be used for getting all the system's users. */
 exports.users = (req, res) => {
   User.find({
     _id: {
@@ -57,6 +58,7 @@ exports.users = (req, res) => {
     });
 };
 
+/* This is a function that is exported to be used for getting a specific user. */
 exports.user = (req, res) => {
   User.findOne({ _id: req.userId })
     .populate("roles", "name")
@@ -68,6 +70,7 @@ exports.user = (req, res) => {
     });
 };
 
+/* This is a function that is exported to be used for updating a specific user. */
 exports.update_user = (req, res) => {
   if (req.body.password) {
     req.body.password = bcrypt.hashSync(req.body.password, 8);
@@ -85,6 +88,7 @@ exports.update_user = (req, res) => {
     });
 };
 
+/* This is a function that is exported to be used for suspending a specific user. */
 exports.suspend_user = async (req, res) => {
   const now = Date();
   const user_id = req.params.id;
@@ -163,6 +167,7 @@ exports.suspend_user = async (req, res) => {
   }
 };
 
+/* This is a function that is exported to be used for elevating a specific user. */
 exports.elevated_user = async (req, res) => {
   const now = Date();
   const user_id = req.params.id;
@@ -186,6 +191,7 @@ exports.elevated_user = async (req, res) => {
 };
 
 
+/* This is a function that is exported to be used for deleting a specific user. */
 exports.delete_user = async (req, res) => {
   const now = Date();
   const user_id = req.params.id;

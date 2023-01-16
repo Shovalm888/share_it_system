@@ -5,10 +5,15 @@ const User = db.user;
 const Notification = db.notification;
 const ToolRequest = db.tool_request;
 
+/* The above code is a function that is being exported to the router.js file. The function is called
+tools and it is using the Tool model to find all the tools in the database. It is then populating
+the owner field with the username of the owner. It is then sorting the tools by status. If there are
+no tools found, it will send a message to the user. If there are tools found, it will send the tools
+to the user. If there is an error, it will send the error to the user. */
 exports.tools = (req, res) => {
   Tool.find()
     .populate("owner", "username")
-    .sort({status: 1})
+    .sort({ status: 1 })
     .then((tools) => {
       if (!tools) {
         res.status(401).send({ message: "Tools was not found" });
@@ -22,6 +27,7 @@ exports.tools = (req, res) => {
     });
 };
 
+/* The above code is a function that is used to find all the tools that belong to the user. */
 exports.my_tools = (req, res) => {
   Tool.find({ owner: req.userId })
     .populate("owner")
@@ -38,6 +44,8 @@ exports.my_tools = (req, res) => {
     });
 };
 
+/* The above code is a function that is called when a user wants to see all the tools that they have
+borrowed. */
 exports.my_borrows = (req, res) => {
   ToolRequest.find({ requestor: req.userId, status: "approved" })
     .populate("tool")
@@ -54,6 +62,7 @@ exports.my_borrows = (req, res) => {
     });
 };
 
+/* The above code is a function that is used to get all the notifications of a user. */
 exports.my_notifications = (req, res) => {
   Notification.find({ recipient: req.userId })
     .sort({ date: -1 })
@@ -71,6 +80,8 @@ exports.my_notifications = (req, res) => {
     });
 };
 
+/* The above code is a function that is exported to the router. It is a function that finds a tool by
+its id. */
 exports.tool_by_id = (req, res) => {
   Tool.findOne({ _id: req.params.id })
     .populate("owner", { username: 1, fname: 1, lname: 1, phone: 1 })
@@ -87,6 +98,7 @@ exports.tool_by_id = (req, res) => {
     });
 };
 
+/* The above code is deleting a tool by id. */
 exports.delete_by_id = (req, res) => {
   Tool.findOneAndRemove({
     _id: req.params.id,
@@ -109,9 +121,11 @@ exports.delete_by_id = (req, res) => {
     });
 };
 
+/* The above code is updating the tool. */
 exports.update_tool = (req, res) => {
-
-  Tool.findOneAndUpdate({ _id: req.params.id, owner: req.userId }, req.body, { new: true })
+  Tool.findOneAndUpdate({ _id: req.params.id, owner: req.userId }, req.body, {
+    new: true,
+  })
     .populate("owner")
     .then((tool) => {
       res
@@ -123,6 +137,7 @@ exports.update_tool = (req, res) => {
     });
 };
 
+/* Creating a new tool and saving it to the database. */
 exports.add = (req, res) => {
   const tool = new Tool({
     name: req.body.name,
@@ -147,6 +162,7 @@ exports.add = (req, res) => {
     });
 };
 
+/* The above code is creating a new request for a tool. */
 exports.request = (req, res) => {
   const now = new Date();
 
@@ -190,6 +206,7 @@ exports.request = (req, res) => {
     });
 };
 
+/* The above code is a function that is used to get all the requests that have been made by the users. */
 exports.requests = (req, res) => {
   ToolRequest.find()
     .populate("tool")
@@ -207,6 +224,7 @@ exports.requests = (req, res) => {
     });
 };
 
+/* Finding all the tool requests that have the same tool id as the tool id in the url. */
 exports.tool_requests = (req, res) => {
   ToolRequest.find({ tool: req.params.id })
     .populate("tool")
@@ -224,6 +242,7 @@ exports.tool_requests = (req, res) => {
     });
 };
 
+/* The above code is deleting a request from the database. */
 exports.delete_request = (req, res) => {
   ToolRequest.findOneAndRemove({
     _id: req.params.id,
@@ -249,6 +268,7 @@ exports.delete_request = (req, res) => {
     });
 };
 
+/* The above code is updating a request. */
 exports.update_request = (req, res) => {
   update = {};
   filter = { _id: req.params.id, status: "pending" };
@@ -278,6 +298,7 @@ exports.update_request = (req, res) => {
     });
 };
 
+/* The above code is updating the status of a tool request. */
 exports.update_request_status = (req, res) => {
   const now = new Date();
   const status = req.body.status;
@@ -336,10 +357,10 @@ exports.update_request_status = (req, res) => {
               });
           } else {
             // Status == 'closed'
-            if (tool_owner.is_suspended == true){
-              update_tool = {status: 'not available'};
+            if (tool_owner.is_suspended == true) {
+              update_tool = { status: "not available" };
             }
-            
+
             Tool.findOneAndUpdate(tool_filter, update_tool, { new: true })
               .populate("owner")
               .then((tool) => {
@@ -372,6 +393,8 @@ exports.update_request_status = (req, res) => {
     });
 };
 
+/* The above code is a function that is called when a user clicks on a button to give feedback to
+another user. */
 exports.request_feedback = (req, res) => {
   ToolRequest.findOne({ _id: req.body.request_id })
     .populate("tool")
@@ -414,6 +437,7 @@ exports.request_feedback = (req, res) => {
     });
 };
 
+/* A function that is called when a user makes a request to the server. */
 exports.tool_history = (req, res) => {
   const tool_id = req.params.id;
 
@@ -435,6 +459,12 @@ exports.tool_history = (req, res) => {
     });
 };
 
+/**
+ * It takes an array of objects, and returns an array of objects with the same keys, but with different
+ * values
+ * @param requests - an array of objects, each object has the following properties: expiration_date, approval_date, requestor_name, requestor_username
+ * @returns An array of objects.
+ */
 function parse_requests_to_history(requests) {
   let response = [];
   for (let i = 0; i < requests.length; i++) {
@@ -448,6 +478,11 @@ function parse_requests_to_history(requests) {
   return response;
 }
 
+/**
+ * It takes a date object and returns a string in the format `YYYY-MM-DD HH:MM:SS`
+ * @param date - The date object to convert to a string.
+ * @returns A string in the format of "MM/DD/YYYY HH:MM:SS"
+ */
 function date2str(date) {
   const hours = (date.getHours() < 10 ? "0" : "") + date.getHours();
   const minutes = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();

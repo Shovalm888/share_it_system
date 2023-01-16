@@ -7,6 +7,7 @@ const exec = require("child_process").exec;
 const dbConfig = require("../config/db.config");
 const notifyConfig = require("../config/notifying.config");
 
+/* Used to encode the username and password. */
 const remote_username = encodeURIComponent(dbConfig.REMOTE_USERNAME);
 const remote_password = encodeURIComponent(dbConfig.REMOTE_PASSWORD);
 
@@ -19,6 +20,7 @@ const ToolRequest = db.tool_request;
 const backupDirPath = path.join(process.cwd(), "database-backup/");
 const local_db = process.argv.slice(2).includes("--remote");
 
+/* A configuration object for the database. */
 const dbOptions = {
   user: local_db ? remote_username : dbConfig.USER_ID || "",
   pass: local_db ? remote_password : dbConfig.USER_PASSWORD || "",
@@ -31,12 +33,12 @@ const dbOptions = {
   autoBackupPath: backupDirPath,
 };
 
-// return stringDate as a date object.
+/* A function that converts a string to a date object. */
 exports.stringToDate = (dateString) => {
   return new Date(dateString);
 };
 
-// Check if variable is empty or not.
+/* Checking if the variable is empty or not. */
 exports.empty = (mixedVar) => {
   let undef, key, i, len;
   const emptyValues = [undef, null, false, 0, "", "0"];
@@ -54,7 +56,7 @@ exports.empty = (mixedVar) => {
   return false;
 };
 
-// Auto backup function
+/* Creating a backup of the database. */
 exports.dbAutoBackUp = () => {
   // check for auto backup is enabled or disabled
   if (dbOptions.autoBackup == true) {
@@ -110,6 +112,7 @@ exports.dbAutoBackUp = () => {
   }
 };
 
+/* Closing expired pending requests and sending a notification to the requestor. */
 exports.closeExpiredPendingRequests = async function run() {
   const now = new Date();
   try {
@@ -169,6 +172,8 @@ exports.closeExpiredPendingRequests = async function run() {
   }
 };
 
+/* A cron job that runs every day at midnight. It checks for all the approved requests that have
+expired and closes them. */
 exports.closeExpiredApprovedRequests = async function run() {
   const now = new Date();
 
@@ -291,6 +296,7 @@ exports.closeExpiredApprovedRequests = async function run() {
   }
 };
 
+/* This function is used to notify users about the end of their borrow. */
 exports.notifyDayBeforeBorrowEnds = async function run() {
   const now = new Date();
   const threshold_time = new Date(

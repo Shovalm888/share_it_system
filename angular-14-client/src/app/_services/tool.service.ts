@@ -11,6 +11,7 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root',
 })
+/* It's a service that handles all the HTTP requests related to the tool module */
 export class ToolService {
   constructor(private http: HttpClient) {}
 

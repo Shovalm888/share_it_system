@@ -134,6 +134,10 @@ export class BoardToolComponent implements OnInit {
     private router: Router
   ) {}
 
+  /**
+   * The function is called when the page loads and it gets the tool info from the database and
+   * displays it on the page.
+   */
   ngOnInit() {
     this.suspended_user = this.storageService.getUser().is_suspended;
     this.sub = this.route.params.subscribe(async (params) => {
@@ -168,6 +172,9 @@ export class BoardToolComponent implements OnInit {
     });
   }
 
+  /**
+   * This function gets all the requests for a tool and then divides them into the appropriate arrays.
+   */
   get_tool_requests() {
     this.toolService.getToolRequests(this.tool_id).subscribe({
       next: (data) => {
@@ -182,10 +189,17 @@ export class BoardToolComponent implements OnInit {
     });
   }
 
+  /**
+   * When the component is destroyed, unsubscribe from the observable.
+   */
   ngOnDestroy() {
     this.sub.unsubscribe();
   }
 
+  /**
+   * If the user confirms the deletion of the tool, the tool is deleted from the database and the user
+   * is redirected to the home page
+   */
   delete_tool() {
     if (confirm(`Are you sure to delete ${this.tool_info.name}?`)) {
       this.toolService.deleteToolById(this.tool_id).subscribe({
@@ -204,6 +218,12 @@ export class BoardToolComponent implements OnInit {
     }
   }
 
+  /**
+   * It takes an array of objects, and for each object, it adds a new property to it, and then pushes
+   * it to another array.
+   *
+   * Generally it just sort the system's requests
+   */
   devide_requests() {
     for (let i = 0; i < this.requests.all.length; i++) {
       this.requests.all[i].date_s = this.date2str(this.requests.all[i].date);
@@ -254,6 +274,14 @@ export class BoardToolComponent implements OnInit {
     }
   }
 
+  /**
+   * It sends a request to the server to update the feedback of a request.
+   *
+   * The function is called when the user clicks on a button.
+   *
+   * @param {boolean} encourage - boolean - true if the user is giving positive feedback, false if
+   * negative
+   */
   feedback_peer(encourage: boolean) {
     this.toolService
       .feedbackPeer(
@@ -277,6 +305,12 @@ export class BoardToolComponent implements OnInit {
       });
   }
 
+  /**
+   * It sends a request to the server to borrow a tool, and if the request is successful, it displays a
+   * message to the user.
+   *
+   * @returns an observable.
+   */
   open_new_request() {
     if (!this.validate_input()) {
       // Do something
@@ -323,10 +357,25 @@ export class BoardToolComponent implements OnInit {
       });
   }
 
+  /**
+   * It returns true if the input is valid, and false if it is not.
+   * @returns A boolean value.
+   */
   validate_input(): boolean {
     return true;
   }
 
+  /**
+   * "If the user confirms that they want to close the loan, then update the request status to closed,
+   * update the tool status to available, and update the request history."
+   * The function is called when the user clicks a button.
+   *
+   * I'm using async/await in the subscribe function because I want to make sure that the UI is updated
+   * before the alert is displayed.
+   *
+   * I'm using async/await in the display_alert function because I want to make sure that the alert is
+   * displayed before the function returns.
+   */
   finish_loan() {
     if (confirm('Are you sure to close the current loan?')) {
       const now = new Date();
@@ -354,6 +403,13 @@ export class BoardToolComponent implements OnInit {
     }
   }
 
+  /**
+   * If the error object has an error property, try to parse it as JSON and get the message property.
+   * If that fails, use the statusText property. If the error object doesn't have an error property,
+   * use the statusText property.
+   * </code>
+   * @param {any} err - any - the error object
+   */
   parse_error_msg(err: any) {
     let message = '';
 
@@ -372,6 +428,9 @@ export class BoardToolComponent implements OnInit {
     this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 
+  /**
+   * It deletes a pending request from the database and then removes it from the UI
+   */
   delete_pending_request() {
     this.toolService.deleteRequest(this.requests.my._id).subscribe({
       next: async (data) => {
@@ -404,10 +463,25 @@ export class BoardToolComponent implements OnInit {
     });
   }
 
+  /**
+   * It returns a promise that resolves after a given number of seconds.
+   * @param {number} sec - number - The number of seconds to wait before resolving the promise.
+   * @returns A promise that will resolve after the specified number of seconds.
+   */
   delay(sec: number) {
     return new Promise((resolve) => setTimeout(resolve, sec * 1000));
   }
 
+  /**
+   * If the is_sucess parameter is true, then set isActionFailed to false, set isActionSucceed to true,
+   * wait 3 seconds, set isActionSucceed to false, wait 3 seconds, set action_msg to an empty string.
+   *
+   * If the is_sucess parameter is false, then set isActionFailed to true, set isActionSucceed to
+   * false, wait 3 seconds, set isActionFailed to false, wait 3 seconds, set action_msg to an empty
+   * string.
+   * @param {boolean} is_sucess - boolean - this is a boolean value that determines whether the action
+   * was successful or not.
+   */
   async display_alert(is_sucess: boolean) {
     if (is_sucess) {
       this.isActionFailed = false;
@@ -424,14 +498,33 @@ export class BoardToolComponent implements OnInit {
     this.action_msg = '';
   }
 
+  /**
+   * It takes in an index and a request type, and then sets the show property of the request at that
+   * index to false.
+   * @param {any} i - the index of the request in the array
+   * @param {string} req_type - string - this is the type of request, i.e. "pending", "approved",
+   * "denied"
+   */
   collapse(i: any, req_type: string) {
     this.requests[req_type][i].show = false;
   }
 
+  /**
+   * It takes in an index and a request type, and then sets the show property of the object at that
+   * index to true.
+   * @param {any} i - the index of the request in the array
+   * @param {string} req_type - string - this is the type of request, i.e. "pending", "approved",
+   * "denied"
+   */
   expand(i: any, req_type: string) {
     this.requests[req_type][i].show = true;
   }
 
+  /**
+   * It takes a request object, updates the status to 'approved', and then moves the request object
+   * from the 'open' array to the 'approved' array.
+   * @param {any} i - any = index of the request in the array
+   */
   approve_borrow(i: any) {
     const now = new Date().getTime();
     let new_expiration_date = new Date(
@@ -477,6 +570,11 @@ export class BoardToolComponent implements OnInit {
       });
   }
 
+  /**
+   * "This function is called when a user clicks a button to reject a request to borrow a tool."
+   * </code>
+   * @param {any} i - any - the index of the request in the array
+   */
   reject_borrow(i: any) {
     const now = new Date();
     this.toolService
@@ -500,6 +598,9 @@ export class BoardToolComponent implements OnInit {
       });
   }
 
+  /**
+   * This function gets the tool history from the server and displays it in the UI.
+   */
   get_tool_history() {
     this.toolService.getToolHistory(this.tool_id).subscribe({
       next: async (data) => {
@@ -513,6 +614,12 @@ export class BoardToolComponent implements OnInit {
     });
   }
 
+  /**
+   * It takes a date as an argument and returns an object with the number of hours, minutes and seconds
+   * until that date.
+   * @param {Date} endDay - Date = new Date('1-3-2023 11:00:00')
+   * @returns An object with three properties: hoursToDday, minutesToDday, and secondsToDday.
+   */
   calcDateDiff(endDay: Date = new Date('1-3-2023 11:00:00')): any {
     const dDay = endDay.valueOf();
 
@@ -560,6 +667,11 @@ export class BoardToolComponent implements OnInit {
     };
   }
 
+  /**
+   * It takes a date object and returns a string in the format of "YYYY-MM-DD HH:MM:SS"
+   * @param {Date} date - Date - The date to be formatted.
+   * @returns A string in the format of "MM/DD/YYYY HH:MM:SS"
+   */
   date2str(date: Date): string {
     const date_ = new Date(date);
 
@@ -569,6 +681,16 @@ export class BoardToolComponent implements OnInit {
     return `${date_.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
   }
 
+  /**
+   * It takes a date object and returns a string in the format of YYYY-MM-DD.
+   * </code>
+   * You can use <code>toISOString()</code> to get the date in ISO format.
+   * <code>var date = new Date();
+   * var isoDate = date.toISOString();
+   * </code>
+   * @param {Date} date - Date
+   * @returns A string in the format of YYYY-MM-DD
+   */
   local_date_to_str(date: Date): string {
     let date_ = new Date(date).toLocaleDateString();
     date_ = date_.replace(/\./g, '/');
@@ -584,10 +706,21 @@ export class BoardToolComponent implements OnInit {
     return str.slice(0, 10);
   }
 
+  /**
+   * It takes a string, slices the first character off, capitalizes it, and then concatenates it with
+   * the rest of the string
+   * @param {string} str - string - This is the string that we want to capitalize.
+   * @returns The first character of the string is being returned in uppercase, and the rest of the
+   * string is being returned in lowercase.
+   */
   capitalize_strings(str: string): string {
     return str.slice(0, 1).toUpperCase() + str.slice(1);
   }
 
+  /**
+   * It takes the form data, compares it to the original data, and if there are any changes, it sends
+   * the changes to the server.
+   */
   save_changes() {
     this.edit_state = false;
 
@@ -616,11 +749,30 @@ export class BoardToolComponent implements OnInit {
     });
   }
 
+  /**
+   * It closes the form and copies the data from the form to the tool object.
+   */
   closeForm() {
     this.edit_state = false;
     this.cp_tool_to_form();
   }
 
+  /**
+   * "For each key in the tool_form object, if reverse is true, set the value of the tool_info object
+   * to the value of the tool_form object, otherwise set the value of the tool_form object to the value
+   * of the tool_info object."
+   *
+   * The function is called like this:
+   *
+   * this.cp_tool_to_form();
+   * this.cp_tool_to_form(true);
+   *
+   * The first call copies the values from the tool_info object to the tool_form object. The second
+   * call copies the values from the tool_form object to the tool_info object.
+   *
+   * I hope this helps.
+   * @param {boolean} [reverse=false] - boolean = false
+   */
   cp_tool_to_form(reverse: boolean = false) {
     let tmp = this.tool_form;
     let tool_info = this.tool_info;

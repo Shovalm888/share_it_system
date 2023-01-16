@@ -55,7 +55,7 @@ export class BoardUserComponent implements OnInit {
   isActionFailed: boolean = false;
   action_msg = '';
 
-  functions?: Array<actions_metadata_t>
+  functions?: Array<actions_metadata_t>;
 
   headers2model_attr: any = {
     'First Name': 'fname',
@@ -74,6 +74,12 @@ export class BoardUserComponent implements OnInit {
     private storage_service: StorageService
   ) {}
 
+  /**
+   * It gets all the users from the database, then it loops through each user and adds a new property
+   * to each user called _roles, which is a string of all the roles that the user has. Then it checks
+   * if the user has the role of admin, and if they do, it adds a new property to each user called
+   * function, which is an object with an icon and an action.
+   */
   ngOnInit(): void {
     this.userService.getAllUsers().subscribe({
       next: (data) => {
@@ -100,10 +106,14 @@ export class BoardUserComponent implements OnInit {
             }
           }
           if (this.storage_service.getUser().roles.includes('ADMIN')) {
-            this.functions = [{
-              icon: "fas fa-trash-alt",
-              action: (i: any) => {this.delete_user(i)}
-            }];
+            this.functions = [
+              {
+                icon: 'fas fa-trash-alt',
+                action: (i: any) => {
+                  this.delete_user(i);
+                },
+              },
+            ];
 
             for (let i = 0; i < this.table_attrs.entry_info.length; i++) {
               if (this.table_attrs.entry_info[i].is_suspended) {
@@ -134,6 +144,10 @@ export class BoardUserComponent implements OnInit {
     });
   }
 
+  /**
+   * It suspends a user and changes the icon of the action button to a play button.
+   * @param {any} i - any -&gt; the index of the user in the table
+   */
   suspend_user(i: any) {
     if (
       confirm(
@@ -164,6 +178,21 @@ export class BoardUserComponent implements OnInit {
     }
   }
 
+  /**
+   * It's a function that takes in a number and if the user confirms the action, it will call a service
+   * function that will make a request to the server to elevate the user. If the request is successful,
+   * it will change the icon and action of the button. If the request is unsuccessful, it will display
+   * an error message.
+   *
+   * I'm trying to write a test for this function. I'm using Jasmine and Karma. I'm not sure how to
+   * write a test for this function. I'm not sure how to test the if statement, the subscribe function,
+   * and the async/await. I'm not sure how to test the service function. I'm not sure how to test the
+   * request to the server. I'm not sure how to test the error message. I'm not sure how to test the
+   * icon and action of the button.
+   *
+   * I'm not sure how to test this function. I'm not sure how to test
+   * @param {any} i - any - the index of the user in the table
+   */
   elevated_user(i: any) {
     if (confirm('Are you sure you want to elevate this user?')) {
       this.userService
@@ -190,6 +219,11 @@ export class BoardUserComponent implements OnInit {
     }
   }
 
+  /**
+   * It deletes a user from the database and the table.
+   * </code>
+   * @param {any} i - any - the index of the user in the table
+   */
   delete_user(i: any) {
     if (
       confirm(
@@ -216,10 +250,24 @@ export class BoardUserComponent implements OnInit {
     }
   }
 
+  /**
+   * The delay function returns a promise that resolves after a given number of seconds.
+   * @param {number} sec - The number of seconds to wait before resolving the promise.
+   * @returns A promise that resolves after sec seconds.
+   */
   delay(sec: number) {
     return new Promise((resolve) => setTimeout(resolve, sec * 1000));
   }
 
+  /**
+   * If the action is successful, set the success flag to true, set the failure flag to false, wait 3
+   * seconds, set the success flag to false, wait 3 seconds, and clear the action message.
+   *
+   * If the action is not successful, set the failure flag to true, set the success flag to false, wait
+   * 3 seconds, set the failure flag to false, wait 3 seconds, and clear the action message.
+   * @param {boolean} is_sucess - boolean - this is a boolean value that determines whether the action
+   * was successful or not.
+   */
   async display_alert(is_sucess: boolean) {
     if (is_sucess) {
       this.isActionFailed = false;
@@ -236,48 +284,71 @@ export class BoardUserComponent implements OnInit {
     this.action_msg = '';
   }
 
-
+  /**
+   * If the error is a string, parse it as JSON and get the message property.
+   * If the error is an object, get the message property.
+   * If the error is neither, get the statusText property.
+   * </code>
+   * @param {any} err - any - the error object
+   */
   parse_error_msg(err: any) {
     let message = '';
 
     if (err.error) {
       try {
-        if(typeof err.error === "string"){
+        if (typeof err.error === 'string') {
           message = JSON.parse(err.error).message;
-        }
-        else {
+        } else {
           message = err.error.message;
         }
       } catch {
         message = err.statusText;
       }
     }
-    
+
     this.action_msg = `Error with status: ${err.status} - ${message}`;
   }
 
-  search_regex(){
+  /**
+   * It takes a string, replaces all non-alphanumeric characters with spaces, splits the string into an
+   * array of words, adds parentheses to each word, joins the words back into a string, and then uses
+   * that string to create a regex pattern.
+   * </code>
+   */
+  search_regex() {
     if (this.search_pattern) {
       this.table_attrs.entry_info = [];
-      let search_pattern = this.search_pattern.replace(",", " ");
-      search_pattern = search_pattern.replace("  ", " ");
-      search_pattern = search_pattern.replace(/['",:\[\]\{\}_ ]/g, " ").toLowerCase();
-      let words = search_pattern.split(" ");
-      
-      for (let i = 0; i < words.length; i++){
-        words[i] = "(" + words[i] + ")"
+      let search_pattern = this.search_pattern.replace(',', ' ');
+      search_pattern = search_pattern.replace('  ', ' ');
+      search_pattern = search_pattern
+        .replace(/['",:\[\]\{\}_ ]/g, ' ')
+        .toLowerCase();
+      let words = search_pattern.split(' ');
+
+      for (let i = 0; i < words.length; i++) {
+        words[i] = '(' + words[i] + ')';
       }
 
-      let pattern_ = words.join("|");
+      let pattern_ = words.join('|');
       const pat = new RegExp(pattern_);
-      for (let i = 0; i < this.entry_info_backup.length; i++){
-        if (JSON.stringify(this.entry_info_backup[i]).replace(/['",:\[\]\{\}_ ]/g, "").toLowerCase().search(pat) !== -1){
-          this.table_attrs.entry_info.push(this.entry_info_backup[i])
+      for (let i = 0; i < this.entry_info_backup.length; i++) {
+        if (
+          JSON.stringify(this.entry_info_backup[i])
+            .replace(/['",:\[\]\{\}_ ]/g, '')
+            .toLowerCase()
+            .search(pat) !== -1
+        ) {
+          this.table_attrs.entry_info.push(this.entry_info_backup[i]);
         }
       }
-    }
-    else {
+    } else {
       this.table_attrs.entry_info = this.entry_info_backup;
     }
   }
 }
+/**
+ * It takes an index of an item in an array, and then removes that item from the array and adds it to
+ * another array.
+ * </code>
+ * @param {any} i - any = index of the request in the array
+ */

@@ -29,7 +29,6 @@ export class AppComponent {
   private roles: string[] = [];
   isLoggedIn = false;
   showAdminBoard = false;
-  showModeratorBoard = false;
   username?: string;
 
   navbarCollapsed = true;
@@ -40,6 +39,10 @@ export class AppComponent {
     private authService: AuthService
   ) {}
 
+  /**
+   * If the user is logged in, then get the user's roles and username from the storage service and set
+   * the showAdminBoard variable to true if the user has the ADMIN role.
+   */
   ngOnInit(): void {
     this.isLoggedIn = this.storageService.isLoggedIn();
 
@@ -48,12 +51,15 @@ export class AppComponent {
       this.roles = user.roles;
 
       this.showAdminBoard = this.roles.includes('ADMIN');
-      this.showModeratorBoard = this.roles.includes('MODERATOR');
 
       this.username = user.username;
     }
   }
 
+  /**
+   * I'm calling the logout() function from the authService, and then I'm cleaning the storageService,
+   * and then I'm reloading the page.
+   */
   logout(): void {
     this.authService.logout().subscribe({
       next: (res) => {
@@ -68,6 +74,9 @@ export class AppComponent {
     window.location.reload();
   }
 
+  /**
+   * If the navbar is collapsed, then show it, otherwise hide it.
+   */
   collapse() {
     this.navbarCollapsed = !this.navbarCollapsed
     this.nav_class = `navbar-collapse collapse ${this.navbarCollapsed ? 'show' : ''}`;

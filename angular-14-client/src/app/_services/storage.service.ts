@@ -3,8 +3,10 @@ import { Injectable } from '@angular/core';
 const USER_KEY = 'auth-user';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
+/* It's a service that provides a set of methods to save and retrieve data from the browser's session
+storage. */
 export class StorageService {
   constructor() {}
 
