@@ -571,6 +571,7 @@ export class BoardToolComponent implements OnInit {
 
   local_date_to_str(date: Date): string {
     let date_ = new Date(date).toLocaleDateString();
+    date_ = date_.replace(/\./g, '/');
     let date_l = date_.split('/');
     let str = date_l.pop() + '-';
     for (let i = 0; i < 2; i++) {
