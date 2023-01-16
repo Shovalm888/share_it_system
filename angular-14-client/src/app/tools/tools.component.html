@@ -144,7 +144,7 @@
                 name="max_time_borrow"
                 [(ngModel)]="form.max_time_borrow"
                 required
-                pattern="[1-9]|1[0-9]|20"
+                pattern="[1-9]\d*"
                 minlength="1"
                 maxlength="20"
                 #max_time_borrow="ngModel"
@@ -163,7 +163,7 @@
                   Max Borrow Time must be at least 1 day
                 </div>
                 <div *ngIf="max_time_borrow.errors['pattern']">
-                  Max Borrow Time must be positive number
+                  Max Borrow Time must be a number
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@
                 class="form-control"
                 name="categories"
                 [(ngModel)]="form.categories"
-                maxlength="20"
+                maxlength="50"
                 #categories="ngModel"
                 [ngClass]="{ 'is-invalid': f.submitted && categories.errors }"
               />
