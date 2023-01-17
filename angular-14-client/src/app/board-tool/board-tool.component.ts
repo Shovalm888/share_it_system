@@ -56,7 +56,7 @@ export class BoardToolComponent implements OnInit {
     appreved: null,
     my: null,
     headers: ['#', 'Requestor', 'Expiration date', 'Phone', 'Email'],
-    card_attrs: ['Duration', 'Creation date', 'Content', 'Status'],
+    card_attrs: ['Duration', 'Creation date', 'Content', 'Status', 'Rank'],
     approved_list_attrs: [
       'Requestor',
       'Duration',
@@ -77,6 +77,8 @@ export class BoardToolComponent implements OnInit {
     Email: 'requestor_email',
     Phone: 'requestor_phone',
     Name: 'name',
+    Rank: 'rank',
+    'Owner rank': 'owner_rank',
     'Owner name': 'owner_name',
     'Owner phone': 'owner_phone',
     'Max borrow time': 'max_time_borrow',
@@ -98,6 +100,7 @@ export class BoardToolComponent implements OnInit {
     'Name',
     'Owner name',
     'Owner phone',
+    'Owner rank',
     'Status',
     'Max borrow time',
     'Categories',
@@ -147,6 +150,7 @@ export class BoardToolComponent implements OnInit {
         next: async (data) => {
           this.tool_info = data.tool;
           this.get_tool_history();
+          this.tool_info.owner_rank = this.tool_info.owner.rank;
           this.tool_info.owner_name =
             this.tool_info.owner.name = `${this.capitalize_strings(
               this.tool_info.owner.fname
@@ -227,6 +231,7 @@ export class BoardToolComponent implements OnInit {
   devide_requests() {
     for (let i = 0; i < this.requests.all.length; i++) {
       this.requests.all[i].date_s = this.date2str(this.requests.all[i].date);
+      this.requests.all[i].rank = this.requests.all[i].requestor.rank;
       this.requests.all[i].requestor_name =
         this.requests.all[i].requestor.fname +
         ' ' +

@@ -345,11 +345,11 @@
           <div class="form-group">
             <label for="expiration_date">Expiration Date</label>
             <input
-              exp
               type="date"
               class="form-control"
               data-provide="datepicker"
               name="expiration_date"
+              onkeydown="return false"
               [(ngModel)]="form.expiration_date"
               required
               [attr.min]="today"

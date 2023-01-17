@@ -84,7 +84,7 @@ exports.my_notifications = (req, res) => {
 its id. */
 exports.tool_by_id = (req, res) => {
   Tool.findOne({ _id: req.params.id })
-    .populate("owner", { username: 1, fname: 1, lname: 1, phone: 1 })
+    .populate("owner", { username: 1, fname: 1, lname: 1, phone: 1, rank: 1 })
     .then((tool) => {
       if (!tool) {
         res.status(401).send({ message: "Tool was not found" });
