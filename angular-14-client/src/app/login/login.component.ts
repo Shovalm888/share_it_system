@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { StorageService } from '../_services/storage.service';
@@ -18,6 +19,7 @@ export class LoginComponent implements OnInit {
   roles: string[] = [];
 
   constructor(
+    private router: Router,
     private authService: AuthService,
     private storageService: StorageService
   ) {}
@@ -44,13 +46,16 @@ export class LoginComponent implements OnInit {
     const { username, password } = this.form;
 
     this.authService.login(username, password).subscribe({
-      next: (data) => {
+      next: async (data) => {
         this.storageService.saveUser(data);
 
         this.isLoginFailed = false;
         this.isLoggedIn = true;
         this.roles = this.storageService.getUser().roles;
-        this.reloadPage();
+        await this.delay(2);
+        this.router.navigate(['tools']).then( () => {
+          this.reloadPage();
+        });
       },
       error: (err) => {
         this.errorMessage = err.error.message;
@@ -64,5 +69,14 @@ export class LoginComponent implements OnInit {
    */
   reloadPage(): void {
     window.location.reload();
+  }
+
+  /**
+   * It returns a promise that resolves after a given number of seconds.
+   * @param {number} sec - number - The number of seconds to wait before resolving the promise.
+   * @returns A promise that will resolve after the specified number of seconds.
+   */
+  delay(sec: number) {
+    return new Promise((resolve) => setTimeout(resolve, sec * 1000));
   }
 }

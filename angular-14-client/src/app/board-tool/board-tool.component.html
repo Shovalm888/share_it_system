@@ -457,6 +457,7 @@
   </div>
 
   <div class="row mt-5 mx-1">
+    <h5 class="card-title">Tool's requests</h5>
     <header *ngIf="tool_info.is_my_tool" class="w-100">
       <div *ngIf="requests.open.length > 0">
         <table class="table">
@@ -538,6 +539,7 @@
     </header>
   </div>
   <div class="row mt-5 mx-1">
+    <h5 class="card-title">Tool's history</h5>
     <header class="w-100">
       <div *ngIf="tool_info.history && tool_info.history.length > 0">
         <table class="table">
