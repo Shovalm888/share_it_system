@@ -90,7 +90,7 @@
               />
               <div class="invalid-feedback" *ngIf="name.errors && f.submitted">
                 <div *ngIf="name.errors['required']">
-                  First name is required
+                  Tool name is required
                 </div>
                 <div *ngIf="name.errors['minlength']">
                   First name must be at least 2 characters
@@ -163,7 +163,7 @@
                   Max Borrow Time must be at least 1 day
                 </div>
                 <div *ngIf="max_time_borrow.errors['pattern']">
-                  Max Borrow Time must be a number
+                  Max Borrow Time must be at least 1 day
                 </div>
               </div>
             </div>

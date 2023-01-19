@@ -424,7 +424,7 @@ exports.request_feedback = (req, res) => {
           User.findOneAndUpdate(user_filter, { $inc: { rank: inc } }).then(
             (_) => {
               res.status(200).send({
-                message: "User have beed ranked successfully",
+                message: "User have been ranked successfully",
                 request: request,
               });
             }
