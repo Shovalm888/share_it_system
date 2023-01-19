@@ -1,4 +1,14 @@
-<div class="container mt-5" *ngIf="current_user; else loggedOut">
+<div class="container" *ngIf="current_user; else loggedOut">
+  <aside class="w-100 mt-0">
+    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
+      {{ action_msg }}
+    </div>
+
+    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
+      {{ action_msg }}
+    </div>
+  </aside>
+
   <div class="main-body">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="main-breadcrumb">
@@ -19,8 +29,15 @@
                 width="150"
               />
             </div>
-            <div *ngIf="current_user.description || current_user.job; else no_description">
-              <h6 class="card-subtitle mb-2 text-muted mt-3">{{ current_user.job }}</h6>
+            <div
+              *ngIf="
+                current_user.description || current_user.job;
+                else no_description
+              "
+            >
+              <h6 class="card-subtitle mb-2 text-muted mt-3">
+                {{ current_user.job }}
+              </h6>
               <p class="card-text">{{ current_user.description }}</p>
             </div>
             <div>
@@ -325,16 +342,3 @@
   </div>
 </div>
 <ng-template #loggedOut> Please login. </ng-template>
-
-
-<div class="alert-top" *ngIf="action_msg">
-  <aside class="w-100 mt-0">
-    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
-      {{ action_msg }}
-    </div>
-
-    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
-      {{ action_msg }}
-    </div>
-  </aside>
-</div>
