@@ -22,4 +22,8 @@ export class NotificationService {
   markAsSeen(id: any): Observable<any> {
     return this.http.post( NOTIFICATION_API + "mark-as-seen/" + id, {}, httpOptions);
   }
+
+  unwatched_notifications(): Observable<any> {
+    return this.http.get(NOTIFICATION_API + "user-unwatched-notifications/");
+  }
 }

@@ -20,4 +20,5 @@ module.exports = function(app) {
 
   app.post("/api/notification/mark-as-seen/:id", [authJwt.verifyToken], controller.mark_as_seen)
 
+  app.get("/api/notification/user-unwatched-notifications/", [authJwt.verifyToken], controller.user_unseen_notifications);
 };

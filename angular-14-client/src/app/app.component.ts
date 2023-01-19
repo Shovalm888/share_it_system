@@ -1,3 +1,5 @@
+import { interval, takeWhile } from 'rxjs';
+import { NotificationService } from './_services/notification.service';
 import { Component } from '@angular/core';
 import { StorageService } from './_services/storage.service';
 import { AuthService } from './_services/auth.service';
@@ -31,11 +33,13 @@ export class AppComponent {
   showAdminBoard = false;
   username?: string;
   notification_amount?: any;
+  user_logged_out: boolean = false;
 
   navbarCollapsed = true;
   nav_class = 'navbar-collapse collapse';
 
   constructor(
+    private notification_service: NotificationService,
     private storageService: StorageService,
     private authService: AuthService
   ) {}
@@ -54,6 +58,33 @@ export class AppComponent {
       this.showAdminBoard = this.roles.includes('ADMIN');
 
       this.username = user.username;
+
+      this.user_logged_out = false;
+      interval(2000)
+        .pipe(takeWhile((value) => this.user_logged_out !== true))
+        .subscribe(
+          (value: number) => {
+            this.notification_service.unwatched_notifications().subscribe({
+              next: (data) => {
+                if (data.notifications.length > 0) {
+                  this.notification_amount = data.notifications.length;
+                } else {
+                  this.notification_amount = undefined;
+                }
+              },
+              error: (err) => {
+                console.log(err);
+                this.notification_amount = undefined;
+              },
+            });
+          },
+          (error: any) => {
+            console.log('Unwatched notifications observe encountered an error');
+          },
+          () => {
+            console.log('Unwatched notifications observe completed successfully!');
+          }
+        );
     }
   }
 
@@ -66,6 +97,8 @@ export class AppComponent {
       next: (res) => {
         console.log(res);
         this.storageService.clean();
+
+        this.user_logged_out = false;
       },
       error: (err) => {
         console.log(err);

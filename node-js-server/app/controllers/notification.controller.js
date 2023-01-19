@@ -16,6 +16,22 @@ exports.notifications = (req, res) => {
     });
 };
 
+
+/* A function that is being called when the user goes to the route
+/notifications/user_unseen_notifications. Its purpose is to retreive all the notifification
+addressed to the current user which he did not read. */
+exports.user_unseen_notifications = (req, res) => {
+  Notification.find({recipient: req.userId, seen: {$ne: true}})
+    .populate("sender")
+    .populate("recipient")
+    .then((notifications) => {
+      res.status(200).send({ notifications: notifications });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
 /* A function that is being called when the user goes to the route /notifications/mark_as_seen/:id. It
 is a function that is being called when the user goes to the route /notifications/mark_as_seen/:id.
 It is a function that is being called when the user goes to the route. */
