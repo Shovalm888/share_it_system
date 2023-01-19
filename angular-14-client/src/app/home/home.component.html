@@ -2,12 +2,12 @@
   <div class="row justify-content-center">
     <div class="col-12 col-md-8">
       <!-- Heading -->
-      <h1 class="my-4 text-center ">
+      <h1 *ngIf="current_user_name" class="mt-4 text-center ">
         Hello {{ current_user_name }}!
       </h1>
 
       <!-- Text -->
-      <p class="mb-6 text-center text-muted">
+      <p class="mb-6 mt-4 text-center text-muted">
         Welcome To ShareIt!
          
       </p>

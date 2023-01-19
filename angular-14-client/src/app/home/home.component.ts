@@ -20,7 +20,6 @@ export class HomeComponent implements OnInit {
         )} ${this.capitalize_strings(data.user.lname)}`;
       },
       error: (err) => {
-        this.current_user_name = 'Guest';
       },
     });
   }
