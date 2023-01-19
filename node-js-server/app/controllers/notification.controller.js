@@ -16,6 +16,19 @@ exports.notifications = (req, res) => {
     });
 };
 
+/* A function that is being called when the user goes to the route /notifications/mark_as_seen/:id. It
+is a function that is being called when the user goes to the route /notifications/mark_as_seen/:id.
+It is a function that is being called when the user goes to the route. */
+exports.mark_as_seen = (req, res) => {
+  Notification.findOneAndUpdate({_id: req.params.id}, {seen: true}, {new: true})
+    .then((notification) => {
+      res.status(200).send({ message: "Notification have been updated successfully", notification: notification });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
 /* This is a function that is being exported. It is a function that is being called when the user goes
 to the route /notifications/user. It is a function that is being called when the user goes to the
 route /notifications/user. It is a function that is being called when the user goes to the route. */

@@ -18,4 +18,8 @@ export class NotificationService {
   deleteNotification(id: any): Observable<any> {
     return this.http.delete(NOTIFICATION_API + id);
   }
+
+  markAsSeen(id: any): Observable<any> {
+    return this.http.post( NOTIFICATION_API + "mark-as-seen/" + id, {}, httpOptions);
+  }
 }

@@ -18,4 +18,6 @@ module.exports = function(app) {
 
   app.delete("/api/notification/:id", [authJwt.verifyToken], controller.delete_by_id);
 
+  app.post("/api/notification/mark-as-seen/:id", [authJwt.verifyToken], controller.mark_as_seen)
+
 };

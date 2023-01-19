@@ -32,9 +32,9 @@
                       (click)="collapse(i)"
                     ></i>
                     <i
-                      class="fa-solid fa-eye btn"
+                      class="fa-solid fa-eye btn {{(!ent_info.seen && post_collaps_func) ? 'btn-outline-info': ''}}"
                       *ngIf="!ent_info.show"
-                      (click)="expand(i)"
+                      (click)="expand(i, post_collaps_func)"
                     ></i>
                   </aside>
                 </div>

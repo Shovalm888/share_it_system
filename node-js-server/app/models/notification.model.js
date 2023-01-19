@@ -6,6 +6,7 @@ const Notification = mongoose.model(
     content: { type: String, required: true },
     link:    {type: String},
     date:    { type: Date, required: true },
+    seen:    {type: Boolean, default: false},
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

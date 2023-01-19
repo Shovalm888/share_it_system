@@ -30,6 +30,7 @@ export class AppComponent {
   isLoggedIn = false;
   showAdminBoard = false;
   username?: string;
+  notification_amount?: any;
 
   navbarCollapsed = true;
   nav_class = 'navbar-collapse collapse';
@@ -78,7 +79,9 @@ export class AppComponent {
    * If the navbar is collapsed, then show it, otherwise hide it.
    */
   collapse() {
-    this.navbarCollapsed = !this.navbarCollapsed
-    this.nav_class = `navbar-collapse collapse ${this.navbarCollapsed ? 'show' : ''}`;
+    this.navbarCollapsed = !this.navbarCollapsed;
+    this.nav_class = `navbar-collapse collapse ${
+      this.navbarCollapsed ? 'show' : ''
+    }`;
   }
 }

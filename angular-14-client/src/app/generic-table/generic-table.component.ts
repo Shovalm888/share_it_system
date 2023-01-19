@@ -41,6 +41,7 @@ export class GenericTableComponent implements OnInit {
   @Input() functions?: Array<actions_metadata_t>;
   @Input() err_msg?: string;
   @Input() headers2model_attr: any;
+  @Input() post_collaps_func?: Function;
 
   constructor() {}
 
@@ -51,13 +52,15 @@ export class GenericTableComponent implements OnInit {
   /* Setting the show property of the entry_info object to false. */
   collapse(i: any) {
     this.table_attrs.entry_info[i].show = false;
-    /**
-     * It takes an array of objects, and capitalizes the first letter of each string value in each object
-     */
   }
 
-  expand(i: any) {
+  expand(i: any, post_collaps_func?: Function) {
     this.table_attrs.entry_info[i].show = true;
+
+        
+    if (post_collaps_func){
+      post_collaps_func(i);
+    }
   }
 
   /**

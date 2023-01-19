@@ -91,6 +91,8 @@ export class ProfileComponent implements OnInit {
     },
   ];
 
+  post_collape_func: any = (i: any) => {this.sign_notification_as_watched(i)}
+
   my_tools_attrs: generic_table_attr = {
     height: 'height: 500px !important;',
     is_collapsable: true,
@@ -250,6 +252,30 @@ export class ProfileComponent implements OnInit {
             this.my_borrows_attrs.entry_info[i].expiration_date
           );
         }
+      },
+      error: (err) => {
+        if (err.error) {
+          try {
+            const res = JSON.parse(err.error);
+            this.err_msg = res.message;
+          } catch {
+            this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
+          }
+        } else {
+          this.err_msg = `Error with status: ${err.status}`;
+        }
+      },
+    });
+  }
+
+  sign_notification_as_watched(i: any) {
+    if(this.my_notifications_attrs.entry_info[i].seen){
+      return;
+    }
+
+    this.notification_service.markAsSeen(this.my_notifications_attrs.entry_info[i]._id).subscribe({
+      next: (data) => {
+        this.my_notifications_attrs.entry_info[i].seen = true;
       },
       error: (err) => {
         if (err.error) {
