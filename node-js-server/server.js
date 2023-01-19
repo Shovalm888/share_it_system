@@ -12,8 +12,8 @@ const controller = require("./app/controllers/server.controller");
 const User = db.user;
 const Role = db.role;
 const OrganizationCode = db.organization_code;
-const remote_username = encodeURIComponent(dbConfig.REMOTE_USERNAME);
-const remote_password = encodeURIComponent(dbConfig.REMOTE_PASSWORD);
+const remote_username = encodeURIComponent(process.env.SHAREIT_REMOTE_USERNAME);
+const remote_password = encodeURIComponent(process.env.SHAREIT_REMOTE_PASSWORD);
 
 const app = express();
 
@@ -41,8 +41,8 @@ app.use(
 let db_url = `mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`;
 
 // In case we want connecting to remote DB
-if (process.argv.slice(2).includes("--remote")) {
-  db_url = `mongodb+srv://${remote_username}:${remote_password}@cluster0.ak13rx0.mongodb.net/test`;
+if (true || process.argv.slice(2).includes("--remote")) {
+  db_url = `mongodb+srv://${remote_username}:${remote_password}@cluster0.ak13rx0.mongodb.net/${dbConfig.DB}`;
 }
 
 /* Connecting to the database. */
@@ -189,24 +189,21 @@ function initial() {
 
   // var users = require('../../generated_users.json');
   // var User = require('./app/models/user.model');
-  // User.insertMany(users).then( users => {
-  //   console.log(users);
+  // User.insertMany(users).then( u => {
+  //   let ids = [];
+  //   for (let i = 0 ; i < u.length; i++){
+  //     ids.push(u[i].id);
+  //   }
+  //   console.log(ids);
   // }).catch(err => {
   //   console.log(err);
   // })
+
   // var tools = require('../../generated_tools.json');
   // var User = require('./app/models/tool.model');
   // User.insertMany(tools).then( tools => {
   //   console.log(tools);
   // }).catch(err => {
   //   console.log(err);
-  // })
-
-  // User.find().then( u => {
-  //   let ids = [];
-  //   for (let i = 0 ; i < u.length; i++){
-  //     ids.push(u[i].id);
-  //   }
-  //   console.log(ids);
   // })
 }

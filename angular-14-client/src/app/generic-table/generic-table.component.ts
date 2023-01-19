@@ -68,7 +68,7 @@ export class GenericTableComponent implements OnInit {
       for (const [key, value] of Object.entries(
         this.table_attrs.entry_info[i]
       )) {
-        if (typeof value === 'string' && value.length > 0) {
+        if (typeof value === 'string' && value.length > 0 && key !== 'link') {
           this.table_attrs.entry_info[i][key] =
             value[0].toUpperCase() + value.slice(1);
         }

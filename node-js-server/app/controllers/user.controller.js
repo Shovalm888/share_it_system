@@ -48,6 +48,7 @@ exports.users = (req, res) => {
         `${process.env.SHAREIT_SYSTEM_USER_ID || "112211221122"}`
       ),
     },
+    is_deleted: false
   })
     .populate("roles", "name")
     .then((users) => {
@@ -267,7 +268,7 @@ exports.delete_user = async (req, res) => {
     await Tool.deleteMany({owner: user_id});
 
     // Delete user
-    await User.findOneAndDelete({_id: user_id});
+    await User.findOneAndUpdate({_id: user_id}, {is_deleted: true, is_suspended: true});
     
     res.status(200).send({ message: "User have been deleted successfully" });
   } 

@@ -53,7 +53,7 @@ export class BoardToolComponent implements OnInit {
     open: [],
     closed: [],
     all: [],
-    appreved: null,
+    approved: null,
     my: null,
     headers: ['#', 'Requestor', 'Expiration date', 'Phone', 'Email'],
     card_attrs: ['Duration', 'Creation date', 'Content', 'Status', 'Rank'],
@@ -151,8 +151,7 @@ export class BoardToolComponent implements OnInit {
           this.tool_info = data.tool;
           this.get_tool_history();
           this.tool_info.owner_rank = this.tool_info.owner.rank;
-          this.tool_info.owner_name =
-            this.tool_info.owner.name = `${this.capitalize_strings(
+          this.tool_info.owner_name = `${this.capitalize_strings(
               this.tool_info.owner.fname
             )} ${this.capitalize_strings(this.tool_info.owner.lname)}`;
           this.tool_info.owner_phone = this.tool_info.owner.phone;
@@ -553,13 +552,13 @@ export class BoardToolComponent implements OnInit {
 
           let index = this.requests.open.indexOf(this.requests.open[i]);
           if (index > -1) {
-            this.requests.approved = this.requests.open.splice(index, 1);
+            this.requests.approved = this.requests.open.splice(index, 1)[0];
           }
 
           this.approved_borrow_left_time$ = interval(1000).pipe(
             map((x) =>
               this.calcDateDiff(
-                new Date(this.requests.approved.expiration_date)
+                new Date(new_expiration_date)
               )
             ),
             shareReplay(1)
@@ -592,7 +591,7 @@ export class BoardToolComponent implements OnInit {
 
           let index = this.requests.open.indexOf(this.requests.open[i]);
           if (index > -1) {
-            this.requests.closed.push(this.requests.open.splice(index, 1));
+            this.requests.closed.push(this.requests.open.splice(index, 1)[0]);
           }
           await this.display_alert(true);
         },

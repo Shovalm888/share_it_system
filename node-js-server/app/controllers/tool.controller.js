@@ -358,7 +358,7 @@ exports.update_request_status = (req, res) => {
           } else {
             // Status == 'closed'
             if (tool_owner.is_suspended == true) {
-              update_tool = { status: "not available" };
+              update_tool.status = "not available";
             }
 
             Tool.findOneAndUpdate(tool_filter, update_tool, { new: true })

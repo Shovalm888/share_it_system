@@ -13,6 +13,7 @@ const User = mongoose.model(
     description: {type: String, required: false},
     rank: {type: Number, default: 1},
     is_suspended: {type: Boolean, default: false},
+    is_deleted: {type: Boolean, default: false},
     allow_emails: {type: Boolean, default: false},
     roles: [
       {

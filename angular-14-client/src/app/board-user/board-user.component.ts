@@ -235,7 +235,7 @@ export class BoardUserComponent implements OnInit {
         .subscribe({
           next: async (data) => {
             this.action_msg = data.message;
-            let tmp_obj = this.table_attrs.entry_info.splice(i, 1);
+            let tmp_obj = this.table_attrs.entry_info.splice(i, 1)[0];
             let index = this.table_attrs.entry_info.indexOf(tmp_obj);
             if (index > -1) {
               this.entry_info_backup.splice(index, 1);
