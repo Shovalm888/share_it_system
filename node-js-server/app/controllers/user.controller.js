@@ -33,7 +33,7 @@ exports.setOrganizationCode = (req, res) => {
     { organization_code: new_code }
   )
     .then((results) => {
-      res.status(200).send({ message: results });
+      res.status(200).send({ message: "Organization code updated successfully" });
     })
     .catch((err) => {
       res.status(500).send({ message: err });

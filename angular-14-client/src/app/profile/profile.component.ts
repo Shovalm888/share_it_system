@@ -94,7 +94,7 @@ export class ProfileComponent implements OnInit {
   post_collape_func: any = (i: any) => {this.sign_notification_as_watched(i)}
 
   my_tools_attrs: generic_table_attr = {
-    height: 'height: 500px !important;',
+    height: 'height: 400px;',
     is_collapsable: true,
     headers: ['#', 'Tool Name', 'Status'],
     card_attrs: [
@@ -108,7 +108,7 @@ export class ProfileComponent implements OnInit {
   };
 
   public my_notifications_attrs: generic_table_attr = {
-    height: 'height: 500px !important;',
+    height: 'height: 400px;',
     is_collapsable: true,
     headers: ['#', 'From', 'Date'],
     card_attrs: ['Content', 'Link'],
@@ -116,7 +116,7 @@ export class ProfileComponent implements OnInit {
   };
 
   my_borrows_attrs: generic_table_attr = {
-    height: 'height: 267px !important;',
+    height: 'height: 267px;',
     is_collapsable: false,
     headers: ['#', 'Tool Name', 'Expired'],
     card_attrs: [],
