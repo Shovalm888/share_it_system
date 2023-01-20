@@ -63,6 +63,18 @@ export class ToolService {
     return this.http.get(TOOL_API + 'tools', { responseType: 'text' });
   }
 
+  getToolsAmount(): Observable<any> {
+    return this.http.get(TOOL_API + 'tools-amount');
+  }
+
+  getPendingRequestsAmount(): Observable<any> {
+    return this.http.get(TOOL_API + 'pending-requests-amount');
+  }
+
+  getRequestsByFilter(filter: any): Observable<any> {
+    return this.http.post(TOOL_API + 'tools/requests-by-filter/', filter, httpOptions);
+  }
+
   getToolById(id: string): Observable<any> {
     return this.http.get(TOOL_API + 'board-tool/' + id);
   }

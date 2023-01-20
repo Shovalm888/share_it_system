@@ -29,6 +29,18 @@ module.exports = function(app) {
     controller.users
   );
 
+  app.post(
+    "/api/test/users-by-filter",
+    [authJwt.verifyToken],
+    controller.users_by_filter
+  );
+
+  app.get(
+    "/api/test/users-amount",
+    [authJwt.verifyToken],
+    controller.users_amount
+  );
+
   app.get(
     "/api/test/user",
     [authJwt.verifyToken],

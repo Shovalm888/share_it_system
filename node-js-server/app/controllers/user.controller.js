@@ -59,6 +59,35 @@ exports.users = (req, res) => {
     });
 };
 
+/* This is a function that is exported to be used for getting count the system's users. */
+exports.users_amount = (req, res) => {
+  User.count()
+    .then((amount) => {
+      res.status(200).send({ amount: amount });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+/* A function that is exported to be used for getting users by given filter the system's users. */
+exports.users_by_filter = (req, res) => {
+  let filter = req.body.filter;
+  filter._id = {
+    $ne: mongoose.Types.ObjectId(
+      `${process.env.SHAREIT_SYSTEM_USER_ID || "112211221122"}`
+    )
+  }
+  User.find(filter)
+    .populate("roles", "name")
+    .then((users) => {
+      res.status(200).send({ users: users });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
 /* This is a function that is exported to be used for getting a specific user. */
 exports.user = (req, res) => {
   User.findOne({ _id: req.userId })

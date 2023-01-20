@@ -16,6 +16,14 @@ const httpOptions = {
 export class UserService {
   constructor(private http: HttpClient) {}
 
+  usersAmount(): Observable<any> {
+    return this.http.get(API_URL + 'users-amount' );
+  }
+
+  usersByFilter(filter: any): Observable<any> {
+    return this.http.post(API_URL + 'users-by-filter', filter, httpOptions );
+  }
+
   getPublicContent(): Observable<any> {
     return this.http.get(API_URL + 'all', { responseType: 'text' });
   }

@@ -15,22 +15,31 @@
         <h3>Admin page</h3>
       </ol>
       <div class="row">
-        <div class="col-5">
+        <div class="col-4">
           <div class="card border-info mb-3 h-100">
             <div class="card-header">General information</div>
             <div class="card-body text-info">
               <h5 class="card-title">System updated information</h5>
-              <div class="table">
-                <div class="row">
-                  <div class="col">
-
-                  </div>
-                  <div class="col">
-                    
-                  </div>
-                </div>
-              </div>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th class="text-muted" scope="row">Total users:</th>
+                    <td class="text-info">{{ system_info.total_users }}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-muted" scope="row">Total tools:</th>
+                    <td class="text-info">{{ system_info.total_tools }}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-muted" scope="row">Total notifications:</th>
+                    <td class="text-info">{{ system_info.total_notifications }}</td>
+                  </tr>
+                  <tr>
+                    <th class="text-muted" scope="row">Pending requests:</th>
+                    <td class="text-info">{{ system_info.pending_requests }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -45,8 +54,8 @@
             #f="ngForm"
             novalidate
           >
-            <div class="form-group">
-              <label for="organization_code">Organization code</label>
+            <div class="form-group mt-4">
+              <label for="organization_code">Enter organization code</label>
               <input
                 type="text"
                 class="form-control"

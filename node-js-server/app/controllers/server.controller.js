@@ -213,11 +213,11 @@ exports.closeExpiredApprovedRequests = async function run() {
               ),
               recipient: recipient,
               request: request,
+              date: now,
+              content: `${request.tool.name} loan expired and closed by SYSTEM`,
+              link: "tools/board-tool/" + request.tool._id,
             },
             update: {
-              content: `${request.tool.name} loan expired and closed by SYSTEM`,
-              date: now,
-              link: "tools/board-tool/" + request.tool._id,
             },
             upsert: true,
             new: true,
@@ -233,7 +233,7 @@ exports.closeExpiredApprovedRequests = async function run() {
       const ack_users = await Notification.bulkWrite(acks_list);
 
       console.log(
-        `Ack ${ack_users.modifiedCount}/${res.length} users about the tools closing`
+        `Ack ${ack_users.modifiedCount || ack_users.nUpserted}/${2*(res.length)} users about the tools closing`
       );
 
       const decrease_rank = await User.bulkWrite(
