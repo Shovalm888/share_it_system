@@ -1,5 +1,15 @@
 <div class="container">
-  <div class="table mt-5">
+  <aside class="w-100 mt-0">
+    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
+      {{ action_msg }}
+    </div>
+
+    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
+      {{ action_msg }}
+    </div>
+  </aside>
+
+  <div class="table">
     <nav aria-label="breadcrumb" class="main-breadcrumb">
       <ol class="breadcrumb">
         <h3>Tools list</h3>
@@ -89,9 +99,7 @@
                 [ngClass]="{ 'is-invalid': f.submitted && name.errors }"
               />
               <div class="invalid-feedback" *ngIf="name.errors && f.submitted">
-                <div *ngIf="name.errors['required']">
-                  Tool name is required
-                </div>
+                <div *ngIf="name.errors['required']">Tool name is required</div>
                 <div *ngIf="name.errors['minlength']">
                   First name must be at least 2 characters
                 </div>
@@ -249,16 +257,4 @@
       </div>
     </div>
   </div>
-</div>
-
-<div class="alert-top" *ngIf="action_msg">
-  <aside class="w-100 mt-0">
-    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
-      {{ action_msg }}
-    </div>
-
-    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
-      {{ action_msg }}
-    </div>
-  </aside>
 </div>
