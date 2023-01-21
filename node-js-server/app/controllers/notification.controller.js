@@ -19,7 +19,7 @@ exports.notifications = (req, res) => {
 
 /* Gets the amount of all the documents in Notification collection */
 exports.notifications_amount = (req, res) => {
-  Notification.count()
+  Notification.estimatedDocumentCount()
     .then((amount) => {
       res.status(200).send({ amount: amount });
     })

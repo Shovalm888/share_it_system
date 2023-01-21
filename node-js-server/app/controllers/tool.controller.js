@@ -29,7 +29,7 @@ exports.tools = (req, res) => {
 
 /* Counting the number of pending requests. */
 exports.pending_requests_amount = (req, res) => {
-  ToolRequest.find({status: 'pending'}).count()
+  ToolRequest.find({status: 'pending'}).estimatedDocumentCount()
     .then((amount) => {
       res.status(200).send({ amount: amount });
     })
@@ -41,6 +41,15 @@ exports.pending_requests_amount = (req, res) => {
 /* A function that respond requests list with given filter. */
 exports.requests_by_filter = (req, res) => {
   ToolRequest.find(req.body.filter)
+  .populate("requestor")
+  .populate({
+    path: "tool",
+    populate: {
+      path: "owner",
+      model: "User",
+    },
+  })
+  .sort({date: -1})
     .then( requests => {
       res.status(200).send({ requests: requests });
     })
@@ -483,7 +492,7 @@ exports.tool_history = (req, res) => {
 
 /* Counting the amount of tools in the database. */
 exports.tools_amount = (req, res) => {
-  Tool.count().then( amount => {
+  Tool.estimatedDocumentCount().then( amount => {
     res.status(200).send({
       amount: amount,
     });

@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { NotificationService } from './../_services/notification.service';
 import { ToolService } from './../_services/tool.service';
 import { Component, OnInit } from '@angular/core';
@@ -11,7 +12,11 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { generic_table_attr } from '../generic-table/generic-table.component';
+import {
+  actions_metadata_t,
+  generic_table_attr,
+} from '../generic-table/generic-table.component';
+import { interval, takeWhile } from 'rxjs';
 
 const DEFAULT_DURATION = 3000;
 
@@ -43,10 +48,10 @@ export class BoardAdminComponent implements OnInit {
     pending_requests: null,
   };
 
-  users: any = [];
+  err_msg?: string;
 
   suspended_users_attr: generic_table_attr = {
-    height: 'height: 50rem;',
+    height: 'height: 15rem;',
     is_collapsable: true,
     headers: ['#', 'First Name', 'Last Name'],
     card_attrs: ['Username', 'Email', 'Phone'],
@@ -54,7 +59,7 @@ export class BoardAdminComponent implements OnInit {
   };
 
   deleted_users_attr: generic_table_attr = {
-    height: 'height: 50rem;',
+    height: 'height: 15rem;',
     is_collapsable: true,
     headers: ['#', 'First Name', 'Last Name'],
     card_attrs: ['Username', 'Email', 'Phone'],
@@ -62,7 +67,7 @@ export class BoardAdminComponent implements OnInit {
   };
 
   active_borrows_attr: generic_table_attr = {
-    height: 'height: 50rem;',
+    height: 'height: 15rem;',
     is_collapsable: false,
     headers: ['#', 'Tool Name', 'Owner', 'Borrower', 'Expiration Date'],
     card_attrs: [],
@@ -76,17 +81,35 @@ export class BoardAdminComponent implements OnInit {
     Username: 'username',
     Email: 'email',
     Phone: 'phone',
-    'Tool Name': 'name',
-    Owner: 'owner',
+    'Tool Name': 'tool_name',
+    Owner: 'owner_name',
     Borrower: 'requestor_name',
-    'Expiration Date': 'experation_date',
+    'Expiration Date': 'expiration_date_s',
   };
 
   action_msg?: string;
   isActionSucceed: boolean = false;
   isActionFailed: boolean = false;
+  deleted_users_functions: Array<actions_metadata_t> = [
+    {
+      action: (i: any) => {
+        this.activate_deleted_user(i);
+      },
+      icon: 'fas fa-trash-restore',
+    },
+  ];
+
+  active_borrows_functions: Array<actions_metadata_t> = [
+    {
+      icon: 'fa-solid fa-link',
+      action: (i: any) => {
+        this.go_to_tool(i);
+      },
+    },
+  ];
 
   constructor(
+    private router: Router,
     private userService: UserService,
     private toolService: ToolService,
     private adminService: AdminService,
@@ -102,14 +125,23 @@ export class BoardAdminComponent implements OnInit {
   ngOnInit(): void {
     // Query suspended and deleted users
     this.userService
-      .usersByFilter({filter: { $or: [{ is_suspended: true }, { is_deleted: true }] }})
+      .usersByFilter({
+        filter: { $or: [{ is_suspended: true }, { is_deleted: true }] },
+      })
       .subscribe({
         next: (data) => {
-          // Divide Data here [data.users]
-          // Query Users amount (active = total - (suspended + deleted))
+          const users_info = data.users;
+          for (let i = 0; i < users_info.length; i++) {
+            if (users_info[i].is_deleted === false) {
+              // Only suspended
+              this.suspended_users_attr.entry_info.push(data.users[i]);
+            } else {
+              this.deleted_users_attr.entry_info.push(data.users[i]);
+            }
+          }
           this.userService.usersAmount().subscribe({
             next: (data) => {
-              this.system_info.total_users = data.amount;
+              this.system_info.total_users = data.amount - users_info.length;
             },
             error: async (err) => {
               this.parse_error_msg(err);
@@ -123,26 +155,64 @@ export class BoardAdminComponent implements OnInit {
         },
       });
 
+    this.update_active_requests_attrs();
+
+    this.update_pending_requests_amount();
+
+    this.update_notifications_amount();
+
+    this.update_tool_amout();
+
+    interval(7000)
+        .pipe(takeWhile((value) => true))
+        .subscribe(
+          (value: number) => {
+            this.update_active_requests_attrs();
+
+            this.update_pending_requests_amount();
+        
+            this.update_notifications_amount();
+        
+            this.update_tool_amout();
+          },
+          (error: any) => {
+            console.log('interval function observe encountered an error');
+          },
+          () => {
+            console.log('interval function observe completed successfully!');
+          }
+        );
+    
+  }
+
+  async update_active_requests_attrs() {
     // Query 'approved' tool requests
-    this.toolService.getRequestsByFilter({filter: { status: 'approved' }}).subscribe({
-      next: (data) => {},
-      error: async (err) => {
-        this.parse_error_msg(err);
-        await this.display_alert(false);
-      },
-    });
+    this.toolService
+      .getRequestsByFilter({ filter: { status: 'approved' } })
+      .subscribe({
+        next: (data) => {
+          this.active_borrows_attr.entry_info = data.requests;
+          for (let i = 0; i < this.active_borrows_attr.entry_info.length; i++) {
+            this.active_borrows_attr.entry_info[i].tool_name =
+              this.active_borrows_attr.entry_info[i].tool.name;
+            this.active_borrows_attr.entry_info[i].owner_name =
+              this.active_borrows_attr.entry_info[i].tool.owner.username;
+            this.active_borrows_attr.entry_info[i].requestor_name =
+              this.active_borrows_attr.entry_info[i].requestor.username;
+            this.active_borrows_attr.entry_info[i].expiration_date_s =
+              this.date2str(
+                this.active_borrows_attr.entry_info[i].expiration_date
+              );
+          }
+        },
+        error: async (err) => {
+          this.parse_error_msg(err);
+          await this.display_alert(false);
+        },
+      });
+  }
 
-    // Query in a loop number of pending requests amount
-    this.toolService.getPendingRequestsAmount().subscribe({
-      next: (data) => {
-        this.system_info.pending_requests = data.amount;
-      },
-      error: async (err) => {
-        this.parse_error_msg(err);
-        await this.display_alert(false);
-      },
-    });
-
+  async update_notifications_amount() {
     // Query in a loop the total notification number
     this.notificationService.notificationsAmount().subscribe({
       next: (data) => {
@@ -153,7 +223,22 @@ export class BoardAdminComponent implements OnInit {
         await this.display_alert(false);
       },
     });
+  }
 
+  async update_pending_requests_amount() {
+    // Query in a loop number of pending requests amount
+    this.toolService.getPendingRequestsAmount().subscribe({
+      next: (data) => {
+        this.system_info.pending_requests = data.amount;
+      },
+      error: async (err) => {
+        this.parse_error_msg(err);
+        await this.display_alert(false);
+      },
+    });
+  }
+
+  async update_tool_amout() {
     // Query tools amount in a loop
     this.toolService.getToolsAmount().subscribe({
       next: (data) => {
@@ -244,6 +329,52 @@ export class BoardAdminComponent implements OnInit {
   }
 
   activate_deleted_user(i: any) {
-    console.log(i);
+    if (
+      confirm(
+        `Are you sure you want to restore ${this.deleted_users_attr.entry_info[i].fname} ${this.deleted_users_attr.entry_info[i].lname}?`
+      )
+    ) {
+      this.userService
+        .restoreUser(this.deleted_users_attr.entry_info[i]._id)
+        .subscribe({
+          next: async (data) => {
+            this.suspended_users_attr.entry_info.unshift(
+              this.deleted_users_attr.entry_info.splice(i, 1)[0]
+            );
+            this.action_msg = data.message;
+            await this.display_alert(true);
+          },
+          error: async (err) => {
+            this.parse_error_msg(err);
+            await this.display_alert(false);
+          },
+        });
+    }
+  }
+
+  /**
+   * It takes a date object and returns a string in the format of "YYYY-MM-DD HH:MM:SS"
+   * @param {Date} date - Date - The date to be formatted.
+   * @returns A string in the format of "MM/DD/YYYY HH:MM:SS"
+   */
+  date2str(date: Date): string {
+    const date_ = new Date(date);
+
+    const hours = (date_.getHours() < 10 ? '0' : '') + date_.getHours();
+    const minutes = (date_.getMinutes() < 10 ? '0' : '') + date_.getMinutes();
+    const seconds = (date_.getSeconds() < 10 ? '0' : '') + date_.getSeconds();
+    return `${date_.toLocaleDateString()} ${hours}:${minutes}:${seconds}`;
+  }
+
+  /**
+   * "This function navigates to a specific tool page based on the tool's id."
+   * </code>
+   * @param {any} i - any =&gt; the index of the entry_info array
+   */
+  go_to_tool(i: any) {
+    this.router.navigate([
+      '/tools/board-tool/',
+      this.active_borrows_attr.entry_info[i].tool._id,
+    ]);
   }
 }

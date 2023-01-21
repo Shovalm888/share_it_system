@@ -82,6 +82,15 @@ export class ProfileComponent implements OnInit {
     },
   ];
 
+  my_pending_requests_functions: Array<actions_metadata_t> = [
+    {
+      icon: 'fa-solid fa-link',
+      action: (i: any) => {
+        this.go_to_tool_i_want(i);
+      },
+    },
+  ];
+
   borrow_functions: Array<actions_metadata_t> = [
     {
       icon: 'fa-solid fa-link',
@@ -91,7 +100,9 @@ export class ProfileComponent implements OnInit {
     },
   ];
 
-  post_collape_func: any = (i: any) => {this.sign_notification_as_watched(i)}
+  post_collape_func: any = (i: any) => {
+    this.sign_notification_as_watched(i);
+  };
 
   my_tools_attrs: generic_table_attr = {
     height: 'height: 400px;',
@@ -104,6 +115,14 @@ export class ProfileComponent implements OnInit {
       'Producer',
       'Description',
     ],
+    entry_info: [],
+  };
+
+  my_pending_attrs: generic_table_attr = {
+    height: 'height: 400px;',
+    is_collapsable: false,
+    headers: ['#', 'Tool Name', 'Owner Name', 'Expiration Date'],
+    card_attrs: [],
     entry_info: [],
   };
 
@@ -133,10 +152,12 @@ export class ProfileComponent implements OnInit {
     'Manufacturing Date': 'manufacturing_date',
     Status: 'status',
     'Max Borrow Time': 'max_time_borrow',
+    'Expiration Date': 'expiration_date_s',
     Categories: 'categories',
     Producer: 'producer',
     Owner: 'owner',
     Decription: 'description',
+    'Owner Name': 'owner_full_name',
   };
 
   user_properties: { [key: string]: string } = {
@@ -151,6 +172,7 @@ export class ProfileComponent implements OnInit {
     private router: Router,
     private user_service: UserService,
     private tool_service: ToolService,
+    private storage_service: StorageService,
     private notification_service: NotificationService
   ) {}
 
@@ -266,30 +288,70 @@ export class ProfileComponent implements OnInit {
         }
       },
     });
+
+    this.tool_service
+      .getRequestsByFilter({
+        filter: { requestor: this.storage_service.getUser().id, status: 'pending' },
+      })
+      .subscribe({
+        next: (data) => {
+          this.my_pending_attrs.entry_info = data.requests;
+          for (let i = 0; i < this.my_pending_attrs.entry_info.length; i++) {
+            this.my_pending_attrs.entry_info[i].name =
+              this.my_pending_attrs.entry_info[i].tool.name;
+            this.my_pending_attrs.entry_info[i].owner_full_name = this
+              .my_pending_attrs.entry_info[i].tool.owner
+              ? `${this.capitalize_strings(
+                  this.my_pending_attrs.entry_info[i].tool.owner.fname
+                )} ${this.capitalize_strings(
+                  this.my_pending_attrs.entry_info[i].tool.owner.lname
+                )}`
+              : 'Unknown';
+            this.my_pending_attrs.entry_info[i].expiration_date_s =
+              this.date2str(
+                this.my_pending_attrs.entry_info[i].expiration_date
+              );
+          }
+        },
+        error: (err) => {
+          if (err.error) {
+            try {
+              const res = JSON.parse(err.error);
+              this.err_msg = res.message;
+            } catch {
+              this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
+            }
+          } else {
+            this.err_msg = `Error with status: ${err.status}`;
+          }
+        },
+      });
   }
 
   sign_notification_as_watched(i: any) {
-    if(this.my_notifications_attrs.entry_info[i].seen){
+    if (this.my_notifications_attrs.entry_info[i].seen) {
       return;
     }
 
-    this.notification_service.markAsSeen(this.my_notifications_attrs.entry_info[i]._id).subscribe({
-      next: (data) => {
-        this.my_notifications_attrs.entry_info[i].seen = true;
-      },
-      error: (err) => {
-        if (err.error) {
-          try {
-            const res = JSON.parse(err.error);
-            this.err_msg = res.message;
-          } catch {
-            this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
+    this.notification_service
+      .markAsSeen(this.my_notifications_attrs.entry_info[i]._id)
+      .subscribe({
+        next: (data) => {
+          this.my_notifications_attrs.entry_info[i].seen = true;
+        },
+        error: (err) => {
+          if (err.error) {
+            try {
+              const res = JSON.parse(err.error);
+              this.err_msg = res.message;
+            } catch {
+              this.err_msg = `Error with status: ${err.status} - ${err.statusText}`;
+            }
+          } else {
+            this.err_msg = `Error with status: ${err.status}`;
           }
-        } else {
-          this.err_msg = `Error with status: ${err.status}`;
-        }
-      },
-    });
+        },
+      });
   }
 
   /**
@@ -349,6 +411,18 @@ export class ProfileComponent implements OnInit {
     this.router.navigate([
       '/tools/board-tool/',
       this.my_tools_attrs.entry_info[i]._id,
+    ]);
+  }
+
+  /**
+   * "This function navigates to the tool page of the tool that was clicked on."
+   * </code>
+   * @param {any} i - any -&gt; the index of the tool in the array
+   */
+  go_to_tool_i_want(i: any) {
+    this.router.navigate([
+      '/tools/board-tool/',
+      this.my_pending_attrs.entry_info[i].tool._id,
     ]);
   }
 

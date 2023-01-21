@@ -339,6 +339,24 @@
         </div>
       </div>
     </div>
+    <div class="row gutters-sm">
+      <div class="col-md-8 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="d-flex align-items-center mb-3">
+              <i class="material-icons text-info m-2"></i>My pending requests
+            </h6>
+
+            <app-generic-table
+              [table_attrs]="my_pending_attrs"
+              [headers2model_attr]="headers2model_attr"
+              [err_msg]="err_msg"
+              [functions]="my_pending_requests_functions"
+            ></app-generic-table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <ng-template #loggedOut> Please login. </ng-template>

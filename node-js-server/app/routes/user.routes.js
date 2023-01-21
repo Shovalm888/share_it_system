@@ -60,6 +60,12 @@ module.exports = function(app) {
   );
 
   app.post(
+    "/api/test/user/restore/:id",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.restore_user
+  );
+
+  app.post(
     "/api/test/user/elevated/:id",
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.elevated_user

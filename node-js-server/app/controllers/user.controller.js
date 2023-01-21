@@ -61,7 +61,7 @@ exports.users = (req, res) => {
 
 /* This is a function that is exported to be used for getting count the system's users. */
 exports.users_amount = (req, res) => {
-  User.count()
+  User.estimatedDocumentCount()
     .then((amount) => {
       res.status(200).send({ amount: amount });
     })
@@ -112,6 +112,20 @@ exports.update_user = (req, res) => {
       res
         .status(200)
         .send({ message: "User have been updated successfully", user: user });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+/* This is a function that is exported to be used for restoring a specific user. */
+exports.restore_user = (req, res) => {
+  User.findOneAndUpdate({ _id: req.params.id }, {is_deleted: false}, { new: true })
+    .populate("roles", "name")
+    .then((user) => {
+      res
+        .status(200)
+        .send({ message: "User have been restored successfully", user: user });
     })
     .catch((err) => {
       res.status(500).send({ message: err });

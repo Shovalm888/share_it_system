@@ -63,4 +63,8 @@ export class UserService {
   deleteUser(id: any): Observable<any> {
     return this.http.post(API_URL + 'user/delete/' + id, httpOptions);
   }
+
+  restoreUser(id: any): Observable<any> {
+    return this.http.post(API_URL + 'user/restore/' + id, httpOptions);
+  }
 }
