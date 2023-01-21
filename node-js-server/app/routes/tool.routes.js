@@ -10,8 +10,14 @@ module.exports = function(app) {
     next();
   });
 
+  app.get("/api/tool/tools-amount", [authJwt.verifyToken], controller.tools_amount);
+
+  app.get("/api/tool/pending-requests-amount", [authJwt.verifyToken], controller.pending_requests_amount);
+
   app.get("/api/tool/tools", [authJwt.verifyToken], controller.tools);
 
+  app.post("/api/tool/tools/requests-by-filter", [authJwt.verifyToken], controller.requests_by_filter);-
+  
   app.get("/api/tool/my_tools", [authJwt.verifyToken], controller.my_tools);
 
   app.get("/api/tool/my_borrows", [authJwt.verifyToken], controller.my_borrows);

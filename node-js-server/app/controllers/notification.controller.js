@@ -17,6 +17,17 @@ exports.notifications = (req, res) => {
 };
 
 
+/* Gets the amount of all the documents in Notification collection */
+exports.notifications_amount = (req, res) => {
+  Notification.count()
+    .then((amount) => {
+      res.status(200).send({ amount: amount });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
 /* A function that is being called when the user goes to the route
 /notifications/user_unseen_notifications. Its purpose is to retreive all the notifification
 addressed to the current user which he did not read. */

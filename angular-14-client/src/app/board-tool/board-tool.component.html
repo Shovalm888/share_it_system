@@ -285,7 +285,7 @@
     <header *ngIf="tool_info.is_my_tool" class="w-100">
       <h5 class="card-title">Tool's requests</h5>
       <div *ngIf="requests.open.length > 0">
-        <table class="table">
+        <table class="table table-responsive-md">
           <thead>
             <tr>
               <th scope="col" *ngFor="let attr_name of requests.headers">

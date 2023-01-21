@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit {
         this.isLoginFailed = false;
         this.isLoggedIn = true;
         this.roles = this.storageService.getUser().roles;
-        await this.delay(2);
+        await this.delay(1);
         this.router.navigate(['home']).then( () => {
           this.reloadPage();
         });

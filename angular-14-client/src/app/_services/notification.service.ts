@@ -26,4 +26,8 @@ export class NotificationService {
   unwatched_notifications(): Observable<any> {
     return this.http.get(NOTIFICATION_API + "user-unwatched-notifications/");
   }
+
+  notificationsAmount(): Observable<any> {
+    return this.http.get(NOTIFICATION_API + "notifications-amount/");
+  }
 }

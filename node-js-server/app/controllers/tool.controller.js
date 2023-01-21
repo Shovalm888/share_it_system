@@ -27,6 +27,28 @@ exports.tools = (req, res) => {
     });
 };
 
+/* Counting the number of pending requests. */
+exports.pending_requests_amount = (req, res) => {
+  ToolRequest.find({status: 'pending'}).count()
+    .then((amount) => {
+      res.status(200).send({ amount: amount });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
+/* A function that respond requests list with given filter. */
+exports.requests_by_filter = (req, res) => {
+  ToolRequest.find(req.body.filter)
+    .then( requests => {
+      res.status(200).send({ requests: requests });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err });
+    });
+};
+
 /* The above code is a function that is used to find all the tools that belong to the user. */
 exports.my_tools = (req, res) => {
   Tool.find({ owner: req.userId })
@@ -458,6 +480,17 @@ exports.tool_history = (req, res) => {
       res.status(500).send({ message: err });
     });
 };
+
+/* Counting the amount of tools in the database. */
+exports.tools_amount = (req, res) => {
+  Tool.count().then( amount => {
+    res.status(200).send({
+      amount: amount,
+    });
+  }).catch( err => {
+    res.status(500).send({ message: err });
+  });
+}
 
 /**
  * It takes an array of objects, and returns an array of objects with the same keys, but with different

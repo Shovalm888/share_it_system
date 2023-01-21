@@ -10,6 +10,8 @@ module.exports = function(app) {
     next();
   });
 
+  app.get("/api/notification/notifications-amount/", [authJwt.verifyToken], controller.notifications_amount);
+
   app.get("/api/notification/notifications/", [authJwt.verifyToken], controller.notifications);
 
   app.get("/api/notification/user_notifications/:id", [authJwt.verifyToken], controller.user_notifications);
