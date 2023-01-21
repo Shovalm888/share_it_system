@@ -1,15 +1,5 @@
 <div class="container">
-  <aside class="w-100 mt-0">
-    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
-      {{ action_msg }}
-    </div>
-
-    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
-      {{ action_msg }}
-    </div>
-  </aside>
-
-  <div class="table">
+  <div class="table mt-5">
     <nav aria-label="breadcrumb" class="main-breadcrumb">
       <ol class="breadcrumb mx-4">
         <h3>Users list</h3>
@@ -59,4 +49,16 @@
       ></app-generic-table>
     </div>
   </div>
+</div>
+
+<div class="alert-top" *ngIf="action_msg">
+  <aside class="w-100 mt-0">
+    <div class="alert alert-success w-100" [@fade]="isActionSucceed">
+      {{ action_msg }}
+    </div>
+
+    <div class="alert alert-danger w-100" [@fade]="isActionFailed">
+      {{ action_msg }}
+    </div>
+  </aside>
 </div>
