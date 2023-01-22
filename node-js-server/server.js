@@ -41,7 +41,7 @@ app.use(
 let db_url = `mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`;
 
 // In case we want connecting to remote DB
-if (true || process.argv.slice(2).includes("--remote")) {
+if (process.argv.slice(2).includes("--remote")) {
   db_url = `mongodb+srv://${remote_username}:${remote_password}@cluster0.ak13rx0.mongodb.net/${dbConfig.DB}`;
 }
 
@@ -134,7 +134,7 @@ function initial() {
       new OrganizationCode({
         organization_code: org_code,
         _id: mongoose.Types.ObjectId(
-          process.env.SHAREIT_ORG_CODE_ID || "112211221122"
+          "112211221122"
         ),
       }).save((err) => {
         if (err) {
