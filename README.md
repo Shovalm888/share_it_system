@@ -2,7 +2,7 @@
 
 ## Install dependencies
 #### Server
-Enter node-js-server folder
+Enter `node-js-server` folder
 Run `npm install`
 
 #### Client
@@ -11,7 +11,7 @@ Run `npm install`
 
 ## Run
 ### Node.js Server
-Enter node-js-server folder
+Enter `node-js-server` folder
 Run `node server.js` for a dev server exporting API at http://localhost:8080/.
 * To use remote cluster you can add "--remote" to the server command
 
@@ -32,7 +32,7 @@ Run `node server.js` for a dev server exporting API at http://localhost:8080/.
 Enter angular-14-client folder
 Run `ng serve --port 4200`. Navigate to `http://localhost:4200/`.
 
-## Cron jobs
+## `Cron` jobs
 ### Notifying job
 Every specific hour, the system will generate a reminder request for people which currently borrow
 tools and the return date is getting closer, to determine the hour of the notification sending,
