@@ -13,7 +13,10 @@ Run `npm install`
 ### Node.js Server
 Enter `node-js-server` folder
 Run `node server.js` for a dev server exporting API at http://localhost:8080/.
-* To use remote cluster you can add "--remote" to the server command
+- To use remote cluster you can add "--remote" to the server command
+- The system will initiated with default admin user with username: `SYSTEM` and password: `123456`
+- Currently there are 2 Roles in the system that create with system initialize stage, `admin` and `user`
+- Default organization code will be set to `111111`, it required for sign-up process
 
 ##### Server environment variables
 * SHAREIT_PORT -> determine the port our server going to run with (e.g: 8080)
